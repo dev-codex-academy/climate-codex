@@ -29,17 +29,17 @@ export const RouterApp = () => {
     return (
         <Routes>
 
-            {/* rutas publicas */}
+            {/* public routes */}
             <Route path="/login" element={<RedirectIfAuth><Login /></RedirectIfAuth>} />
 
-            {/* rutas privadas */}
+            {/* private routes */}
 
             <Route path="/" element={<LoginValidate><AdminLayout /></LoginValidate>}>
                {/*  <Route path="rol" element={<Rol />} /> */}
                 
             </Route>
 
-            {/* rutas por defecto */}
+            {/* default routes */}
             <Route path="*" element={<NotFound />} />
         </Routes>
     )
