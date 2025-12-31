@@ -1,0 +1,391 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  /* --------- Inicio estandarización paleta de colores -------------- */
+
+  --color-novo-primary: #4F8071; /* Verde */
+  --color-novo-secondary: #1E242A; /* Negro */
+  --color-novo-terciario: #396bc2; /* Azul */
+  --color-novo-cuaternario: #F6F4EF; /* Gris cafesoso */
+
+  --color-novo-fondo-primary: #4F8071; /* Verde */
+  --color-novo-fondo-primary-variante1: #ddeae4;
+  --color-novo-fondo-primary-variante2: #bad5cb;
+  --color-novo-fondo-primary-variante3: #3d6459;
+  --color-novo-fondo-primary-variante4: #335249;
+  --color-novo-fondo-secondary: #1E242A; /* Negro */
+  --color-novo-fondo-secondary-variante1: #e2e9eb;
+  --color-novo-fondo-secondary-variante2: #c7d4da;
+  --color-novo-fondo-secondary-variante3: #577283;
+  --color-novo-fondo-secondary-variante4: #4b606f;
+  --color-novo-fondo-secondary-variante5: #343c45;
+  --color-novo-fondo-terciario: #396bc2; /* Azul */
+  --color-novo-fondo-terciario-variante1: #e0eef9;
+  --color-novo-fondo-terciario-variante2: #c8e1f5;
+  --color-novo-fondo-terciario-variante3: #417dcf;
+  --color-novo-fondo-terciario-variante4: #33569a;
+  --color-novo-fondo-terciario-variante5: #2d497b;
+  --color-novo-fondo-terciario-variante6: #202e4b;
+  --color-novo-fondo-cuaternario: #F6F4EF; /* Gris cafesoso */
+  --color-novo-fondo-cuaternario-variante1: #f0ede4;
+  --color-novo-fondo-cuaternario-variante2: #e0d9c8;
+  --color-novo-fondo-cuaternario-variante3: #a78c68;
+  --color-novo-fondo-cuaternario-variante4: #9a7b5c;
+
+  --color-novo-cards-primary: #4F8071; /* Verde */
+  --color-novo-cards-primary-variante1: #ddeae4;
+  --color-novo-cards-primary-variante2: #bad5cb;
+  --color-novo-cards-primary-variante3: #3d6459;
+  --color-novo-cards-primary-variante4: #335249;
+  --color-novo-cards-secondary: #1E242A; /* Negro */
+  --color-novo-cards-secondary-variante1: #e2e9eb;
+  --color-novo-cards-secondary-variante2: #c7d4da;
+  --color-novo-cards-secondary-variante3: #577283;
+  --color-novo-cards-secondary-variante4: #4b606f;
+  --color-novo-cards-secondary-variante5: #343c45;
+  --color-novo-cards-terciario: #396bc2; /* Azul */
+  --color-novo-cards-terciario-variante1: #e0eef9;
+  --color-novo-cards-terciario-variante2: #c8e1f5;
+  --color-novo-cards-terciario-variante3: #417dcf;
+  --color-novo-cards-terciario-variante4: #33569a;
+  --color-novo-cards-terciario-variante5: #2d497b;
+  --color-novo-cards-terciario-variante6: #202e4b;
+  --color-novo-cards-cuaternario: #F6F4EF; /* Gris cafesoso */
+  --color-novo-cards-cuaternario-variante1: #f0ede4;
+  --color-novo-cards-cuaternario-variante2: #e0d9c8;
+  --color-novo-cards-cuaternario-variante3: #a78c68;
+  --color-novo-cards-cuaternario-variante4: #9a7b5c;
+
+  --color-novo-botones-primary: #4F8071; /* Verde */
+  --color-novo-botones-primary-variante1: #ddeae4;
+  --color-novo-botones-primary-variante2: #bad5cb;
+  --color-novo-botones-primary-variante3: #3d6459;
+  --color-novo-botones-primary-variante4: #335249;
+  --color-novo-botones-secondary: #1E242A; /* Negro */
+  --color-novo-botones-secondary-variante1: #e2e9eb;
+  --color-novo-botones-secondary-variante2: #c7d4da;
+  --color-novo-botones-secondary-variante3: #577283;
+  --color-novo-botones-secondary-variante4: #4b606f;
+  --color-novo-botones-secondary-variante5: #343c45;
+  --color-novo-botones-terciario: #396bc2; /* Azul */
+  --color-novo-botones-terciario-variante1: #e0eef9;
+  --color-novo-botones-terciario-variante2: #c8e1f5;
+  --color-novo-botones-terciario-variante3: #417dcf;
+  --color-novo-botones-terciario-variante4: #33569a;
+  --color-novo-botones-terciario-variante5: #2d497b;
+  --color-novo-botones-terciario-variante6: #202e4b;
+  --color-novo-botones-cuaternario: #F6F4EF; /* Gris cafesoso */
+  --color-novo-botones-cuaternario-variante1: #f0ede4;
+  --color-novo-botones-cuaternario-variante2: #e0d9c8;
+  --color-novo-botones-cuaternario-variante3: #a78c68;
+  --color-novo-botones-cuaternario-variante4: #9a7b5c;
+
+  --color-novo-bordes-primary: #4F8071; /* Verde */
+  --color-novo-bordes-primary-variante1: #ddeae4;
+  --color-novo-bordes-primary-variante2: #bad5cb;
+  --color-novo-bordes-primary-variante3: #3d6459;
+  --color-novo-bordes-primary-variante4: #335249;
+  --color-novo-bordes-secondary: #1E242A; /* Negro */
+  --color-novo-bordes-secondary-variante1: #e2e9eb;
+  --color-novo-bordes-secondary-variante2: #c7d4da;
+  --color-novo-bordes-secondary-variante3: #577283;
+  --color-novo-bordes-secondary-variante4: #4b606f;
+  --color-novo-bordes-secondary-variante5: #343c45;
+  --color-novo-bordes-terciario: #396bc2; /* Azul */
+  --color-novo-bordes-terciario-variante1: #e0eef9;
+  --color-novo-bordes-terciario-variante2: #c8e1f5;
+  --color-novo-bordes-terciario-variante3: #417dcf;
+  --color-novo-bordes-terciario-variante4: #33569a;
+  --color-novo-bordes-terciario-variante5: #2d497b;
+  --color-novo-bordes-terciario-variante6: #202e4b;
+  --color-novo-bordes-cuaternario: #F6F4EF; /* Gris cafesoso */
+  --color-novo-bordes-cuaternario-variante1: #f0ede4;
+  --color-novo-bordes-cuaternario-variante2: #e0d9c8;
+  --color-novo-bordes-cuaternario-variante3: #a78c68;
+  --color-novo-bordes-cuaternario-variante4: #9a7b5c;
+
+  --color-novo-texto-primary: #4F8071; /* Verde */
+  --color-novo-texto-primary-variante1: #ddeae4;
+  --color-novo-texto-primary-variante2: #bad5cb;
+  --color-novo-texto-primary-variante3: #3d6459;
+  --color-novo-texto-primary-variante4: #335249;
+  --color-novo-texto-secondary: #1E242A; /* Negro */
+  --color-novo-texto-secondary-variante1: #e2e9eb;
+  --color-novo-texto-secondary-variante2: #c7d4da;
+  --color-novo-texto-secondary-variante3: #577283;
+  --color-novo-texto-secondary-variante4: #4b606f;
+  --color-novo-texto-secondary-variante5: #343c45;
+  --color-novo-texto-terciario: #396bc2; /* Azul */
+  --color-novo-texto-terciario-variante1: #e0eef9;
+  --color-novo-texto-terciario-variante2: #c8e1f5;
+  --color-novo-texto-terciario-variante3: #417dcf;
+  --color-novo-texto-terciario-variante4: #33569a;
+  --color-novo-texto-terciario-variante5: #2d497b;
+  --color-novo-texto-terciario-variante6: #202e4b;
+  --color-novo-texto-cuaternario: #F6F4EF; /* Gris cafesoso */
+  --color-novo-texto-cuaternario-variante1: #f0ede4;
+  --color-novo-texto-cuaternario-variante2: #e0d9c8;
+  --color-novo-texto-cuaternario-variante3: #a78c68;
+  --color-novo-texto-cuaternario-variante4: #9a7b5c;
+
+  --color-novo-titulos-primary: #4F8071; /* Verde */
+  --color-novo-titulos-secondary: #1E242A; /* Negro */
+  --color-novo-titulos-terciario: #396bc2; /* Azul */
+  --color-novo-titulos-cuaternario: #F6F4EF; /* Gris cafesoso */
+
+  --color-novo-iconos-primary: #4F8071; /* Verde */
+  --color-novo-iconos-primary-variante1: #ddeae4;
+  --color-novo-iconos-primary-variante2: #bad5cb;
+  --color-novo-iconos-primary-variante3: #3d6459;
+  --color-novo-iconos-primary-variante4: #335249;
+  --color-novo-iconos-secondary: #1E242A; /* Negro */
+  --color-novo-iconos-secondary-variante1: #e2e9eb;
+  --color-novo-iconos-secondary-variante2: #c7d4da;
+  --color-novo-iconos-secondary-variante3: #577283;
+  --color-novo-iconos-secondary-variante4: #4b606f;
+  --color-novo-iconos-secondary-variante5: #343c45;
+  --color-novo-iconos-terciario: #396bc2; /* Azul */
+  --color-novo-iconos-terciario-variante1: #e0eef9;
+  --color-novo-iconos-terciario-variante2: #c8e1f5;
+  --color-novo-iconos-terciario-variante3: #417dcf;
+  --color-novo-iconos-terciario-variante4: #33569a;
+  --color-novo-iconos-terciario-variante5: #2d497b;
+  --color-novo-iconos-terciario-variante6: #202e4b;
+  --color-novo-iconos-cuaternario: #F6F4EF; /* Gris cafesoso */
+  --color-novo-iconos-cuaternario-variante1: #f0ede4;
+  --color-novo-iconos-cuaternario-variante2: #e0d9c8;
+  --color-novo-iconos-cuaternario-variante3: #a78c68;
+  --color-novo-iconos-cuaternario-variante4: #9a7b5c;
+
+  --color-novo-hover-primary: #4F8071; /* Verde */
+  --color-novo-hover-primary-variante1: #ddeae4;
+  --color-novo-hover-primary-variante2: #bad5cb;
+  --color-novo-hover-primary-variante3: #3d6459;
+  --color-novo-hover-primary-variante4: #335249;
+  --color-novo-hover-secondary: #1E242A; /* Negro */
+  --color-novo-hover-secondary-variante1: #e2e9eb;
+  --color-novo-hover-secondary-variante2: #c7d4da;
+  --color-novo-hover-secondary-variante3: #577283;
+  --color-novo-hover-secondary-variante4: #4b606f;
+  --color-novo-hover-secondary-variante5: #343c45;
+  --color-novo-hover-terciario: #396bc2; /* Azul */
+  --color-novo-hover-terciario-variante1: #e0eef9;
+  --color-novo-hover-terciario-variante2: #c8e1f5;
+  --color-novo-hover-terciario-variante3: #417dcf;
+  --color-novo-hover-terciario-variante4: #33569a;
+  --color-novo-hover-terciario-variante5: #2d497b;
+  --color-novo-hover-terciario-variante6: #202e4b;
+  --color-novo-hover-cuaternario: #F6F4EF; /* Gris cafesoso */
+  --color-novo-hover-cuaternario-variante1: #f0ede4;
+  --color-novo-hover-cuaternario-variante2: #e0d9c8;
+  --color-novo-hover-cuaternario-variante3: #a78c68;
+  --color-novo-hover-cuaternario-variante4: #9a7b5c;
+
+
+/* --------- Fin estandarización paleta de colores -------------- */
+
+
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-chartNovo-1: var(--chartNovo-1);
+  --color-chartNovo-2: var(--chartNovo-2);
+  --color-chartNovo-3: var(--chartNovo-3);
+  --color-chartNovo-4: var(--chartNovo-4);
+  --color-chartNovo-5: var(--chartNovo-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #ccc;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background-color: #f1f1f1;
+}
+
+:root {
+  --radius: 0.625rem;
+
+  /* 🎨 Base (claro) */
+  --background: oklch(0.982 0.002 248.6);
+  /* BLANCO #F8F9FA */
+  --foreground: oklch(0.293 0.000 263.3);
+  /* GRIS OSCURO #2C2C2C */
+
+  /* Superficies */
+  --card: var(--background);
+  --card-foreground: var(--foreground);
+  --popover: var(--background);
+  --popover-foreground: var(--foreground);
+
+  /* Colores de marca */
+  --primary: oklch(0.586 0.157 251.4);
+  /* AZUL PRIMARIO #1F7ED5 */
+  --primary-foreground: oklch(0.982 0.002 248.6);
+  /* Texto sobre primario (blanco) */
+
+  /* Apoyos/estados */
+  --secondary: oklch(0.629 0.061 171.4);
+  /* VERDE #629584 */
+  --secondary-foreground: oklch(0.293 0.000 263.3);
+
+  --accent: oklch(0.650 0.060 251.4);
+  /* Azul claro (tinte del primario) */
+  --accent-foreground: oklch(0.293 0.000 263.3);
+
+  --muted: oklch(0.945 0.004 250);
+  /* Neutro claro para fondos suaves */
+  --muted-foreground: oklch(0.472 0.015 257);
+
+  --destructive: oklch(53.514% 0.20234 26.961);
+  /* Puedes ajustar a tu rojo/alerta */
+
+  /* Bordes/inputs/anillo de foco */
+  --border: oklch(0.915 0.005 250);
+  --input: oklch(0.915 0.005 250);
+  --ring: oklch(0.700 0.120 251.4);
+  /* Anillo con tinte del primario */
+
+  /* Paleta de gráficos (azules + verde de apoyo) */
+  --chart-1: oklch(0.586 0.157 251.4);
+  /* Primario */
+  --chart-2: oklch(0.629 0.061 171.4);
+  /* Verde */
+  --chart-3: oklch(0.216 0.028 245.2);
+  /* Azul oscuro logo #0E1B26 */
+  --chart-4: oklch(0.750 0.090 251.4);
+  /* Azul más claro */
+  --chart-5: oklch(0.840 0.030 251.4);
+  /* Azul muy suave */
+
+
+  /* Paleta de gráficos Novo Tech HN */
+  --chartNovo-1: oklch(0.738 0.090 253.8);
+  /* Azul principal (#396BC2) */
+  --chartNovo-2: oklch(0.643 0.042 176.4);
+  /* Verde (#4F8071) */
+  --chartNovo-3: oklch(0.516 0.016 245.5);
+  /* Negro (#1E242A) */
+  --chartNovo-4: oklch(0.985 0.003 88.8);
+  /* Blanco (#F6F4EF) */
+
+  /* Sidebar */
+  /*--sidebar: oklch(0.975 0.002 248.6);*/
+  --sidebar-foreground: var(--foreground);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-accent: var(--accent);
+  --sidebar-accent-foreground: var(--accent-foreground);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--ring);
+}
+
+.dark {
+  /* 🌙 Base (oscuro) — predominan los azules */
+  --background: oklch(0.216 0.028 245.2);
+  /* AZUL OSCURO LOGO #0E1B26 */
+  --foreground: oklch(0.982 0.002 248.6);
+  /* Texto claro (blanco) */
+
+  --card: oklch(0.245 0.026 246);
+  --card-foreground: var(--foreground);
+  --popover: oklch(0.245 0.026 246);
+  --popover-foreground: var(--foreground);
+
+  --primary: oklch(0.700 0.120 251.4);
+  /* Primario más “luminoso” en dark */
+  --primary-foreground: oklch(0.216 0.028 245.2);
+
+  --secondary: oklch(0.590 0.070 171.4);
+  /* Verde algo más luminoso */
+  --secondary-foreground: oklch(0.110 0.005 250);
+
+  --accent: oklch(0.760 0.070 251.4);
+  /* Azul claro para hovers y resaltes */
+  --accent-foreground: oklch(0.110 0.005 250);
+
+  --muted: oklch(0.270 0.020 250);
+  --muted-foreground: oklch(0.780 0.030 250);
+
+  --destructive: oklch(53.514% 0.20234 26.961);
+
+
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.700 0.120 251.4);
+
+  /* Charts en dark (contraste) */
+  --chart-1: oklch(0.700 0.120 251.4);
+  --chart-2: oklch(0.590 0.070 171.4);
+  --chart-3: oklch(0.840 0.030 251.4);
+  --chart-4: oklch(0.760 0.070 251.4);
+  --chart-5: oklch(0.480 0.015 250);
+
+  /*--sidebar: oklch(0.245 0.026 246);*/
+  --sidebar-foreground: var(--foreground);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-accent: var(--accent);
+  --sidebar-accent-foreground: var(--accent-foreground);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: var(--ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  overflow: hidden; /* El scroll lo manejarán contenedores internos */
+}

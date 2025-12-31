@@ -1,0 +1,307 @@
+"use client";
+
+import React, { useEffect, useState } from "react";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
+import { useAuth } from "@/context/AuthContext";
+import { Switch } from "./ui/switch";
+
+export function Form({
+  fields,
+  initialValues,
+  onSubmit,
+  submitText = "Save",
+  submitting = false,
+  disabled: formDisabled = false,
+  esAtributo = false,
+}) {
+  const [formData, setFormData] = useState(initialValues || {});
+
+  const [usarAtributos, setUsarAtributos] = useState(false);
+  const [listaValores, setListaValores] = useState([]);
+  const [inputValor, setInputValor] = useState("");
+
+
+  const { usuario } = useAuth();
+  const empresaID = usuario?.empresa_id;
+
+  console.log(empresaID);
+
+  // Mantener sincronía si cambian los valores iniciales (ej. al editar otra fila)
+  const [initialized, setInitialized] = useState(false);
+
+  useEffect(() => {
+    if (!initialValues || initialized) return;
+
+    setFormData(initialValues);
+
+    if (initialValues?.valores_pre_cargados?.valores) {
+      setListaValores(initialValues.valores_pre_cargados.valores);
+      setUsarAtributos(true);
+    }
+
+    setInitialized(true);
+  }, [initialValues, initialized]);
+
+  const agregarValor = () => {
+    if (!inputValor.trim()) return;
+
+    setListaValores(prev => [...prev, inputValor.trim()]);
+    setInputValor("");
+
+    setFormData(prev => ({
+      ...prev,
+      valores_pre_cargados: { valores: [...listaValores, inputValor.trim()] }
+    }));
+  };
+
+  const eliminarValor = (index) => {
+    const nuevaLista = listaValores.filter((_, i) => i !== index);
+
+    setListaValores(nuevaLista);
+
+    setFormData(prev => ({
+      ...prev,
+      valores_pre_cargados: { valores: nuevaLista }
+    }));
+  };
+
+
+
+  const calcularTotal = (data) => {
+    const precioManoObra = Number(data.precio_mano_obra) || 0;
+    const precioRepuestos = Number(data.precio_repuestos) || 0;
+    // Redondeamos para evitar problemas de coma flotante si es necesario, si no, usa solo la suma
+    return (precioManoObra + precioRepuestos).toFixed(2);
+  };
+
+  useEffect(() => {
+    if (empresaID === 1) {
+      const currentTotal = Number(formData.total) || 0;
+      const nuevoTotal = Number(calcularTotal(formData));
+
+      if (
+        formData.hasOwnProperty('precio_mano_obra') &&
+        formData.hasOwnProperty('precio_repuestos') &&
+        currentTotal !== nuevoTotal
+      ) {
+        setFormData((prev) => ({
+          ...prev,
+          total: nuevoTotal,
+        }));
+      }
+    }
+  }, [formData.precio_mano_obra, formData.precio_repuestos, empresaID]);
+
+  const handleChange = (name, value, type) => {
+    const normalized =
+      type === "number" ? (value === "" ? "" : Number(value)) : value;
+    setFormData((prev) => ({ ...prev, [name]: normalized }));
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onSubmit?.(formData);
+  };
+
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-6">
+      {fields.map((field) => {
+        const {
+          name,
+          label,
+          type = "text",
+          placeholder,
+          required = false,
+          rows = 4,
+          options,
+          min,
+          max,
+          hint,
+          disabled = false,              // <- por field
+          readOnly = false,              // <- por field
+        } = field;
+
+
+        const isDisabled = formDisabled || disabled;
+        const value = formData?.[name] ?? "";
+
+        const isTotalField = name === 'total' && empresaID === 1;
+        const finalDisabled = isDisabled || isTotalField;
+        const finalReadOnly = readOnly || isTotalField;
+        return (
+          <div key={name} className="space-y-2">
+            {label ? (
+              <Label htmlFor={name} className="text-sm text-novo-secondary dark:text-novo-texto-terciario-variante1">
+                {label}
+                {required ? <span className="text-destructive"> *</span> : null}
+              </Label>
+            ) : null}
+
+            {/* Tipos soportados */}
+            {
+              type === "color" ? (
+                <div className="flex items-center gap-3">
+                  <Input
+                    id={name}
+                    name={name}
+                    type="color"
+                    value={value || "#000000"}
+                    disabled={finalDisabled}
+                    readOnly={finalReadOnly}
+                    onChange={(e) => handleChange(name, e.target.value, type)}
+                    className="w-12 h-10 p-1 rounded cursor-pointer"
+                  />
+
+                  <Input
+                    type="text"
+                    value={value || ""}
+                    onChange={(e) => handleChange(name, e.target.value, "text")}
+                    className="flex-1 bg-card"
+                    placeholder="#HEX"
+                  />
+                </div>
+              ) :
+                type === "textarea" ? (
+                  <Textarea
+                    id={name}
+                    name={name}
+                    rows={rows}
+                    placeholder={placeholder || ""}
+                    value={value}
+                    required={required}
+                    onChange={(e) => handleChange(name, e.target.value, type)}
+                    className="bg-card"
+                  />
+                ) : type === "selector" ? (
+                  <Select
+                    value={String(value ?? "")}
+                    onValueChange={(val) => handleChange(name, val, "text")}
+                  >
+                    <SelectTrigger id={name} className="bg-card/80 w-full h-11">
+                      <SelectValue
+                        placeholder={placeholder || "Selecciona una opción"}
+                      />
+                    </SelectTrigger>
+                    <SelectContent className="w-[var(--radix-select-trigger-width)]">
+                      {(options || []).map((opt) => (
+                        <SelectItem
+                          key={String(opt.id ?? opt.value)}
+                          value={String(opt.id ?? opt.value)}
+                        >
+                          {opt.value}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                ) : (
+                  <Input
+                    id={name}
+                    name={name}
+                    type={type}
+                    placeholder={placeholder || ""}
+                    value={String(value)}
+                    disabled={finalDisabled}
+                    readOnly={finalReadOnly}
+                    onChange={(e) => {
+                      if (finalDisabled || finalReadOnly) return;
+                      handleChange(name, e.target.value, type);
+                    }}
+                    required={required}
+                    min={min}
+                    max={max}
+                    className={`bg-card ${isDisabled ? "opacity-60 cursor-not-allowed" : ""}`}
+
+                  />
+                )}
+
+            {hint ? (
+              <p className="text-xs text-muted-foreground">{hint}</p>
+            ) : null}
+          </div>
+        );
+      })}
+
+      {esAtributo && (
+        <div className="p-4 border border-novo-bordes-secondary-variante2 dark:border-novo-bordes-secondary-variante4 rounded-xl space-y-4">
+
+          <div className="flex items-center justify-between">
+            <Label className="text-sm font-medium text-novo-secondary dark:text-novo-texto-terciario-variante1">
+              ¿Es selector?
+            </Label>
+
+            <Switch className="h-full w-8 accent-primary"
+              checked={usarAtributos}
+              onCheckedChange={setUsarAtributos}
+            />
+          </div>
+
+          {usarAtributos && (
+            <div className="space-y-4">
+
+              <div className="flex gap-2">
+                <Input
+                  value={inputValor}
+                  onChange={(e) => setInputValor(e.target.value)}
+                  placeholder="Nuevo valor"
+                  className="bg-card flex-1"
+                />
+
+                <Button
+                  type="button"
+                  variant={"terciary"}
+                  onClick={agregarValor}
+                  className="shrink-0"
+                >
+                  Agregar
+                </Button>
+              </div>
+
+              <div className="flex gap-2 flex-wrap">
+                {listaValores.map((item, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center bg-novo-fondo-primary-variante1 dark:bg-novo-fondo-terciario-variante5 text-novo-cards-primary dark:text-novo-texto-terciario-variante1 px-3 py-1 rounded-full border border-primary/20 shadow-sm"
+                  >
+                    <span className="text-sm">{item}</span>
+                    <button
+                      type="button"
+                      onClick={() => eliminarValor(index)}
+                      className="ml-2 text-novo-cards-primary dark:text-novo-texto-terciario-variante1 hover:text-red-500 transition"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+
+                {listaValores.length === 0 && (
+                  <p className="text-sm text-novo-cards-secondary-variante3 dark:text-novo-texto-terciario-variante2">
+                    No hay valores añadidos.
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+
+
+      <div className="flex justify-end gap-2">
+        <Button variant={"terciary"} type="submit" disabled={submitting} className=" text-[#fff] ">
+          {submitting ? "Guardando…" : submitText}
+        </Button>
+      </div>
+    </form>
+  );
+}
