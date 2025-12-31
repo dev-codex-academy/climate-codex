@@ -46,25 +46,25 @@ The API uses Token Authentication. You must obtain a token and send it in the he
 
 ## Entities
 
-### 4. Clients
+### 4. Client (They pay the students scholarship)
 **POST** `/api/clients/`
 ```json
 {
-    "name": "Acme Corp",
+    "name": "Alice Johnson",
     "attributes": {
-        "industry": "Technology" // Must match defined attributes
+        "industry": "Education" 
     }
 }
 ```
 
-### 5. Services
+### 5. Service (Student)
 **POST** `/api/services/`
 ```json
 {
-    "name": "Website Redesign",
+    "name": "John Doe (Student)",
     "client": "<CLIENT_UUID>",
     "attributes": {
-        "duration": "3 months"
+        "duration": "6 months"
     }
 }
 ```
@@ -134,5 +134,72 @@ All endpoints support filtering by any field via query parameters.
 {
     "url": "https://<bucket>.s3.<region>.amazonaws.com/clients/<id>/<uuid>.jpg",
     "list_of_images": ["https://...", "https://..."]
+}
+```
+
+---
+
+## Attendance
+
+### 10. Cohorts
+**POST** `/api/cohorts/`
+```json
+{
+    "name_cohort": "Summer 2025",
+    "start_date": "2025-06-01",
+    "end_date": "2025-12-01",
+    "instructor": <USER_ID>
+}
+```
+
+### 11. Attendance
+**POST** `/api/attendances/`
+```json
+{
+    "date": "2024-01-01",
+    "cohort": <COHORT_ID>,
+    "instructor": <USER_ID>
+}
+```
+
+### 12. Attendance Details
+**POST** `/api/attendance-details/`
+```json
+{
+    "attendance": <ATTENDANCE_ID>,
+    "service": <SERVICE_ID>,
+    "type": "P" // A=Absent, P=Present, E=Excused
+}
+```
+
+### 13. Transfer Requests
+**POST** `/api/transfer-requests/`
+```json
+{
+    "student": <SERVICE_ID>,
+    "cohort_request": "Target Cohort 2025"
+}
+```
+
+---
+
+## Pathways & Enrollments
+
+### 14. Enrollments
+**POST** `/api/enrollments/`
+```json
+{
+    "cohort": "<COHORT_ID>",
+    "pathway_name": "Data Science Path",
+    "instructor": <USER_ID>
+}
+```
+
+### 15. Enrollment Details
+**POST** `/api/enrollment-details/`
+```json
+{
+    "enrollment": "<ENROLLMENT_ID>",
+    "student": "<SERVICE_ID>"
 }
 ```
