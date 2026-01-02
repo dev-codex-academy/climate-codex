@@ -7,7 +7,9 @@ export const API_URL =
 
 // Header con token actualizado cada vez
 export const getHeaders = () => {
+  const token = localStorage.getItem('auth_token');
   return {
-    'Content-Type': 'application/json'
+    'Content-Type': 'application/json',
+    ...(token && { 'Authorization': `Token ${token}` })
   };
 };

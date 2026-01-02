@@ -9,7 +9,6 @@ export const postMenu = async (roleId) => {
     const response = await fetch(url, {
         method: 'POST',
         headers,
-        credentials: 'include',
         body: JSON.stringify(roleId)
     })
 

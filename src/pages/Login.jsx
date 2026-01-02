@@ -126,7 +126,7 @@ export const Login = ({ className, ...props }) => {
                       placeholder="Enter your username"
                       required
                       value={usuario}
-                      onChange={(e) => setUser(e.target.value.toUpperCase())}
+                      onChange={(e) => setUser(e.target.value)}
                       disabled={loading}
                     />
                   </div>

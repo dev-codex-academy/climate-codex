@@ -1,5 +1,6 @@
 import { useAuth } from "@/context/AuthContext";
 import { postToken } from "@/services/login";
+import { API_URL } from "@/services/api";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -25,29 +26,35 @@ export const useLogin = () => {
     setLoading(true);
 
     try {
-      const authData = { usuario: user.toUpperCase(), pass: password };
+      const authData = { username: user, password: password };
       const res = await postToken(authData);
 
-      if (res?.ok) {
-        const data = res.data.usuario;
-        const state = data?.estado_pass;
+      if (res?.ok && res?.data?.token) {
+        const token = res.data.token;
 
-        if (state === 3 || state === 4) {
-          setIsModalOpen(true);
-          
-          return;
+        try {
+          const userResponse = await fetch(`${API_URL}/me/`, {
+            method: "GET",
+            headers: {
+              'Content-Type': "application/json",
+              'Authorization': `Token ${token}`
+            }
+          });
+
+          if (userResponse.ok) {
+            const userData = await userResponse.json();
+            login(token, userData);
+            navigate("/", { replace: true });
+          } else {
+            setError("Error fetching user permissions.");
+          }
+        } catch (error) {
+          console.error(error);
+          setError("Error validating session.");
         }
 
-        if (state === 1) {
-            console.log("entra al 1");
-          login(data, res.data.token);
-          navigate("/", { replace: true });
-        }
-
-        setError("Password state not recognized.");
       } else {
-        const msg =
-          res?.error?.message || res?.message || "Invalid credentials.";
+        const msg = res?.data?.message || res?.status_text || "Invalid credentials.";
         setError(msg);
 
         setUser("");

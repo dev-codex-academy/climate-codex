@@ -20,6 +20,23 @@ The API uses Token Authentication. You must obtain a token and send it in the he
 { "token": "<your_token>" }
 ```
 
+### 2. Get User Permissions
+**GET** `/api/me/`
+Returns the current user's profile, roles (groups), and a list of specific permissions. Use this for frontend menu rendering.
+
+**Response:**
+```json
+{
+    "id": 1,
+    "username": "fernando.lopez",
+    "email": "fernando.lopez@codex.academy",
+    "is_superuser": false,
+    "is_staff": true,
+    "groups": ["Sales"],
+    "permissions": ["app.add_lead", "app.view_lead", "app.add_followup"]
+}
+```
+
 ---
 
 ## Dynamic Attributes (CRITICAL)
@@ -203,3 +220,16 @@ All endpoints support filtering by any field via query parameters.
     "student": "<SERVICE_ID>"
 }
 ```
+
+---
+
+## Roles & Permissions (RBAC)
+The system has defined roles with specific access levels.
+
+| Role | Access Scope |
+| :--- | :--- |
+| **Instructor** | Manage Attendance (Create/View/Update). Cannot access Pipeline, Leads, or Cohort management. |
+| **TA** | Same as Instructor. |
+| **Operations** | Full management of Cohorts, Users, Enrollments. View-only access to Pipeline/Leads. |
+| **Sales** | Manage Leads, FollowUps, and Pipeline. No access to Course Management. |
+| **Management** | (Reserved for Dashboards). |
