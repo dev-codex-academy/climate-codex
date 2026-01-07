@@ -28,7 +28,7 @@ export const Login = ({ className, ...props }) => {
 
   const [notification, setNotification] = useState(null);
 
-  const fieldsCambiarPass = [
+  const changePassFields = [
     {
       name: "usuario",
       label: "Username",
@@ -64,16 +64,16 @@ export const Login = ({ className, ...props }) => {
   const handlePass = async (newPass) => {
     const { password, confirmar_contrasenia } = newPass;
 
-    // Validar que las contraseñas coincidan
+    // Validate that passwords match
     if (password !== confirmar_contrasenia) {
       setNotification({
-        message: "Las contraseñas no coinciden.",
+        message: "Passwords do not match.",
         type: "warning",
       });
 
       return;
     }
-    const cargarPass = async () => {
+    const resetForm = async () => {
       setUser("");
       setPassword("");
       setShowPass(false);
@@ -82,7 +82,7 @@ export const Login = ({ className, ...props }) => {
     await handleSaveCrud(
       newPass,
       //patchPassUsuario,
-      cargarPass,
+      resetForm,
       setNotification,
       setIsModalOpen
     );
@@ -219,7 +219,7 @@ export const Login = ({ className, ...props }) => {
             widthClass="sm:w-1/2 lg:w-1/3"
           >
             <Form
-              fields={fieldsCambiarPass}
+              fields={changePassFields}
               initialValues={{
                 password: "",
                 confirmar_contrasenia: "",

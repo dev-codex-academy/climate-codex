@@ -26,9 +26,9 @@ export function Form({
 }) {
   const [formData, setFormData] = useState(initialValues || {});
 
-  const [usarAtributos, setUsarAtributos] = useState(false);
-  const [listaValores, setListaValores] = useState([]);
-  const [inputValor, setInputValor] = useState("");
+  const [useAttributes, setUseAttributes] = useState(false);
+  const [valuesList, setValuesList] = useState([]);
+  const [inputValue, setInputValue] = useState("");
 
 
   const { usuario } = useAuth();
@@ -45,58 +45,58 @@ export function Form({
     setFormData(initialValues);
 
     if (initialValues?.valores_pre_cargados?.valores) {
-      setListaValores(initialValues.valores_pre_cargados.valores);
-      setUsarAtributos(true);
+      setValuesList(initialValues.valores_pre_cargados.valores);
+      setUseAttributes(true);
     }
 
     setInitialized(true);
   }, [initialValues, initialized]);
 
-  const agregarValor = () => {
-    if (!inputValor.trim()) return;
+  const addValue = () => {
+    if (!inputValue.trim()) return;
 
-    setListaValores(prev => [...prev, inputValor.trim()]);
-    setInputValor("");
-
-    setFormData(prev => ({
-      ...prev,
-      valores_pre_cargados: { valores: [...listaValores, inputValor.trim()] }
-    }));
-  };
-
-  const eliminarValor = (index) => {
-    const nuevaLista = listaValores.filter((_, i) => i !== index);
-
-    setListaValores(nuevaLista);
+    setValuesList(prev => [...prev, inputValue.trim()]);
+    setInputValue("");
 
     setFormData(prev => ({
       ...prev,
-      valores_pre_cargados: { valores: nuevaLista }
+      valores_pre_cargados: { valores: [...valuesList, inputValue.trim()] }
+    }));
+  };
+
+  const removeValue = (index) => {
+    const newList = valuesList.filter((_, i) => i !== index);
+
+    setValuesList(newList);
+
+    setFormData(prev => ({
+      ...prev,
+      valores_pre_cargados: { valores: newList }
     }));
   };
 
 
 
-  const calcularTotal = (data) => {
-    const precioManoObra = Number(data.precio_mano_obra) || 0;
-    const precioRepuestos = Number(data.precio_repuestos) || 0;
+  const calculateTotal = (data) => {
+    const laborPrice = Number(data.precio_mano_obra) || 0;
+    const partsPrice = Number(data.precio_repuestos) || 0;
     // Redondeamos para evitar problemas de coma flotante si es necesario, si no, usa solo la suma
-    return (precioManoObra + precioRepuestos).toFixed(2);
+    return (laborPrice + partsPrice).toFixed(2);
   };
 
   useEffect(() => {
     if (empresaID === 1) {
       const currentTotal = Number(formData.total) || 0;
-      const nuevoTotal = Number(calcularTotal(formData));
+      const newTotal = Number(calculateTotal(formData));
 
       if (
         formData.hasOwnProperty('precio_mano_obra') &&
         formData.hasOwnProperty('precio_repuestos') &&
-        currentTotal !== nuevoTotal
+        currentTotal !== newTotal
       ) {
         setFormData((prev) => ({
           ...prev,
-          total: nuevoTotal,
+          total: newTotal,
         }));
       }
     }
@@ -190,7 +190,7 @@ export function Form({
                   >
                     <SelectTrigger id={name} className="bg-card/80 w-full h-11">
                       <SelectValue
-                        placeholder={placeholder || "Selecciona una opción"}
+                        placeholder={placeholder || "Select an option"}
                       />
                     </SelectTrigger>
                     <SelectContent className="w-[var(--radix-select-trigger-width)]">
@@ -237,38 +237,38 @@ export function Form({
 
           <div className="flex items-center justify-between">
             <Label className="text-sm font-medium text-codex-secondary dark:text-codex-texto-terciario-variante1">
-              ¿Es selector?
+              Is selector?
             </Label>
 
             <Switch className="h-full w-8 accent-primary"
-              checked={usarAtributos}
-              onCheckedChange={setUsarAtributos}
+              checked={useAttributes}
+              onCheckedChange={setUseAttributes}
             />
           </div>
 
-          {usarAtributos && (
+          {useAttributes && (
             <div className="space-y-4">
 
               <div className="flex gap-2">
                 <Input
-                  value={inputValor}
-                  onChange={(e) => setInputValor(e.target.value)}
-                  placeholder="Nuevo valor"
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
+                  placeholder="New value"
                   className="bg-card flex-1"
                 />
 
                 <Button
                   type="button"
                   variant={"terciary"}
-                  onClick={agregarValor}
+                  onClick={addValue}
                   className="shrink-0"
                 >
-                  Agregar
+                  Add
                 </Button>
               </div>
 
               <div className="flex gap-2 flex-wrap">
-                {listaValores.map((item, index) => (
+                {valuesList.map((item, index) => (
                   <div
                     key={index}
                     className="flex items-center bg-codex-fondo-primary-variante1 dark:bg-codex-fondo-terciario-variante5 text-codex-cards-primary dark:text-codex-texto-terciario-variante1 px-3 py-1 rounded-full border border-primary/20 shadow-sm"
@@ -276,7 +276,7 @@ export function Form({
                     <span className="text-sm">{item}</span>
                     <button
                       type="button"
-                      onClick={() => eliminarValor(index)}
+                      onClick={() => removeValue(index)}
                       className="ml-2 text-codex-cards-primary dark:text-codex-texto-terciario-variante1 hover:text-red-500 transition"
                     >
                       ×
@@ -284,9 +284,9 @@ export function Form({
                   </div>
                 ))}
 
-                {listaValores.length === 0 && (
+                {valuesList.length === 0 && (
                   <p className="text-sm text-codex-cards-secondary-variante3 dark:text-codex-texto-terciario-variante2">
-                    No hay valores añadidos.
+                    No values added.
                   </p>
                 )}
               </div>
@@ -299,7 +299,7 @@ export function Form({
 
       <div className="flex justify-end gap-2">
         <Button variant={"terciary"} type="submit" disabled={submitting} className=" text-[#fff] ">
-          {submitting ? "Guardando…" : submitText}
+          {submitting ? "Saving..." : submitText}
         </Button>
       </div>
     </form>

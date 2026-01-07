@@ -73,7 +73,7 @@ export const Table = ({
           : String(val ?? "").toLowerCase() === "si" ||
           String(val ?? "") === "1";
 
-      return <span>{activo ? "Activo" : "Inactivo"}</span>;
+      return <span>{activo ? "Active" : "Inactive"}</span>;
     }
 
     if (isDateKey(col.key)) {
@@ -85,7 +85,7 @@ export const Table = ({
 
       if (!lista || !Array.isArray(lista) || lista.length === 0) {
         return (
-          <span className="text-muted-foreground text-xs">No es selector</span>
+          <span className="text-muted-foreground text-xs">Not selector</span>
         );
       }
 
@@ -196,7 +196,7 @@ export const Table = ({
             <div className="relative w-full">
               {/* Input de shadcn */}
               <Input
-                placeholder="Buscar..."
+                placeholder="Search..."
                 value={searchTerm}
                 onChange={(e) => {
                   setSearchTerm(e.target.value);
@@ -208,7 +208,7 @@ export const Table = ({
                 <button
                   onClick={() => setSearchTerm("")}
                   className="absolute right-2 top-1/2 -translate-y-1/2 text-codex-iconos-primary dark:text-codex-iconos-terciario-variante2 hover:text-foreground/80 cursor-pointer"
-                  title="Limpiar"
+                  title="Clear"
                 >
                   <RefreshCcw className="w-4 h-4" />
                 </button>
@@ -219,7 +219,7 @@ export const Table = ({
 
         {/* Select de shadcn */}
         <div className="flex items-center gap-2 sm:justify-end">
-          <span className="text-sm text-codex-texto-primary dark:text-codex-texto-terciario-variante2">Filas por página</span>
+          <span className="text-sm text-codex-texto-primary dark:text-codex-texto-terciario-variante2">Rows per page</span>
           <Select
             value={String(pageSize)}
             onValueChange={(v) => {
@@ -259,7 +259,7 @@ export const Table = ({
                         canSort ? "cursor-pointer select-none" : "",
                       ].join(" ")}
                       onClick={canSort ? () => toggleSort(col.key) : undefined}
-                      title={canSort ? "Clic para ordenar" : undefined}
+                      title={canSort ? "Click to sort" : undefined}
                     >
                       <div className="flex items-center gap-1 justify-center">
                         {col.label}
@@ -300,7 +300,7 @@ export const Table = ({
                     colSpan={visibleCols.length}
                     className="px-4 py-6 text-center text-muted-foreground"
                   >
-                    Sin resultados.
+                    No results.
                   </td>
                 </tr>
               )}
@@ -315,7 +315,7 @@ export const Table = ({
           <div className=" text-center sm:text-left">
             <span className="font-medium text-foreground">{startRecord}</span> -{" "}
             <span className="font-medium text-foreground">{endRecord}</span>{" "}
-            (Página {currentPage} de {totalPages})
+            (Page {currentPage} of {totalPages})
           </div>
           <div className="flex items-center justify-center gap-1 text-codex-secondary">
             <Button
@@ -324,7 +324,7 @@ export const Table = ({
               onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
               disabled={currentPage === 1}
             >
-              ← Anterior
+              ← Previous
             </Button>
             {Array.from({ length: totalPages }).map((_, idx) => {
               const page = idx + 1;
@@ -346,7 +346,7 @@ export const Table = ({
               onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
               disabled={currentPage === totalPages}
             >
-              Siguiente →
+              Next →
             </Button>
           </div>
         </div>
@@ -385,14 +385,14 @@ const RowActions = ({
       <DropdownMenuContent align="end" side="bottom" sideOffset={4} className="w-48">
         <DropdownMenuItem onClick={() => onEdit?.(row)}>
           <SquarePen className="w-6 h-6 text-codex-iconos-primary dark:text-codex-iconos-terciario-variante2" />
-          Editar
+          Edit
         </DropdownMenuItem>
 
         {hasContacto && (
           <>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => onViewContact(row)}>
-              Ver contactos
+              View contacts
             </DropdownMenuItem>
           </>
         )}
@@ -402,7 +402,7 @@ const RowActions = ({
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => onResetPassword(row)}>
               <RotateCcwKey className="w-6 h-6 text-codex-iconos-terciario dark:text-codex-iconos-terciario-variante3" />
-              Resetear Contraseña
+              Reset Password
             </DropdownMenuItem>
           </>
         )}
@@ -412,7 +412,7 @@ const RowActions = ({
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => verSeguimiento(row)}>
               <FileInput className="w-6 h-6 text-codex-iconos-terciario dark:text-codex-iconos-terciario-variante3" />
-              Ver Seguimiento
+              View Tracking
             </DropdownMenuItem>
           </>
         )}
@@ -423,7 +423,7 @@ const RowActions = ({
           onClick={() => onAskDelete?.(row)}
         >
           <OctagonX className="w-6 h-6 text-destructive focus:text-destructive" />
-          Eliminar
+          Delete
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

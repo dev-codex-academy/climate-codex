@@ -48,7 +48,7 @@ export const useMenu = () => {
                         return {
                             title: name,
                             url: `/${name.toLowerCase()}`, // URL inferida básica
-                            icon: "SquareTerminal", // Icono por defecto
+                            icon: "CircleEllipsis", // Icono por defecto
                             items: [] // Sin subitems por ahora
                         };
                     });
