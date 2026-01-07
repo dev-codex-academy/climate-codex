@@ -55,11 +55,11 @@ export function NavUserFooter({
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
               size="lgv2"
-              className='data-[state=open]:bg-novo-botones-primary-variante1 data-[state=open]:text-novo-texto-primary data-[state=open]:border data-[state=open]:border-novo-bordes-primary-variante2
-              dark:data-[state=open]:bg-novo-botones-terciario-variante5 dark:data-[state=open]:text-novo-texto-terciario-variante1 dark:data-[state=open]:border-novo-bordes-terciario
+              className='data-[state=open]:bg-codex-botones-primary-variante1 data-[state=open]:text-codex-texto-primary data-[state=open]:border data-[state=open]:border-codex-bordes-primary-variante2
+              dark:data-[state=open]:bg-codex-botones-terciario-variante5 dark:data-[state=open]:text-codex-texto-terciario-variante1 dark:data-[state=open]:border-codex-bordes-terciario
               cursor-pointer
-              hover:bg-novo-botones-primary-variante1 hover:text-novo-texto-primary hover:border hover:border-novo-bordes-primary-variante2
-              dark:hover:bg-novo-botones-terciario-variante5 dark:hover:text-novo-texto-terciario-variante1 dark:hover:border-novo-bordes-terciario
+              hover:bg-codex-botones-primary-variante1 hover:text-codex-texto-primary hover:border hover:border-codex-bordes-primary-variante2
+              dark:hover:bg-codex-botones-terciario-variante5 dark:hover:text-codex-texto-terciario-variante1 dark:hover:border-codex-bordes-terciario
              group-data-[collapsible=icon]:border-0! 
               '
             >
@@ -78,7 +78,7 @@ export function NavUserFooter({
               <DropdownMenuItem
                 key={key}
                 onSelect={() => setDarkMode(key)}
-                className={`flex items-center gap-2 cursor-pointer ${darkMode === key ? "dark:bg-novo-botones-terciario-variante4 dark:text-novo-texto-terciario-variante1 bg-novo-botones-primary-variante2 text-novo-texto-primary-variante3" : " "
+                className={`flex items-center gap-2 cursor-pointer ${darkMode === key ? "dark:bg-codex-botones-terciario-variante4 dark:text-codex-texto-terciario-variante1 bg-codex-botones-primary-variante2 text-codex-texto-primary-variante3" : " "
                   }`}
               >
                 {icon}

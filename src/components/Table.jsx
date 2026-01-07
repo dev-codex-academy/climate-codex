@@ -94,7 +94,7 @@ export const Table = ({
           {lista.map((item, i) => (
             <span
               key={i}
-              className="px-2 py-0.5 bg-novo-fondo-primary-variante1 dark:bg-novo-fondo-terciario-variante5 text-novo-cards-primary dark:text-novo-texto-terciario-variante1 rounded-full text-xs border border-primary/20"
+              className="px-2 py-0.5 bg-codex-fondo-primary-variante1 dark:bg-codex-fondo-terciario-variante5 text-codex-cards-primary dark:text-codex-texto-terciario-variante1 rounded-full text-xs border border-primary/20"
             >
               {item}
             </span>
@@ -202,12 +202,12 @@ export const Table = ({
                   setSearchTerm(e.target.value);
                   setCurrentPage(1);
                 }}
-                className="h-11 w-full sm:w-[320px] pr-9 text-novo-texto-primary dark:text-novo-texto-terciario-variante2"
+                className="h-11 w-full sm:w-[320px] pr-9 text-codex-texto-primary dark:text-codex-texto-terciario-variante2"
               />
               {searchTerm ? (
                 <button
                   onClick={() => setSearchTerm("")}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-novo-iconos-primary dark:text-novo-iconos-terciario-variante2 hover:text-foreground/80 cursor-pointer"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-codex-iconos-primary dark:text-codex-iconos-terciario-variante2 hover:text-foreground/80 cursor-pointer"
                   title="Limpiar"
                 >
                   <RefreshCcw className="w-4 h-4" />
@@ -219,7 +219,7 @@ export const Table = ({
 
         {/* Select de shadcn */}
         <div className="flex items-center gap-2 sm:justify-end">
-          <span className="text-sm text-novo-texto-primary dark:text-novo-texto-terciario-variante2">Filas por página</span>
+          <span className="text-sm text-codex-texto-primary dark:text-codex-texto-terciario-variante2">Filas por página</span>
           <Select
             value={String(pageSize)}
             onValueChange={(v) => {
@@ -242,10 +242,10 @@ export const Table = ({
       </div>
 
       {/* Tabla */}
-      <div className="overflow-hidden mt-4 rounded-sm border border-novo-bordes-secondary-variante2 dark:border-novo-bordes-terciario-variante6 bg-transparent">
+      <div className="overflow-hidden mt-4 rounded-sm border border-codex-bordes-secondary-variante2 dark:border-codex-bordes-terciario-variante6 bg-transparent">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
-            <thead className="bg-novo-fondo-primary-variante2 dark:bg-novo-fondo-terciario-variante5 text-center text-novo-texto-secondary dark:text-novo-texto-terciario-variante2">
+            <thead className="bg-codex-fondo-primary-variante2 dark:bg-codex-fondo-terciario-variante5 text-center text-codex-texto-secondary dark:text-codex-texto-terciario-variante2">
               <tr>
                 {visibleCols.map((col) => {
                   const canSort = col.key !== "_actions";
@@ -271,12 +271,12 @@ export const Table = ({
                 })}
               </tr>
             </thead>
-            <tbody className="divide-y divide-border text-novo-texto-secondary dark:text-novo-texto-terciario-variante1">
+            <tbody className="divide-y divide-border text-codex-texto-secondary dark:text-codex-texto-terciario-variante1">
               {currentData.length ? (
                 currentData.map((row, idx) => (
                   <tr
                     key={row.id_rol ?? row.id ?? idx}
-                    className="hover:bg-novo-hover-primary-variante1 dark:hover:bg-novo-hover-terciario-variante5/70"
+                    className="hover:bg-codex-hover-primary-variante1 dark:hover:bg-codex-hover-terciario-variante5/70"
                   >
                     {visibleCols.map((col) => (
                       <td
@@ -317,7 +317,7 @@ export const Table = ({
             <span className="font-medium text-foreground">{endRecord}</span>{" "}
             (Página {currentPage} de {totalPages})
           </div>
-          <div className="flex items-center justify-center gap-1 text-novo-secondary">
+          <div className="flex items-center justify-center gap-1 text-codex-secondary">
             <Button
               variant="terciary"
               className="h-9 px-3"
@@ -333,7 +333,7 @@ export const Table = ({
                 <Button
                   key={page}
                   variant={isActive ? "terciary" : "paginacionNoActive"}
-                  className={isActive ? "text-novo-cards-secondary-variante1 h-9 px-3" : "h-9 px-3"}
+                  className={isActive ? "text-codex-cards-secondary-variante1 h-9 px-3" : "h-9 px-3"}
                   onClick={() => setCurrentPage(page)}
                 >
                   {page}
@@ -384,7 +384,7 @@ const RowActions = ({
 
       <DropdownMenuContent align="end" side="bottom" sideOffset={4} className="w-48">
         <DropdownMenuItem onClick={() => onEdit?.(row)}>
-          <SquarePen className="w-6 h-6 text-novo-iconos-primary dark:text-novo-iconos-terciario-variante2" />
+          <SquarePen className="w-6 h-6 text-codex-iconos-primary dark:text-codex-iconos-terciario-variante2" />
           Editar
         </DropdownMenuItem>
 
@@ -401,7 +401,7 @@ const RowActions = ({
           <>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => onResetPassword(row)}>
-              <RotateCcwKey className="w-6 h-6 text-novo-iconos-terciario dark:text-novo-iconos-terciario-variante3" />
+              <RotateCcwKey className="w-6 h-6 text-codex-iconos-terciario dark:text-codex-iconos-terciario-variante3" />
               Resetear Contraseña
             </DropdownMenuItem>
           </>
@@ -411,7 +411,7 @@ const RowActions = ({
           <>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => verSeguimiento(row)}>
-              <FileInput className="w-6 h-6 text-novo-iconos-terciario dark:text-novo-iconos-terciario-variante3" />
+              <FileInput className="w-6 h-6 text-codex-iconos-terciario dark:text-codex-iconos-terciario-variante3" />
               Ver Seguimiento
             </DropdownMenuItem>
           </>

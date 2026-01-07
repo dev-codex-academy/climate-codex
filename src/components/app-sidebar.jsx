@@ -43,13 +43,13 @@ export function AppSidebar({
       <SidebarHeader>
         <NavUser user={data.user} />
       </SidebarHeader>
-      <hr className="dark:border-novo-bordes-terciario-variante4 border-novo-bordes-primary-variante2" />
+      <hr className="dark:border-codex-bordes-terciario-variante4 border-codex-bordes-primary-variante2" />
 
       <SidebarContent>
         <NavMain items={menuRef.current} />
       </SidebarContent>
 
-      <hr className="dark:border-novo-bordes-terciario-variante4 border-novo-bordes-primary-variante2" />
+      <hr className="dark:border-codex-bordes-terciario-variante4 border-codex-bordes-primary-variante2" />
       <SidebarFooter>
         <NavUserFooter user={data.user} />
       </SidebarFooter>

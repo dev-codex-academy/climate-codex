@@ -142,7 +142,7 @@ export function Form({
         return (
           <div key={name} className="space-y-2">
             {label ? (
-              <Label htmlFor={name} className="text-sm text-novo-secondary dark:text-novo-texto-terciario-variante1">
+              <Label htmlFor={name} className="text-sm text-codex-secondary dark:text-codex-texto-terciario-variante1">
                 {label}
                 {required ? <span className="text-destructive"> *</span> : null}
               </Label>
@@ -233,10 +233,10 @@ export function Form({
       })}
 
       {esAtributo && (
-        <div className="p-4 border border-novo-bordes-secondary-variante2 dark:border-novo-bordes-secondary-variante4 rounded-xl space-y-4">
+        <div className="p-4 border border-codex-bordes-secondary-variante2 dark:border-codex-bordes-secondary-variante4 rounded-xl space-y-4">
 
           <div className="flex items-center justify-between">
-            <Label className="text-sm font-medium text-novo-secondary dark:text-novo-texto-terciario-variante1">
+            <Label className="text-sm font-medium text-codex-secondary dark:text-codex-texto-terciario-variante1">
               ¿Es selector?
             </Label>
 
@@ -271,13 +271,13 @@ export function Form({
                 {listaValores.map((item, index) => (
                   <div
                     key={index}
-                    className="flex items-center bg-novo-fondo-primary-variante1 dark:bg-novo-fondo-terciario-variante5 text-novo-cards-primary dark:text-novo-texto-terciario-variante1 px-3 py-1 rounded-full border border-primary/20 shadow-sm"
+                    className="flex items-center bg-codex-fondo-primary-variante1 dark:bg-codex-fondo-terciario-variante5 text-codex-cards-primary dark:text-codex-texto-terciario-variante1 px-3 py-1 rounded-full border border-primary/20 shadow-sm"
                   >
                     <span className="text-sm">{item}</span>
                     <button
                       type="button"
                       onClick={() => eliminarValor(index)}
-                      className="ml-2 text-novo-cards-primary dark:text-novo-texto-terciario-variante1 hover:text-red-500 transition"
+                      className="ml-2 text-codex-cards-primary dark:text-codex-texto-terciario-variante1 hover:text-red-500 transition"
                     >
                       ×
                     </button>
@@ -285,7 +285,7 @@ export function Form({
                 ))}
 
                 {listaValores.length === 0 && (
-                  <p className="text-sm text-novo-cards-secondary-variante3 dark:text-novo-texto-terciario-variante2">
+                  <p className="text-sm text-codex-cards-secondary-variante3 dark:text-codex-texto-terciario-variante2">
                     No hay valores añadidos.
                   </p>
                 )}

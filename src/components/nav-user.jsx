@@ -51,11 +51,11 @@ export function NavUser({
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
               size="lg"
-              className='data-[state=open]:bg-novo-botones-primary-variante1 data-[state=open]:text-novo-texto-primary data-[state=open]:border data-[state=open]:border-novo-bordes-primary-variante2
-              dark:data-[state=open]:bg-novo-botones-terciario-variante5 dark:data-[state=open]:text-novo-texto-terciario-variante1 dark:data-[state=open]:border-novo-bordes-terciario
+              className='data-[state=open]:bg-codex-botones-primary-variante1 data-[state=open]:text-codex-texto-primary data-[state=open]:border data-[state=open]:border-codex-bordes-primary-variante2
+              dark:data-[state=open]:bg-codex-botones-terciario-variante5 dark:data-[state=open]:text-codex-texto-terciario-variante1 dark:data-[state=open]:border-codex-bordes-terciario
               cursor-pointer
-              hover:bg-novo-botones-primary-variante1 hover:text-novo-texto-primary hover:border hover:border-novo-bordes-primary-variante2 group-data-[collapsible=icon]:hover:border-0
-              dark:hover:bg-novo-botones-terciario-variante5 dark:hover:text-novo-texto-terciario-variante1 dark:hover:border-novo-bordes-terciario
+              hover:bg-codex-botones-primary-variante1 hover:text-codex-texto-primary hover:border hover:border-codex-bordes-primary-variante2 group-data-[collapsible=icon]:hover:border-0
+              dark:hover:bg-codex-botones-terciario-variante5 dark:hover:text-codex-texto-terciario-variante1 dark:hover:border-codex-bordes-terciario
                 my-1
               '>
               <div className="flex items-start gap-2 group-data-[collapsible=icon]:items-center">
@@ -65,8 +65,8 @@ export function NavUser({
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-medium">{user.name}</span>
-                  <span className="truncate text-xs text-novo-texto-secondary-variante5 dark:text-novo-texto-terciario-variante2">{user.rol}</span>
-                  <span className="truncate text-xs text-gray-400 dark:text-novo-texto-secondary-variante2">{user.empresa}</span>
+                  <span className="truncate text-xs text-codex-texto-secondary-variante5 dark:text-codex-texto-terciario-variante2">{user.rol}</span>
+                  <span className="truncate text-xs text-gray-400 dark:text-codex-texto-secondary-variante2">{user.empresa}</span>
                 </div>
               </div>
 

@@ -75,7 +75,7 @@ function CardContent({
   className,
   ...props
 }) {
-  return (<div data-slot="card-content" className={cn("px-6 text-novo-texto-secondary dark:text-novo-cards-secondary-variante1 font-semibold text-base ", className)} {...props} />);
+  return (<div data-slot="card-content" className={cn("px-6 text-codex-texto-secondary dark:text-codex-cards-secondary-variante1 font-semibold text-base ", className)} {...props} />);
 }
 
 function CardFooter({
@@ -85,7 +85,7 @@ function CardFooter({
   return (
     <div
       data-slot="card-footer"
-      className={cn("flex items-center px-6 text-xs text-novo-texto-primary dark:text-novo-texto-terciario-variante2", className)}
+      className={cn("flex items-center px-6 text-xs text-codex-texto-primary dark:text-codex-texto-terciario-variante2", className)}
       {...props} />
   );
 }

@@ -22,8 +22,8 @@ export const Modal = ({
       aria-labelledby="modal-title"
     >
       <div
-        className={`bg-gradient-to-br from-novo-fondo-primary-variante1 via-novo-fondo-secondary-variante1 to-novo-fondo-terciario-variante1 
-        dark:from-novo-fondo-secondary dark:via-novo-fondo-terciario-variante5 dark:to-novo-fondo-terciario-variante6
+        className={`bg-gradient-to-br from-codex-fondo-primary-variante1 via-codex-fondo-secondary-variante1 to-codex-fondo-terciario-variante1 
+        dark:from-codex-fondo-secondary dark:via-codex-fondo-terciario-variante5 dark:to-codex-fondo-terciario-variante6
           rounded-lg shadow-xl w-full mx-4 max-h-[90vh] overflow-y-auto animate-in fade-in-0 zoom-in-95 ${widthClass}
           `}
       >
@@ -35,7 +35,7 @@ export const Modal = ({
           <button
             onClick={onClose}
             variant="terciary"
-            className="p-1 rounded-md text-novo-iconos-primary dark:text-novo-iconos-terciario-variante2 hover:text-novo-iconos-primary-variante3 hover:dark:text-novo-iconos-terciario-variante3 cursor-pointer focus:outline-none focus:ring-2 focus:ring-ring"
+            className="p-1 rounded-md text-codex-iconos-primary dark:text-codex-iconos-terciario-variante2 hover:text-codex-iconos-primary-variante3 hover:dark:text-codex-iconos-terciario-variante3 cursor-pointer focus:outline-none focus:ring-2 focus:ring-ring"
             aria-label="close modal"
           >
             <X className="h-5 w-5" />

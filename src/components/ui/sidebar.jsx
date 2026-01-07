@@ -119,7 +119,7 @@ function SidebarProvider({
           className={cn(
             `group/sidebar-wrapper has-data-[variant=inset]:bg-sidebar flex min-h-svh w-full
             bg-gradient-to-br from-gray-50 via-gray-50 to-gray-50
-        dark:from-novo-fondo-secondary dark:via-novo-fondo-secondary dark:to-novo-fondo-secondary
+        dark:from-codex-fondo-secondary dark:via-codex-fondo-secondary dark:to-codex-fondo-secondary
             `
             ,
             className
@@ -164,8 +164,8 @@ function Sidebar({
           data-slot="sidebar"
           data-mobile="true"
           className='w-(--sidebar-width) p-0 [&>button]:hidden
-          bg-gradient-to-br from-novo-fondo-primary-variante1 via-novo-fondo-secondary-variante1 to-novo-fondo-terciario-variante1 
-        dark:from-novo-fondo-secondary dark:via-novo-fondo-terciario-variante5 dark:to-novo-fondo-terciario-variante6'
+          bg-gradient-to-br from-codex-fondo-primary-variante1 via-codex-fondo-secondary-variante1 to-codex-fondo-terciario-variante1 
+        dark:from-codex-fondo-secondary dark:via-codex-fondo-terciario-variante5 dark:to-codex-fondo-terciario-variante6'
           style={
             {
               "--sidebar-width": SIDEBAR_WIDTH_MOBILE
@@ -468,11 +468,11 @@ function SidebarMenuItem({
 }
 
 const sidebarMenuButtonVariants = cva(
-  "peer/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-left text-sm outline-hidden ring-sidebar-ring transition-[width,height,padding] hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-chartNovo-4 active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 group-has-data-[sidebar=menu-action]/menu-item:pr-8 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-chartNovo-4 data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-novo-hover-primary-variante2 data-[state=open]:dark:hover:bg-novo-hover-terciario-variante5 data-[state=open]:hover:text-sidebar-accent-foreground group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0",
+  "peer/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-left text-sm outline-hidden ring-sidebar-ring transition-[width,height,padding] hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-chartNovo-4 active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 group-has-data-[sidebar=menu-action]/menu-item:pr-8 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-chartNovo-4 data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-codex-hover-primary-variante2 data-[state=open]:dark:hover:bg-codex-hover-terciario-variante5 data-[state=open]:hover:text-sidebar-accent-foreground group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0",
   {
     variants: {
       variant: {
-        default: "hover:bg-novo-hover-primary-variante2 dark:hover:bg-novo-hover-terciario-variante5 dark:hover:text-novo-texto-terciario-variante1 hover:text-novo-texto-secondary",
+        default: "hover:bg-codex-hover-primary-variante2 dark:hover:bg-codex-hover-terciario-variante5 dark:hover:text-codex-texto-terciario-variante1 hover:text-codex-texto-secondary",
         outline:
           "bg-background shadow-[0_0_0_1px_hsl(var(--sidebar-border))] hover:bg-chartNovo-4 hover:text-sidebar-accent-foreground hover:shadow-[0_0_0_1px_hsl(var(--sidebar-accent))]",
       },
@@ -623,7 +623,7 @@ function SidebarMenuSub({
       data-slot="sidebar-menu-sub"
       data-sidebar="menu-sub"
       className={cn(
-        "border-novo-bordes-primary-variante2 dark:border-novo-bordes-terciario-variante4 mx-3.5 flex min-w-0 translate-x-px flex-col gap-1 border-l px-2.5 py-1",
+        "border-codex-bordes-primary-variante2 dark:border-codex-bordes-terciario-variante4 mx-3.5 flex min-w-0 translate-x-px flex-col gap-1 border-l px-2.5 py-1",
         "group-data-[collapsible=icon]:hidden",
         className
       )}
@@ -660,7 +660,7 @@ function SidebarMenuSubButton({
       data-size={size}
       data-active={isActive}
       className={cn(
-        " ring-novo-bordes-primary hover:bg-novo-hover-primary-variante1 dark:hover:bg-novo-hover-terciario-variante5 dark:hover:text-novo-texto-terciario-variante1 hover:text-novo-texto-secondary active:bg-sidebar-accent active:text-sidebar-accent-foreground [&>svg]:text-sidebar-accent-foreground flex h-7 min-w-0 -translate-x-px items-center gap-2 overflow-hidden rounded-md px-2 outline-hidden focus-visible:ring-2 disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0",
+        " ring-codex-bordes-primary hover:bg-codex-hover-primary-variante1 dark:hover:bg-codex-hover-terciario-variante5 dark:hover:text-codex-texto-terciario-variante1 hover:text-codex-texto-secondary active:bg-sidebar-accent active:text-sidebar-accent-foreground [&>svg]:text-sidebar-accent-foreground flex h-7 min-w-0 -translate-x-px items-center gap-2 overflow-hidden rounded-md px-2 outline-hidden focus-visible:ring-2 disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0",
         "data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground",
         size === "sm" && "text-xs",
         size === "md" && "text-sm",

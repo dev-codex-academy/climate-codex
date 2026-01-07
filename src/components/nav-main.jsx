@@ -34,7 +34,7 @@ export function NavMain({
                 <a href={item.url || "#"}>
                   {item.icon ? (
                     <div className="flex items-center">
-                      <Icon className="size-4 text-novo-iconos-primary dark:text-novo-iconos-terciario-variante2" />
+                      <Icon className="size-4 text-codex-iconos-primary dark:text-codex-iconos-terciario-variante2" />
                     </div>
                   ) : null}
                   <span>{item.title}</span>
@@ -58,20 +58,20 @@ export function NavMain({
                       <div
                         className="
                           p-1 
-                          bg-novo-botones-primary-variante2 
-                          dark:bg-novo-botones-terciario-variante5 
+                          bg-codex-botones-primary-variante2 
+                          dark:bg-codex-botones-terciario-variante5 
                           rounded-md 
                           group-data-[collapsible=icon]:hidden
                         "
                       >
-                        <Icon className="size-4 text-novo-iconos-primary dark:text-novo-iconos-terciario-variante2" />
+                        <Icon className="size-4 text-codex-iconos-primary dark:text-codex-iconos-terciario-variante2" />
                       </div>
 
                       <Icon
                         className="
                           size-4 
-                          text-novo-iconos-primary 
-                          dark:text-novo-iconos-terciario-variante2 
+                          text-codex-iconos-primary 
+                          dark:text-codex-iconos-terciario-variante2 
                           hidden 
                           group-data-[collapsible=icon]:block
                         "
@@ -95,7 +95,7 @@ export function NavMain({
                           <a
                             href={subItem.url}
                             className={`flex items-center px-3 py-2 rounded-md transition
-                            ${isActive ? "bg-novo-fondo-primary-variante1 dark:bg-novo-fondo-terciario-variante4" : ""}
+                            ${isActive ? "bg-codex-fondo-primary-variante1 dark:bg-codex-fondo-terciario-variante4" : ""}
                           `}
                           >
                             <span>{subItem.title}</span>

@@ -89,7 +89,7 @@ export const Login = ({ className, ...props }) => {
   };
   return (
     <>
-      <div className="relative min-h-screen grid place-items-center bg-gray-50 dark:bg-novo-fondo-secondary">
+      <div className="relative min-h-screen grid place-items-center bg-gray-50 dark:bg-codex-fondo-secondary">
         <div
           className={cn(
             "w-full max-w-md md:max-w-2xl px-4 md:px-6 lg:px-0",
@@ -104,7 +104,7 @@ export const Login = ({ className, ...props }) => {
                   <div className="flex flex-col items-center text-center md:items-center gap-1">
                     <h1 className="text-2xl font-bold leading-tight">
                       Welcome to{" "}
-                      <span className="font-black text-novo-texto-primary dark:text-novo-texto-primary-variante2">CodeX</span>
+                      <span className="font-black text-codex-texto-primary dark:text-codex-texto-primary-variante2">CodeX</span>
                     </h1>
                     <p className="text-muted-foreground text-sm ">
                       Please log in to access the system.
@@ -137,7 +137,7 @@ export const Login = ({ className, ...props }) => {
                       <button
                         type="button"
                         onClick={() => setShowPass((s) => !s)}
-                        className="text-xs text-novo-texto-primary dark:text-novo-texto-primary-variante2 hover:underline"
+                        className="text-xs text-codex-texto-primary dark:text-codex-texto-primary-variante2 hover:underline"
                         tabIndex={-1}
                       >
                         {showPass ? "Hide" : "Show"}
@@ -159,7 +159,7 @@ export const Login = ({ className, ...props }) => {
                     type="submit"
                     disabled={loading}
                     className="w-full mt-1 py-5 text-base font-semibold transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed
-                    bg-novo-fondo-primary dark:bg-novo-fondo-primary-variante2 hover:bg-novo-fondo-primary-variante3 dark:hover:bg-novo-fondo-primary hover:text-novo-texto-on-primary dark:hover:text-novo-texto-on-primary-variante2
+                    bg-codex-fondo-primary dark:bg-codex-fondo-primary-variante2 hover:bg-codex-fondo-primary-variante3 dark:hover:bg-codex-fondo-primary hover:text-codex-texto-on-primary dark:hover:text-codex-texto-on-primary-variante2
                     "
                   >
                     {loading ? "Loading..." : "Login"}
@@ -167,10 +167,10 @@ export const Login = ({ className, ...props }) => {
                 </div>
               </form>
 
-              <div className="hidden md:flex relative z-10 h-full w-full p-8 flex-col justify-start gap-7 text-foreground bg-novo-fondo-primary-variante1 dark:bg-novo-fondo-terciario-variante3">
+              <div className="hidden md:flex relative z-10 h-full w-full p-8 flex-col justify-start gap-7 text-foreground bg-codex-fondo-primary-variante1 dark:bg-codex-fondo-terciario-variante3">
                 <div className="space-y-1 text-center md:text-left">
                   <h1 className="text-2xl font-bold leading-tight">
-                    Code<span className="text-novo-texto-primary dark:text-novo-texto-primary-variante2 font-black">X</span>
+                    Code<span className="text-codex-texto-primary dark:text-codex-texto-primary-variante2 font-black">X</span>
                   </h1>
                   <p className="text-sm text-muted-foreground">
                     Intelligent client.
@@ -179,22 +179,22 @@ export const Login = ({ className, ...props }) => {
 
                 <ul className="grid gap-4 text-xs">
                   <li className="flex items-start gap-3">
-                    <Users className="size-5 text-novo-texto-primary dark:text-novo-texto-terciario-variante3 shrink-0" />
+                    <Users className="size-5 text-codex-texto-primary dark:text-codex-texto-terciario-variante3 shrink-0" />
                     360° Customer View.
                     All information centralized in one place.
                   </li>
                   <li className="flex items-start gap-3">
-                    <BarChart3 className="size-5 text-novo-texto-primary dark:text-novo-texto-terciario-variante3 shrink-0" />
+                    <BarChart3 className="size-5 text-codex-texto-primary dark:text-codex-texto-terciario-variante3 shrink-0" />
                     Real-time KPIs and Reports.
                     Make better decisions with up-to-date insights.
                   </li>
                   <li className="flex items-start gap-3">
-                    <Workflow className="size-5 text-novo-texto-primary dark:text-novo-texto-terciario-variante3 shrink-0" />
+                    <Workflow className="size-5 text-codex-texto-primary dark:text-codex-texto-terciario-variante3 shrink-0" />
                     Task and Process Automation.
                     Save time with automated workflows.
                   </li>
                   <li className="flex items-start gap-3">
-                    <ShieldCheck className="size-5 text-novo-texto-primary dark:text-novo-texto-terciario-variante3 shrink-0" />
+                    <ShieldCheck className="size-5 text-codex-texto-primary dark:text-codex-texto-terciario-variante3 shrink-0" />
                     Access Control and Data Security.
                     Control access and data security with custom roles.
                   </li>
