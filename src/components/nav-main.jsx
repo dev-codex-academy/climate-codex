@@ -25,6 +25,25 @@ export function NavMain({
     <SidebarMenu>
       {items.map((item) => {
         const Icon = Icons[item.icon] ?? Icons.Circle;
+        const hasSubItems = item.items && item.items.length > 0;
+
+        if (!hasSubItems) {
+          return (
+            <SidebarMenuItem key={item.title}>
+              <SidebarMenuButton asChild tooltip={item.title}>
+                <a href={item.url || "#"}>
+                  {item.icon ? (
+                    <div className="flex items-center">
+                      <Icon className="size-4 text-novo-iconos-primary dark:text-novo-iconos-terciario-variante2" />
+                    </div>
+                  ) : null}
+                  <span>{item.title}</span>
+                </a>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          )
+        }
+
         return (
           <Collapsible
             key={item.title}

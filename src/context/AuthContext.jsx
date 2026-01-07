@@ -25,6 +25,7 @@ export const AuthProvider = ({ children }) => {
         setUser(data); // Data is the user object directly based on docs
         if (data.permissions) {
           localStorage.setItem("user_permissions", JSON.stringify(data.permissions));
+          localStorage.setItem("user_data", JSON.stringify(data));
         }
       } else {
         // Token invalid or expired
@@ -48,12 +49,14 @@ export const AuthProvider = ({ children }) => {
     setUser(userData);
     if (userData && userData.permissions) {
       localStorage.setItem("user_permissions", JSON.stringify(userData.permissions));
+      localStorage.setItem("user_data", JSON.stringify(userData));
     }
   };
 
   const logout = () => {
     localStorage.removeItem("auth_token");
     localStorage.removeItem("user_permissions");
+    localStorage.removeItem("user_data");
     setUser(null);
     window.location.href = "/login";
   };
