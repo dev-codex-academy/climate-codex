@@ -21,8 +21,8 @@ export default function AdminLayout() {
                         />
                     </div>
                 </header>
-                
-                <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
+
+                <div className="flex flex-1 flex-col gap-4 p-4 pt-0 overflow-hidden">
                     <Outlet />
                 </div>
             </SidebarInset>

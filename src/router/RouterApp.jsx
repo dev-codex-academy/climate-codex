@@ -1,6 +1,9 @@
 import { Navigate, Route, Routes, useLocation } from "react-router-dom"
 import { Login } from "../pages/Login"
 import { NotFound } from "../pages/NotFound"
+import { Lead } from "../pages/Lead"
+import { Pipeline } from "../pages/Pipeline";
+import { Attributes } from "../pages/Attributes";
 import AdminLayout from "@/layout/AdminLayout"
 import { useAuth } from "@/context/AuthContext"
 
@@ -35,8 +38,10 @@ export const RouterApp = () => {
             {/* private routes */}
 
             <Route path="/" element={<LoginValidate><AdminLayout /></LoginValidate>}>
-               {/*  <Route path="rol" element={<Rol />} /> */}
-                
+                {/*  <Route path="rol" element={<Rol />} /> */}
+                <Route path="lead" element={<Lead />} />
+                <Route path="pipeline" element={<Pipeline />} />
+                <Route path="attributes" element={<Attributes />} />
             </Route>
 
             {/* default routes */}
