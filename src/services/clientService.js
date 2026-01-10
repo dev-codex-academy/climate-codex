@@ -1,0 +1,79 @@
+import { API_URL, getHeaders } from "./api";
+
+const endPoint = "clients";
+const url = `${API_URL}/${endPoint}/`;
+
+export const getClients = async () => {
+    const res = await fetch(url, {
+        method: "GET",
+        headers: getHeaders(),
+    });
+    if (!res.ok) throw new Error("Error fetching clients");
+    const data = await res.json();
+    return data.results || data;
+};
+
+export const createClient = async (data) => {
+    const res = await fetch(url, {
+        method: "POST",
+        headers: getHeaders(),
+        body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(JSON.stringify(errorData));
+    }
+    return res.json();
+};
+
+export const updateClient = async (id, data) => {
+    const res = await fetch(`${url}${id}/`, {
+        method: "PATCH",
+        headers: getHeaders(),
+        body: JSON.stringify(data),
+    });
+    if (!res.ok) throw new Error("Error updating client");
+    return res.json();
+};
+
+export const deleteClient = async (id) => {
+    const res = await fetch(`${url}${id}/`, {
+        method: "DELETE",
+        headers: getHeaders(),
+    });
+    if (!res.ok) throw new Error("Error deleting client");
+    return true;
+};
+
+export const getClientAttributes = async () => {
+    const res = await fetch(`${API_URL}/attributes/client/`, {
+        method: "GET",
+        headers: getHeaders(),
+    });
+    if (!res.ok) throw new Error("Error fetching client attributes");
+    const data = await res.json();
+    return data.results || data;
+};
+
+export const uploadClientImage = async (id, file) => {
+    const formData = new FormData();
+    formData.append("file", file, file.name);
+
+    const token = localStorage.getItem('auth_token');
+
+    const headers = {
+        ...(token && { 'Authorization': `Token ${token}` })
+    };
+
+    const res = await fetch(`${API_URL}/clients/${id}/files/`, {
+        method: "POST",
+        headers: headers,
+        body: formData,
+    });
+
+    if (!res.ok) {
+        const text = await res.text();
+        throw new Error(`Error uploading file: ${res.status} ${text}`);
+    }
+    return res.json();
+};

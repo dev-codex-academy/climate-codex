@@ -4,14 +4,22 @@ import { Button } from '../ui/button';
 import { X } from 'lucide-react';
 
 export const AttributeForm = ({ entity, onSubmit, onCancel, isLoading }) => {
-    const { register, handleSubmit, formState: { errors } } = useForm();
+    const { register, handleSubmit, watch, formState: { errors } } = useForm();
+    const selectedType = watch("type");
 
     const handleFormSubmit = (data) => {
-        // Ensure is_required is boolean
-        const payload = {
+        let payload = {
             ...data,
             is_required: data.is_required === true
         };
+
+        if (data.type === 'list' && typeof data.list_values === 'string') {
+            // Convert comma separated string to array, trimming whitespace
+            payload.list_values = data.list_values.split(',').map(s => s.trim()).filter(s => s);
+        } else {
+            payload.list_values = [];
+        }
+
         onSubmit(payload);
     };
 
@@ -55,8 +63,31 @@ export const AttributeForm = ({ entity, onSubmit, onCancel, isLoading }) => {
                     <option value="number">Number</option>
                     <option value="date">Date</option>
                     <option value="boolean">Boolean</option>
-                    <option value="list">List</option>
+                    <option value="list">Select List</option>
+                    <option value="textarea">Text Area</option>
+                    <option value="file">File</option>
                 </select>
+            </div>
+
+            {selectedType === 'list' && (
+                <div>
+                    <label className="block text-sm font-medium mb-1">List Options (Comma separated)</label>
+                    <textarea
+                        {...register("list_values", { required: "List options are required for list type" })}
+                        className="w-full p-2 rounded-md border border-border bg-background text-foreground h-24"
+                        placeholder="Option 1, Option 2, Option 3"
+                    />
+                    {errors.list_values && <span className="text-red-500 text-xs">{errors.list_values.message}</span>}
+                </div>
+            )}
+
+            <div>
+                <label className="block text-sm font-medium mb-1">Description</label>
+                <textarea
+                    {...register("description")}
+                    className="w-full p-2 rounded-md border border-border bg-background text-foreground h-20"
+                    placeholder="Describe what this attribute is for..."
+                />
             </div>
 
             <div className="flex items-center gap-2">

@@ -4,32 +4,32 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  /* --------- Inicio estandarización paleta de colores -------------- */
+  /* --------- Colors Codex -------------- */
 
   --color-codex-primary: #4F8071;
-  /* Verde */
+  /* Green */
   --color-codex-secondary: #1E242A;
-  /* Negro */
+  /* Black */
   --color-codex-terciario: #396bc2;
-  /* Azul */
+  /* Blue */
   --color-codex-cuaternario: #F6F4EF;
-  /* Gris cafesoso */
+  /* Gray Coffee */
 
   --color-codex-fondo-primary: #4F8071;
-  /* Verde */
+  /* Green */
   --color-codex-fondo-primary-variante1: #ddeae4;
   --color-codex-fondo-primary-variante2: #bad5cb;
   --color-codex-fondo-primary-variante3: #3d6459;
   --color-codex-fondo-primary-variante4: #335249;
   --color-codex-fondo-secondary: #1E242A;
-  /* Negro */
+  /* Black */
   --color-codex-fondo-secondary-variante1: #e2e9eb;
   --color-codex-fondo-secondary-variante2: #c7d4da;
   --color-codex-fondo-secondary-variante3: #577283;
   --color-codex-fondo-secondary-variante4: #4b606f;
   --color-codex-fondo-secondary-variante5: #343c45;
   --color-codex-fondo-terciario: #396bc2;
-  /* Azul */
+  /* Blue */
   --color-codex-fondo-terciario-variante1: #e0eef9;
   --color-codex-fondo-terciario-variante2: #c8e1f5;
   --color-codex-fondo-terciario-variante3: #417dcf;
@@ -37,27 +37,27 @@
   --color-codex-fondo-terciario-variante5: #2d497b;
   --color-codex-fondo-terciario-variante6: #202e4b;
   --color-codex-fondo-cuaternario: #F6F4EF;
-  /* Gris cafesoso */
+  /* Gray Coffee */
   --color-codex-fondo-cuaternario-variante1: #f0ede4;
   --color-codex-fondo-cuaternario-variante2: #e0d9c8;
   --color-codex-fondo-cuaternario-variante3: #a78c68;
   --color-codex-fondo-cuaternario-variante4: #9a7b5c;
 
   --color-codex-cards-primary: #4F8071;
-  /* Verde */
+  /* Green */
   --color-codex-cards-primary-variante1: #ddeae4;
   --color-codex-cards-primary-variante2: #bad5cb;
   --color-codex-cards-primary-variante3: #3d6459;
   --color-codex-cards-primary-variante4: #335249;
   --color-codex-cards-secondary: #1E242A;
-  /* Negro */
+  /* Black */
   --color-codex-cards-secondary-variante1: #e2e9eb;
   --color-codex-cards-secondary-variante2: #c7d4da;
   --color-codex-cards-secondary-variante3: #577283;
   --color-codex-cards-secondary-variante4: #4b606f;
   --color-codex-cards-secondary-variante5: #343c45;
   --color-codex-cards-terciario: #396bc2;
-  /* Azul */
+  /* Blue */
   --color-codex-cards-terciario-variante1: #e0eef9;
   --color-codex-cards-terciario-variante2: #c8e1f5;
   --color-codex-cards-terciario-variante3: #417dcf;
@@ -65,27 +65,27 @@
   --color-codex-cards-terciario-variante5: #2d497b;
   --color-codex-cards-terciario-variante6: #202e4b;
   --color-codex-cards-cuaternario: #F6F4EF;
-  /* Gris cafesoso */
+  /* Gray Coffee */
   --color-codex-cards-cuaternario-variante1: #f0ede4;
   --color-codex-cards-cuaternario-variante2: #e0d9c8;
   --color-codex-cards-cuaternario-variante3: #a78c68;
   --color-codex-cards-cuaternario-variante4: #9a7b5c;
 
   --color-codex-botones-primary: #4F8071;
-  /* Verde */
+  /* Green */
   --color-codex-botones-primary-variante1: #ddeae4;
   --color-codex-botones-primary-variante2: #bad5cb;
   --color-codex-botones-primary-variante3: #3d6459;
   --color-codex-botones-primary-variante4: #335249;
   --color-codex-botones-secondary: #1E242A;
-  /* Negro */
+  /* Black */
   --color-codex-botones-secondary-variante1: #e2e9eb;
   --color-codex-botones-secondary-variante2: #c7d4da;
   --color-codex-botones-secondary-variante3: #577283;
   --color-codex-botones-secondary-variante4: #4b606f;
   --color-codex-botones-secondary-variante5: #343c45;
   --color-codex-botones-terciario: #396bc2;
-  /* Azul */
+  /* Blue */
   --color-codex-botones-terciario-variante1: #e0eef9;
   --color-codex-botones-terciario-variante2: #c8e1f5;
   --color-codex-botones-terciario-variante3: #417dcf;
@@ -93,27 +93,27 @@
   --color-codex-botones-terciario-variante5: #2d497b;
   --color-codex-botones-terciario-variante6: #202e4b;
   --color-codex-botones-cuaternario: #F6F4EF;
-  /* Gris cafesoso */
+  /* Gray Coffee */
   --color-codex-botones-cuaternario-variante1: #f0ede4;
   --color-codex-botones-cuaternario-variante2: #e0d9c8;
   --color-codex-botones-cuaternario-variante3: #a78c68;
   --color-codex-botones-cuaternario-variante4: #9a7b5c;
 
   --color-codex-bordes-primary: #4F8071;
-  /* Verde */
+  /* Green */
   --color-codex-bordes-primary-variante1: #ddeae4;
   --color-codex-bordes-primary-variante2: #bad5cb;
   --color-codex-bordes-primary-variante3: #3d6459;
   --color-codex-bordes-primary-variante4: #335249;
   --color-codex-bordes-secondary: #1E242A;
-  /* Negro */
+  /* Black */
   --color-codex-bordes-secondary-variante1: #e2e9eb;
   --color-codex-bordes-secondary-variante2: #c7d4da;
   --color-codex-bordes-secondary-variante3: #577283;
   --color-codex-bordes-secondary-variante4: #4b606f;
   --color-codex-bordes-secondary-variante5: #343c45;
   --color-codex-bordes-terciario: #396bc2;
-  /* Azul */
+  /* Blue */
   --color-codex-bordes-terciario-variante1: #e0eef9;
   --color-codex-bordes-terciario-variante2: #c8e1f5;
   --color-codex-bordes-terciario-variante3: #417dcf;
@@ -121,27 +121,27 @@
   --color-codex-bordes-terciario-variante5: #2d497b;
   --color-codex-bordes-terciario-variante6: #202e4b;
   --color-codex-bordes-cuaternario: #F6F4EF;
-  /* Gris cafesoso */
+  /* Gray Coffee */
   --color-codex-bordes-cuaternario-variante1: #f0ede4;
   --color-codex-bordes-cuaternario-variante2: #e0d9c8;
   --color-codex-bordes-cuaternario-variante3: #a78c68;
   --color-codex-bordes-cuaternario-variante4: #9a7b5c;
 
   --color-codex-texto-primary: #4F8071;
-  /* Verde */
+  /* Green */
   --color-codex-texto-primary-variante1: #ddeae4;
   --color-codex-texto-primary-variante2: #bad5cb;
   --color-codex-texto-primary-variante3: #3d6459;
   --color-codex-texto-primary-variante4: #335249;
   --color-codex-texto-secondary: #1E242A;
-  /* Negro */
+  /* Black */
   --color-codex-texto-secondary-variante1: #e2e9eb;
   --color-codex-texto-secondary-variante2: #c7d4da;
   --color-codex-texto-secondary-variante3: #577283;
   --color-codex-texto-secondary-variante4: #4b606f;
   --color-codex-texto-secondary-variante5: #343c45;
   --color-codex-texto-terciario: #396bc2;
-  /* Azul */
+  /* Blue */
   --color-codex-texto-terciario-variante1: #e0eef9;
   --color-codex-texto-terciario-variante2: #c8e1f5;
   --color-codex-texto-terciario-variante3: #417dcf;
@@ -149,36 +149,36 @@
   --color-codex-texto-terciario-variante5: #2d497b;
   --color-codex-texto-terciario-variante6: #202e4b;
   --color-codex-texto-cuaternario: #F6F4EF;
-  /* Gris cafesoso */
+  /* Gray Coffee */
   --color-codex-texto-cuaternario-variante1: #f0ede4;
   --color-codex-texto-cuaternario-variante2: #e0d9c8;
   --color-codex-texto-cuaternario-variante3: #a78c68;
   --color-codex-texto-cuaternario-variante4: #9a7b5c;
 
   --color-codex-titulos-primary: #4F8071;
-  /* Verde */
+  /* Green */
   --color-codex-titulos-secondary: #1E242A;
-  /* Negro */
+  /* Black */
   --color-codex-titulos-terciario: #396bc2;
-  /* Azul */
+  /* Blue */
   --color-codex-titulos-cuaternario: #F6F4EF;
-  /* Gris cafesoso */
+  /* Gray Coffee */
 
   --color-codex-iconos-primary: #4F8071;
-  /* Verde */
+  /* Green */
   --color-codex-iconos-primary-variante1: #ddeae4;
   --color-codex-iconos-primary-variante2: #bad5cb;
   --color-codex-iconos-primary-variante3: #3d6459;
   --color-codex-iconos-primary-variante4: #335249;
   --color-codex-iconos-secondary: #1E242A;
-  /* Negro */
+  /* Black */
   --color-codex-iconos-secondary-variante1: #e2e9eb;
   --color-codex-iconos-secondary-variante2: #c7d4da;
   --color-codex-iconos-secondary-variante3: #577283;
   --color-codex-iconos-secondary-variante4: #4b606f;
   --color-codex-iconos-secondary-variante5: #343c45;
   --color-codex-iconos-terciario: #396bc2;
-  /* Azul */
+  /* Blue */
   --color-codex-iconos-terciario-variante1: #e0eef9;
   --color-codex-iconos-terciario-variante2: #c8e1f5;
   --color-codex-iconos-terciario-variante3: #417dcf;
@@ -186,27 +186,27 @@
   --color-codex-iconos-terciario-variante5: #2d497b;
   --color-codex-iconos-terciario-variante6: #202e4b;
   --color-codex-iconos-cuaternario: #F6F4EF;
-  /* Gris cafesoso */
+  /* Gray Coffee */
   --color-codex-iconos-cuaternario-variante1: #f0ede4;
   --color-codex-iconos-cuaternario-variante2: #e0d9c8;
   --color-codex-iconos-cuaternario-variante3: #a78c68;
   --color-codex-iconos-cuaternario-variante4: #9a7b5c;
 
   --color-codex-hover-primary: #4F8071;
-  /* Verde */
+  /* Green */
   --color-codex-hover-primary-variante1: #ddeae4;
   --color-codex-hover-primary-variante2: #bad5cb;
   --color-codex-hover-primary-variante3: #3d6459;
   --color-codex-hover-primary-variante4: #335249;
   --color-codex-hover-secondary: #1E242A;
-  /* Negro */
+  /* Black */
   --color-codex-hover-secondary-variante1: #e2e9eb;
   --color-codex-hover-secondary-variante2: #c7d4da;
   --color-codex-hover-secondary-variante3: #577283;
   --color-codex-hover-secondary-variante4: #4b606f;
   --color-codex-hover-secondary-variante5: #343c45;
   --color-codex-hover-terciario: #396bc2;
-  /* Azul */
+  /*    Blue */
   --color-codex-hover-terciario-variante1: #e0eef9;
   --color-codex-hover-terciario-variante2: #c8e1f5;
   --color-codex-hover-terciario-variante3: #417dcf;
@@ -214,7 +214,7 @@
   --color-codex-hover-terciario-variante5: #2d497b;
   --color-codex-hover-terciario-variante6: #202e4b;
   --color-codex-hover-cuaternario: #F6F4EF;
-  /* Gris cafesoso */
+  /* Gray Coffee */
   --color-codex-hover-cuaternario-variante1: #f0ede4;
   --color-codex-hover-cuaternario-variante2: #e0d9c8;
   --color-codex-hover-cuaternario-variante3: #a78c68;
@@ -283,11 +283,11 @@
 :root {
   --radius: 0.625rem;
 
-  /* 🎨 Base (claro) */
+  /* Base (light) */
   --background: oklch(0.982 0.002 248.6);
-  /* BLANCO #F8F9FA */
+  /* White #F8F9FA */
   --foreground: oklch(0.293 0.000 263.3);
-  /* GRIS OSCURO #2C2C2C */
+  /* Dark Gray #2C2C2C */
 
   /* Superficies */
   --card: var(--background);
@@ -295,56 +295,56 @@
   --popover: var(--background);
   --popover-foreground: var(--foreground);
 
-  /* Colores de marca */
+  /* Marketing Colors */
   --primary: oklch(0.586 0.157 251.4);
-  /* AZUL PRIMARIO #1F7ED5 */
+  /* Blue Primary #1F7ED5 */
   --primary-foreground: oklch(0.982 0.002 248.6);
   /* Texto sobre primario (blanco) */
 
   /* Apoyos/estados */
   --secondary: oklch(0.629 0.061 171.4);
-  /* VERDE #629584 */
+  /* Green #629584 */
   --secondary-foreground: oklch(0.293 0.000 263.3);
 
   --accent: oklch(0.650 0.060 251.4);
-  /* Azul claro (tinte del primario) */
+  /* Blue (tint of primary) */
   --accent-foreground: oklch(0.293 0.000 263.3);
 
   --muted: oklch(0.945 0.004 250);
-  /* Neutro claro para fondos suaves */
+  /* Neutral light for soft backgrounds */
   --muted-foreground: oklch(0.472 0.015 257);
 
   --destructive: oklch(53.514% 0.20234 26.961);
-  /* Puedes ajustar a tu rojo/alerta */
+  /* Red/Alert */
 
-  /* Bordes/inputs/anillo de foco */
+  /* Borders/inputs/focus ring */
   --border: oklch(0.915 0.005 250);
   --input: oklch(0.915 0.005 250);
   --ring: oklch(0.700 0.120 251.4);
-  /* Anillo con tinte del primario */
+  /* Blue with tint of primary */
 
-  /* Paleta de gráficos (azules + verde de apoyo) */
+  /* Chart Colors (blues + green support) */
   --chart-1: oklch(0.586 0.157 251.4);
-  /* Primario */
+  /* Blue Primary */
   --chart-2: oklch(0.629 0.061 171.4);
-  /* Verde */
+  /* Green */
   --chart-3: oklch(0.216 0.028 245.2);
-  /* Azul oscuro logo #0E1B26 */
+  /* Dark Blue */
   --chart-4: oklch(0.750 0.090 251.4);
-  /* Azul más claro */
+  /* Blue Light */
   --chart-5: oklch(0.840 0.030 251.4);
-  /* Azul muy suave */
+  /* Blue Very Light */
 
 
-  /* Paleta de gráficos codex Tech HN */
+  /* Chart Colors codex Tech HN */
   --chartcodex-1: oklch(0.738 0.090 253.8);
-  /* Azul principal (#396BC2) */
+  /* Blue Primary */
   --chartcodex-2: oklch(0.643 0.042 176.4);
-  /* Verde (#4F8071) */
+  /* Green */
   --chartcodex-3: oklch(0.516 0.016 245.5);
-  /* Negro (#1E242A) */
+  /* Black */
   --chartcodex-4: oklch(0.985 0.003 88.8);
-  /* Blanco (#F6F4EF) */
+  /* White */
 
   /* Sidebar */
   /*--sidebar: oklch(0.975 0.002 248.6);*/
@@ -370,15 +370,15 @@
   --popover-foreground: var(--foreground);
 
   --primary: oklch(0.700 0.120 251.4);
-  /* Primario más “luminoso” en dark */
+  /* Blue Primary more "luminoso" in dark */
   --primary-foreground: oklch(0.216 0.028 245.2);
 
   --secondary: oklch(0.590 0.070 171.4);
-  /* Verde algo más luminoso */
+  /* Green more "luminoso" */
   --secondary-foreground: oklch(0.110 0.005 250);
 
   --accent: oklch(0.760 0.070 251.4);
-  /* Azul claro para hovers y resaltes */
+  /* Blue Light for hovers and highlights */
   --accent-foreground: oklch(0.110 0.005 250);
 
   --muted: oklch(0.270 0.020 250);
@@ -391,7 +391,7 @@
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.700 0.120 251.4);
 
-  /* Charts en dark (contraste) */
+  /* Charts in dark (contrast) */
   --chart-1: oklch(0.700 0.120 251.4);
   --chart-2: oklch(0.590 0.070 171.4);
   --chart-3: oklch(0.840 0.030 251.4);
@@ -426,5 +426,5 @@ body,
 
 body {
   overflow: hidden;
-  /* El scroll lo manejarán contenedores internos */
+  /* Scroll handled by internal containers */
 }

@@ -36,7 +36,7 @@ export function Form({
 
   console.log(empresaID);
 
-  // Mantener sincronía si cambian los valores iniciales (ej. al editar otra fila)
+  // Keep sync if initial values change (e.g. when editing another row)
   const [initialized, setInitialized] = useState(false);
 
   useEffect(() => {
@@ -80,7 +80,7 @@ export function Form({
   const calculateTotal = (data) => {
     const laborPrice = Number(data.precio_mano_obra) || 0;
     const partsPrice = Number(data.precio_repuestos) || 0;
-    // Redondeamos para evitar problemas de coma flotante si es necesario, si no, usa solo la suma
+    // Round to avoid floating point issues if necessary, otherwise use just the sum
     return (laborPrice + partsPrice).toFixed(2);
   };
 
@@ -128,8 +128,8 @@ export function Form({
           min,
           max,
           hint,
-          disabled = false,              // <- por field
-          readOnly = false,              // <- por field
+          disabled = false,              // <- per field
+          readOnly = false,              // <- per field
         } = field;
 
 
@@ -148,7 +148,7 @@ export function Form({
               </Label>
             ) : null}
 
-            {/* Tipos soportados */}
+            {/* Supported types */}
             {
               type === "color" ? (
                 <div className="flex items-center gap-3">

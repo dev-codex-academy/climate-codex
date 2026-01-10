@@ -107,6 +107,7 @@ Pipelines have custom stages defined in JSON.
 {
     "name": "John Doe",
     "responsible": <USER_ID>,
+    "stage": "Prospecting", // Optional, defaults to "Prospecting"
     "attributes": {
         "source": "LinkedIn"
     }
@@ -122,6 +123,7 @@ All endpoints support filtering by any field via query parameters.
 - `GET /api/clients/?name=Acme`
 - `GET /api/services/?client=<CLIENT_UUID>`
 - `GET /api/leads/?responsible=1`
+- `GET /api/leads/?stage=Prospecting`
 - `GET /api/pipelines/?name=Sales`
 
 ---
@@ -220,6 +222,31 @@ All endpoints support filtering by any field via query parameters.
     "student": "<SERVICE_ID>"
 }
 ```
+
+---
+
+## Follow-Ups (Nested per Service)
+
+### 16. Service Follow-Ups
+This endpoint allows tracking interactions with a simplified student service entity. 
+
+**GET** `/services/<service_id>/follow-ups/`
+List all follow-ups for a specific service.
+
+**POST** `/services/<service_id>/follow-ups/`
+Create a new follow-up for a specific service. The `user` is automatically set to the requestor.
+
+**Payload:**
+```json
+{
+    "type": "email", // Options: 'email', 'psychological_orientation', 'ta_mentorship', 'phone_call'
+    "follow_up_date": "2025-01-10T15:30:00Z",
+    "comment": "Discussed career path and next steps."
+}
+```
+
+**PUT/PATCH/DELETE** `/services/<service_id>/follow-ups/<follow_up_id>/`
+Manage specific follow-up records.
 
 ---
 

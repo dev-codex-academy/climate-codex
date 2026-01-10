@@ -5,7 +5,7 @@ export const API_URL =
     ? import.meta.env.VITE_API_PROD
     : import.meta.env.VITE_API_DEV;
 
-// Header con token actualizado cada vez
+// Header with token updated every time
 export const getHeaders = () => {
   const token = localStorage.getItem('auth_token');
   return {

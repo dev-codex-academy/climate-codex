@@ -7,49 +7,49 @@ export const useMenu = () => {
     const menuRef = useRef([]);
 
     const MenuLoad = async () => {
-        // Obtenemos los permisos del localStorage
+        // Get permissions from localStorage
         const storedPermissions = localStorage.getItem("user_permissions");
 
         if (storedPermissions) {
             try {
                 const permissions = JSON.parse(storedPermissions);
 
-                // Diccionario de palabras conocidas para separar
+                // Dictionary of known words to separate
                 const commonWords = [
                     "Detail", "List", "History", "Report", "User", "Profile",
                     "Settings", "Dashboard", "Company", "Role", "Log", "Board", "Lead"
                 ];
 
-                // Filtramos y formateamos
+                // Filter and format
                 const formattedMenu = permissions
                     .filter(perm => perm.startsWith("app.add_"))
                     .map(perm => {
-                        // Quitamos el prefijo 'app.add_'
+                        // Remove the 'app.add_' prefix
                         let rawName = perm.replace("app.add_", "");
 
-                        // Capitalizamos la primera letra
+                        // Capitalize the first letter
                         let name = rawName.charAt(0).toUpperCase() + rawName.slice(1);
 
-                        // Intentamos separar palabras pegadas usando el diccionario
+                        // Attempt to separate concatenated words using the dictionary
                         // e.g. "attendancedetail" -> "AttendanceDetail"
-                        // Verificamos si el final del string coincide con alguna palabra común (case insensitive check, but we append the PascalCase version)
+                        // Verify if the end of the string matches a common word (case insensitive check, but we append the PascalCase version)
                         for (const word of commonWords) {
                             const lowerWord = word.toLowerCase();
                             if (name.toLowerCase().endsWith(lowerWord) && name.length > word.length) {
-                                // Encontramos una coincidencia al final
+                                // Found a match at the end
                                 // "attendancedetail" ends with "detail"
                                 const prefix = name.slice(0, -word.length);
                                 name = prefix + word; // "Attendance" + "Detail"
-                                break; // Asumimos solo una separación principal por ahora
+                                break; // Assume only one main separation for now
                             }
                         }
 
-                        // Retornamos la estructura que espera NavMain
+                        // Return the structure expected by NavMain
                         return {
                             title: name,
-                            url: `/${name.toLowerCase()}`, // URL inferida básica
-                            icon: "CircleEllipsis", // Icono por defecto
-                            items: [] // Sin subitems por ahora
+                            url: `/${name.toLowerCase()}`, // Basic inferred URL
+                            icon: "CircleEllipsis", // Default icon
+                            items: [] // No subitems for now
                         };
                     });
 

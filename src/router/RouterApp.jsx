@@ -4,6 +4,9 @@ import { NotFound } from "../pages/NotFound"
 import { Lead } from "../pages/Lead"
 import { Pipeline } from "../pages/Pipeline";
 import { Attributes } from "../pages/Attributes";
+import { Client } from "../pages/Client";
+import { Service } from "../pages/Service";
+import { Followup } from "../pages/Followup";
 import AdminLayout from "@/layout/AdminLayout"
 import { useAuth } from "@/context/AuthContext"
 
@@ -41,7 +44,10 @@ export const RouterApp = () => {
                 {/*  <Route path="rol" element={<Rol />} /> */}
                 <Route path="lead" element={<Lead />} />
                 <Route path="pipeline" element={<Pipeline />} />
-                <Route path="attributes" element={<Attributes />} />
+                <Route path="attribute" element={<Attributes />} />
+                <Route path="client" element={<Client />} />
+                <Route path="service" element={<Service />} />
+                <Route path="followup" element={<Followup />} />
             </Route>
 
             {/* default routes */}

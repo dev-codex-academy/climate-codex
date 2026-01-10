@@ -278,7 +278,7 @@ function SidebarRail({
   );
 }
 
-// funcion para persoanlizar los estilos del contenido principal
+// function to customize main content styles
 function SidebarInset({
   className,
   ...props
@@ -310,7 +310,7 @@ function SidebarInput({
   );
 }
 
-//encabezado del menu
+// Menu header
 function SidebarHeader({
   className,
   ...props
@@ -326,7 +326,7 @@ function SidebarHeader({
   );
 }
 
-//pie de menu
+// Menu footer
 function SidebarFooter({
   className,
   ...props
@@ -355,7 +355,7 @@ function SidebarSeparator({
   );
 }
 
-//menu principal
+// Main menu
 function SidebarContent({
   className,
   ...props
