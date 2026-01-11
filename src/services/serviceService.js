@@ -13,6 +13,27 @@ export const getServices = async () => {
     return data.results || data;
 };
 
+export const searchServices = async (name) => {
+    const res = await fetch(`${url}?name=${name}`, {
+        method: "GET",
+        headers: getHeaders(),
+    });
+    if (!res.ok) throw new Error("Error searching services");
+    const data = await res.json();
+    return data.results || data;
+};
+
+export const getServiceById = async (id) => {
+    const res = await fetch(`${url}?id=${id}`, {
+        method: "GET",
+        headers: getHeaders(),
+    });
+    if (!res.ok) throw new Error("Error fetching service");
+    const data = await res.json();
+    const result = data.results || data;
+    return Array.isArray(result) ? result[0] : result;
+};
+
 export const createService = async (data) => {
     const res = await fetch(url, {
         method: "POST",

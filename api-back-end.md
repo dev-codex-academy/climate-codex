@@ -250,6 +250,38 @@ Manage specific follow-up records.
 
 ---
 
+## Users & Groups
+
+### 17. Instructors
+**GET** `/api/instructors/`
+Returns a list of users in the "Instructors" group.
+
+**Response:**
+```json
+[
+    {
+        "id": 1,
+        "name": "Jane Instructor"
+    }
+]
+```
+
+### 18. Teacher Assistants (TAs)
+**GET** `/api/tas/`
+Returns a list of users in the "Teacher Assistant" group.
+
+**Response:**
+```json
+[
+    {
+        "id": 2,
+        "name": "Bob TA"
+    }
+]
+```
+
+---
+
 ## Roles & Permissions (RBAC)
 The system has defined roles with specific access levels.
 

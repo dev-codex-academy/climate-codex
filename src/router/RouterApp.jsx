@@ -7,6 +7,9 @@ import { Attributes } from "../pages/Attributes";
 import { Client } from "../pages/Client";
 import { Service } from "../pages/Service";
 import { Followup } from "../pages/Followup";
+import { Cohort } from "../pages/Cohort";
+import { Enrollment } from "../pages/Enrollment";
+import { EnrollmentDetail } from "../pages/EnrollmentDetail";
 import AdminLayout from "@/layout/AdminLayout"
 import { useAuth } from "@/context/AuthContext"
 
@@ -48,6 +51,9 @@ export const RouterApp = () => {
                 <Route path="client" element={<Client />} />
                 <Route path="service" element={<Service />} />
                 <Route path="followup" element={<Followup />} />
+                <Route path="cohort" element={<Cohort />} />
+                <Route path="enrollment" element={<Enrollment />} />
+                <Route path="enrollment/:id" element={<EnrollmentDetail />} />
             </Route>
 
             {/* default routes */}

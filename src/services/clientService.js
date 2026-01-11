@@ -13,6 +13,21 @@ export const getClients = async () => {
     return data.results || data;
 };
 
+export const getClientById = async (id) => {
+    // User requested /api/client?id=
+    // Assuming 'url' is /api/clients/
+    // We will try ?id=
+    const res = await fetch(`${url}?id=${id}`, {
+        method: "GET",
+        headers: getHeaders(),
+    });
+    if (!res.ok) throw new Error("Error fetching client");
+    const data = await res.json();
+    // If it returns a list (pagination), take first
+    const result = data.results || data;
+    return Array.isArray(result) ? result[0] : result;
+};
+
 export const createClient = async (data) => {
     const res = await fetch(url, {
         method: "POST",
