@@ -42,3 +42,22 @@ export const getLeadAttributes = async () => {
     const data = await res.json();
     return data.results || data;
 }
+
+export const uploadLeadImage = async (id, file) => {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const res = await fetch(`${API_URL}/leads/${id}/files/`, {
+        method: "POST",
+        headers: {
+            "Authorization": getHeaders().Authorization,
+        },
+        body: formData,
+    });
+
+    if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.detail || "Error uploading image");
+    }
+    return res.json();
+};

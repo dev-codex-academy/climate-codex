@@ -9,10 +9,22 @@ export const Lead = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [refreshBoard, setRefreshBoard] = useState(0);
     const [selectedPipelineId, setSelectedPipelineId] = useState(null);
+    const [selectedLead, setSelectedLead] = useState(null);
     const { user } = useAuth(); // To get responsible ID
 
     const handleLeadCreated = () => {
         setRefreshBoard(prev => prev + 1);
+        setSelectedLead(null);
+    };
+
+    const handleLeadClick = (lead) => {
+        setSelectedLead(lead);
+        setIsModalOpen(true);
+    };
+
+    const handleCloseModal = () => {
+        setIsModalOpen(false);
+        setSelectedLead(null);
     };
 
     return (
@@ -26,7 +38,7 @@ export const Lead = () => {
                         Drag cards to change stage.
                     </p>
                 </div>
-                <Button onClick={() => setIsModalOpen(true)}>
+                <Button onClick={() => { setSelectedLead(null); setIsModalOpen(true); }}>
                     <Plus className="mr-2 h-4 w-4" /> New Opportunity
                 </Button>
             </div>
@@ -36,15 +48,17 @@ export const Lead = () => {
                     refreshTrigger={refreshBoard}
                     selectedPipelineId={selectedPipelineId}
                     setSelectedPipelineId={setSelectedPipelineId}
+                    onLeadClick={handleLeadClick}
                 />
             </div>
 
             <LeadModal
                 isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
+                onClose={handleCloseModal}
                 onLeadCreated={handleLeadCreated}
                 responsibleId={user?.id}
                 pipelineId={selectedPipelineId}
+                leadToEdit={selectedLead}
             />
         </div>
     );

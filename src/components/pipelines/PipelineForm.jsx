@@ -39,7 +39,7 @@ export const PipelineForm = ({ onPipelineSaved, initialData = null }) => {
             // Ensure orders are correct 
             const formattedData = {
                 ...data,
-                stages: data.stages.map((stage, index) => ({
+                stages: data.stages.map(({ id, ...stage }, index) => ({
                     ...stage,
                     order: index + 1
                 }))

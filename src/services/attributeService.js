@@ -36,7 +36,7 @@ export const createAttribute = async (entity, data) => {
 
 export const deleteAttribute = async (entity, id) => {
     try {
-        const response = await fetch(`${API_URL}/attributes/${entity}/${id}/`, {
+        const response = await fetch(`${API_URL}/attributes/${id}/`, {
             method: 'DELETE',
             headers: getHeaders(),
         });

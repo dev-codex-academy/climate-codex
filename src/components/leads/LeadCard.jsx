@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Badge } from "../ui/badge";
 import { Calendar, User, DollarSign } from "lucide-react";
 
-export const LeadCard = ({ lead, onDragStart }) => {
+export const LeadCard = ({ lead, onDragStart, onClick }) => {
     // Format currency
     const formatCurrency = (amount) => {
         return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount || 0);
@@ -11,9 +11,10 @@ export const LeadCard = ({ lead, onDragStart }) => {
 
     return (
         <div
+            onClick={() => onClick && onClick(lead)}
             draggable
             onDragStart={(e) => onDragStart(e, lead)}
-            className="cursor-move hover:rotate-1 transition-transform duration-200"
+            className="cursor-pointer hover:rotate-1 transition-transform duration-200"
         >
             <Card className="hover:shadow-md transition-shadow dark:bg-codex-fondo-terciario-variante2 bg-white border-none shadow-sm mb-3">
                 <CardHeader className="p-3 pb-0">

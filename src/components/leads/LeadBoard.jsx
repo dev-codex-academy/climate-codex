@@ -5,7 +5,7 @@ import { getLeads, updateLead } from "../../services/leadService";
 import { Link } from "react-router-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-export const LeadBoard = ({ refreshTrigger, selectedPipelineId, setSelectedPipelineId }) => {
+export const LeadBoard = ({ refreshTrigger, selectedPipelineId, setSelectedPipelineId, onLeadClick }) => {
     const [pipelines, setPipelines] = useState([]);
     const [leads, setLeads] = useState([]);
     const [stages, setStages] = useState([]);
@@ -191,6 +191,7 @@ export const LeadBoard = ({ refreshTrigger, selectedPipelineId, setSelectedPipel
                                         key={lead.id}
                                         lead={lead}
                                         onDragStart={handleDragStart}
+                                        onClick={() => onLeadClick && onLeadClick(lead)}
                                     />
                                 ))}
                                 {stageLeads.length === 0 && (
