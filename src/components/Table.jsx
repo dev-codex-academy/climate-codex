@@ -94,7 +94,7 @@ export const Table = ({
           {lista.map((item, i) => (
             <span
               key={i}
-              className="px-2 py-0.5 bg-codex-fondo-primary-variante1 dark:bg-codex-fondo-terciario-variante5 text-codex-cards-primary dark:text-codex-texto-terciario-variante1 rounded-full text-xs border border-primary/20"
+              className="px-2 py-0.5 bg-codex-fondo-primary-variante1 dark:bg-codex-fondo-primary-variante4 text-codex-cards-primary dark:text-codex-texto-primary-variante1 rounded-full text-xs border border-primary/20"
             >
               {item}
             </span>
@@ -202,12 +202,12 @@ export const Table = ({
                   setSearchTerm(e.target.value);
                   setCurrentPage(1);
                 }}
-                className="h-11 w-full sm:w-[320px] pr-9 text-codex-texto-primary dark:text-codex-texto-terciario-variante2"
+                className="h-11 w-full sm:w-[320px] pr-9 text-codex-texto-primary dark:text-codex-texto-primary-variante1"
               />
               {searchTerm ? (
                 <button
                   onClick={() => setSearchTerm("")}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-codex-iconos-primary dark:text-codex-iconos-terciario-variante2 hover:text-foreground/80 cursor-pointer"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-codex-iconos-primary dark:text-codex-iconos-primary-variante1 hover:text-foreground/80 cursor-pointer"
                   title="Clear"
                 >
                   <RefreshCcw className="w-4 h-4" />
@@ -219,7 +219,7 @@ export const Table = ({
 
         {/* Select de shadcn */}
         <div className="flex items-center gap-2 sm:justify-end">
-          <span className="text-sm text-codex-texto-primary dark:text-codex-texto-terciario-variante2">Rows per page</span>
+          <span className="text-sm text-codex-texto-primary dark:text-codex-texto-primary-variante1">Rows per page</span>
           <Select
             value={String(pageSize)}
             onValueChange={(v) => {
@@ -242,10 +242,10 @@ export const Table = ({
       </div>
 
       {/* Tabla */}
-      <div className="overflow-hidden mt-4 rounded-sm border border-codex-bordes-secondary-variante2 dark:border-codex-bordes-terciario-variante6 bg-transparent">
+      <div className="overflow-hidden mt-4 rounded-sm border border-codex-bordes-secondary-variante2 dark:border-codex-bordes-primary-variante4 bg-transparent">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
-            <thead className="bg-codex-fondo-primary-variante2 dark:bg-codex-fondo-terciario-variante5 text-center text-codex-texto-secondary dark:text-codex-texto-terciario-variante2">
+            <thead className="bg-codex-fondo-primary-variante2 dark:bg-codex-fondo-primary-variante3 text-center text-codex-texto-secondary dark:text-codex-texto-primary-variante1">
               <tr>
                 {visibleCols.map((col) => {
                   const canSort = col.key !== "_actions";
@@ -271,12 +271,12 @@ export const Table = ({
                 })}
               </tr>
             </thead>
-            <tbody className="divide-y divide-border text-codex-texto-secondary dark:text-codex-texto-terciario-variante1">
+            <tbody className="divide-y divide-border text-codex-texto-secondary dark:text-codex-texto-primary-variante1">
               {currentData.length ? (
                 currentData.map((row, idx) => (
                   <tr
                     key={row.id_rol ?? row.id ?? idx}
-                    className="hover:bg-codex-hover-primary-variante1 dark:hover:bg-codex-hover-terciario-variante5/70"
+                    className="hover:bg-codex-hover-primary-variante1 dark:hover:bg-codex-hover-primary-variante4/70"
                   >
                     {visibleCols.map((col) => (
                       <td
@@ -384,7 +384,7 @@ const RowActions = ({
 
       <DropdownMenuContent align="end" side="bottom" sideOffset={4} className="w-48">
         <DropdownMenuItem onClick={() => onEdit?.(row)}>
-          <SquarePen className="w-6 h-6 text-codex-iconos-primary dark:text-codex-iconos-terciario-variante2" />
+          <SquarePen className="w-6 h-6 text-codex-iconos-primary dark:text-codex-iconos-primary-variante1" />
           Edit
         </DropdownMenuItem>
 
@@ -401,7 +401,7 @@ const RowActions = ({
           <>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => onResetPassword(row)}>
-              <RotateCcwKey className="w-6 h-6 text-codex-iconos-terciario dark:text-codex-iconos-terciario-variante3" />
+              <RotateCcwKey className="w-6 h-6 text-codex-iconos-terciario dark:text-codex-iconos-primary-variante2" />
               Reset Password
             </DropdownMenuItem>
           </>
@@ -411,7 +411,7 @@ const RowActions = ({
           <>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => verSeguimiento(row)}>
-              <FileInput className="w-6 h-6 text-codex-iconos-terciario dark:text-codex-iconos-terciario-variante3" />
+              <FileInput className="w-6 h-6 text-codex-iconos-terciario dark:text-codex-iconos-primary-variante2" />
               View Tracking
             </DropdownMenuItem>
           </>

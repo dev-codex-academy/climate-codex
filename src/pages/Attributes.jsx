@@ -174,7 +174,7 @@ export const Attributes = () => {
 
                                                     <button
                                                         onClick={() => handleDelete(entity, attr.id)}
-                                                        className="p-1.5 text-red-500 hover:bg-red-50 rounded transition-colors"
+                                                        className="p-1.5 text-destructive hover:bg-destructive/10 rounded transition-colors"
                                                         title="Delete"
                                                     >
                                                         <Trash size={16} />

@@ -296,49 +296,49 @@
   --popover-foreground: var(--foreground);
 
   /* Marketing Colors */
-  --primary: oklch(0.586 0.157 251.4);
-  /* Blue Primary #1F7ED5 */
+  --primary: oklch(0.58 0.08 165);
+  /* Converted/Approx for #4F8071 Green */
+  /* Green Primary #4F8071 */
   --primary-foreground: oklch(0.982 0.002 248.6);
-  /* Texto sobre primario (blanco) */
 
   /* Apoyos/estados */
   --secondary: oklch(0.629 0.061 171.4);
   /* Green #629584 */
   --secondary-foreground: oklch(0.293 0.000 263.3);
 
-  --accent: oklch(0.650 0.060 251.4);
-  /* Blue (tint of primary) */
+  --accent: oklch(0.65 0.06 165);
+  /* Green (tint of primary) */
   --accent-foreground: oklch(0.293 0.000 263.3);
 
   --muted: oklch(0.945 0.004 250);
   /* Neutral light for soft backgrounds */
   --muted-foreground: oklch(0.472 0.015 257);
 
-  --destructive: oklch(53.514% 0.20234 26.961);
-  /* Red/Alert */
+  --destructive: #5c3131;
+  /* Red/Alert - User Requested */
 
   /* Borders/inputs/focus ring */
   --border: oklch(0.915 0.005 250);
   --input: oklch(0.915 0.005 250);
-  --ring: oklch(0.700 0.120 251.4);
-  /* Blue with tint of primary */
+  --ring: oklch(0.58 0.08 165);
+  /* Green ring */
 
   /* Chart Colors (blues + green support) */
-  --chart-1: oklch(0.586 0.157 251.4);
-  /* Blue Primary */
+  --chart-1: oklch(0.58 0.08 165);
+  /* Green Primary */
   --chart-2: oklch(0.629 0.061 171.4);
   /* Green */
   --chart-3: oklch(0.216 0.028 245.2);
   /* Dark Blue */
-  --chart-4: oklch(0.750 0.090 251.4);
-  /* Blue Light */
+  --chart-4: oklch(0.75 0.09 165);
+  /* Green Light */
   --chart-5: oklch(0.840 0.030 251.4);
   /* Blue Very Light */
 
 
   /* Chart Colors codex Tech HN */
-  --chartcodex-1: oklch(0.738 0.090 253.8);
-  /* Blue Primary */
+  --chartcodex-1: oklch(0.60 0.08 165);
+  /* Green Primary */
   --chartcodex-2: oklch(0.643 0.042 176.4);
   /* Green */
   --chartcodex-3: oklch(0.516 0.016 245.5);
@@ -358,33 +358,33 @@
 }
 
 .dark {
-  /* 🌙 Base (oscuro) — predominan los azules */
+ 
   --background: oklch(0.216 0.028 245.2);
-  /* AZUL OSCURO LOGO #0E1B26 */
+  
   --foreground: oklch(0.982 0.002 248.6);
-  /* Texto claro (blanco) */
+  
 
   --card: oklch(0.245 0.026 246);
   --card-foreground: var(--foreground);
   --popover: oklch(0.245 0.026 246);
   --popover-foreground: var(--foreground);
 
-  --primary: oklch(0.700 0.120 251.4);
-  /* Blue Primary more "luminoso" in dark */
-  --primary-foreground: oklch(0.216 0.028 245.2);
+  --primary: oklch(0.40 0.08 165);
+  /* Dark Green #335249 - "More black/dark green" */
+  --primary-foreground: oklch(0.982 0.002 248.6);
 
   --secondary: oklch(0.590 0.070 171.4);
   /* Green more "luminoso" */
   --secondary-foreground: oklch(0.110 0.005 250);
 
-  --accent: oklch(0.760 0.070 251.4);
-  /* Blue Light for hovers and highlights */
+  --accent: oklch(0.45 0.08 165);
+  /* Dark Green Light */
   --accent-foreground: oklch(0.110 0.005 250);
 
   --muted: oklch(0.270 0.020 250);
   --muted-foreground: oklch(0.780 0.030 250);
 
-  --destructive: oklch(53.514% 0.20234 26.961);
+  --destructive: #5c3131;
 
 
   --border: oklch(1 0 0 / 10%);

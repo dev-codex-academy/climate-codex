@@ -32,8 +32,14 @@ export const EnrollmentModal = ({
     useEffect(() => {
         if (enrollmentToEdit) {
             setValue("pathway_name", enrollmentToEdit.pathway_name);
-            setValue("cohort", String(enrollmentToEdit.cohort.id || enrollmentToEdit.cohort)); // Handle if object or ID
-            setValue("instructor", String(enrollmentToEdit.instructor.id || enrollmentToEdit.instructor)); // Handle if object or ID
+
+            // Handle Cohort
+            const cohortId = enrollmentToEdit.cohort?.id || enrollmentToEdit.cohort;
+            setValue("cohort", String(cohortId || ""));
+
+            // Handle Instructor
+            const instructorId = enrollmentToEdit.instructor?.id || enrollmentToEdit.instructor;
+            setValue("instructor", String(instructorId || ""));
 
             // Pre-fill TAs
             const initialTas = enrollmentToEdit.teaching_assistants || [];
@@ -105,23 +111,38 @@ export const EnrollmentModal = ({
                 <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                         <Label htmlFor="cohort">Cohort</Label>
-                        <Select
-                            onValueChange={(val) => setValue("cohort", val)}
-                            value={selectedCohort}
-                        >
-                            <SelectTrigger className="bg-codex-input-fondo dark:bg-codex-input-dark-fondo">
-                                <SelectValue placeholder="Select cohort" />
-                            </SelectTrigger>
-                            <SelectContent className="max-h-[200px]">
-                                {cohorts.map((c) => (
-                                    <SelectItem key={c.id} value={String(c.id)}>
-                                        {c.name_cohort}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                        <input type="hidden" {...register("cohort", { required: "Cohort is required" })} />
-                        {errors.cohort && <span className="text-red-500 text-xs">{errors.cohort.message}</span>}
+                        {enrollmentToEdit ? (
+                            // Read-only view for Edit mode
+                            <>
+                                <Input
+                                    disabled
+                                    value={cohorts.find(c => String(c.id) === String(enrollmentToEdit.cohort.id || enrollmentToEdit.cohort))?.name_cohort || "Unknown Cohort"}
+                                    className="bg-muted text-muted-foreground opacity-100" // Custom styling to look like a label but disabled
+                                />
+                                <input type="hidden" {...register("cohort")} />
+                            </>
+                        ) : (
+                            // Select dropdown for Create mode
+                            <>
+                                <Select
+                                    onValueChange={(val) => setValue("cohort", val)}
+                                    value={selectedCohort}
+                                >
+                                    <SelectTrigger className="bg-codex-input-fondo dark:bg-codex-input-dark-fondo">
+                                        <SelectValue placeholder="Select cohort" />
+                                    </SelectTrigger>
+                                    <SelectContent className="max-h-[200px]">
+                                        {cohorts.map((c) => (
+                                            <SelectItem key={c.id} value={String(c.id)}>
+                                                {c.name_cohort}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                                <input type="hidden" {...register("cohort", { required: "Cohort is required" })} />
+                                {errors.cohort && <span className="text-red-500 text-xs">{errors.cohort.message}</span>}
+                            </>
+                        )}
                     </div>
 
                     <div className="space-y-2">

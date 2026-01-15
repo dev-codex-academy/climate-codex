@@ -1,7 +1,7 @@
 import { API_URL, getHeaders } from "./api";
 
-const instructorsUrl = `${API_URL}/instructors/`;
-const tasUrl = `${API_URL}/tas/`;
+const instructorsUrl = `${API_URL}/instructors/?page_size=1000`;
+const tasUrl = `${API_URL}/tas/?page_size=1000`;
 
 export const getInstructors = async () => {
     const res = await fetch(instructorsUrl, {

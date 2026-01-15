@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Modal } from "../Modal";
 import { getLeadAttributes, createLead, updateLead, uploadLeadImage } from "../../services/leadService";
+import { getSales } from "../../services/salesService";
 
 // UI Components
 import { Input } from "../ui/input";
@@ -12,12 +13,14 @@ import { Textarea } from "../ui/textarea";
 
 export const LeadModal = ({ isOpen, onClose, onLeadCreated, responsibleId, pipelineId, leadToEdit = null }) => {
     const [attributes, setAttributes] = useState([]);
+    const [salesUsers, setSalesUsers] = useState([]);
     const [formData, setFormData] = useState({});
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
     // Standard static fields for a Lead
     const [name, setName] = useState("");
+    const [selectedResponsible, setSelectedResponsible] = useState("");
 
     // File upload state (Edit Mode Only)
     const [uploading, setUploading] = useState(false);
@@ -33,11 +36,16 @@ export const LeadModal = ({ isOpen, onClose, onLeadCreated, responsibleId, pipel
     useEffect(() => {
         if (isOpen) {
             fetchAttributes();
+            fetchSalesUsers();
             setError(null);
 
             if (leadToEdit) {
                 // Edit Mode
                 setName(leadToEdit.name || "");
+                // Handle responsible - check if it's an object (id/name) or just ID
+                const respId = leadToEdit.responsible?.id || leadToEdit.responsible || "";
+                setSelectedResponsible(String(respId));
+
                 // Assuming attributes might be at root or in 'attributes' object
                 // We will populate formData after fetching attributes to ensure we catch all fields
                 setImages(leadToEdit.list_of_images || []);
@@ -45,6 +53,7 @@ export const LeadModal = ({ isOpen, onClose, onLeadCreated, responsibleId, pipel
             } else {
                 // Create Mode
                 setName("");
+                setSelectedResponsible(String(responsibleId || ""));
                 setFormData({});
                 setImages([]);
                 setTasks([]);
@@ -53,6 +62,16 @@ export const LeadModal = ({ isOpen, onClose, onLeadCreated, responsibleId, pipel
             }
         }
     }, [isOpen, leadToEdit]);
+
+    const fetchSalesUsers = async () => {
+        try {
+            const data = await getSales();
+            setSalesUsers(Array.isArray(data) ? data : []);
+        } catch (err) {
+            console.error("Error fetching sales users", err);
+            // Don't block modal, just log error
+        }
+    };
 
     const fetchAttributes = async () => {
         try {
@@ -182,13 +201,13 @@ export const LeadModal = ({ isOpen, onClose, onLeadCreated, responsibleId, pipel
         try {
             const payload = {
                 name,
-                attributes: formData
+                attributes: formData,
+                responsible: selectedResponsible // Include responsible in payload
             };
 
             // Only send static fields if creating, or if they changed. 
             // For now, we always send them.
             if (!leadToEdit) {
-                payload.responsible = responsibleId;
                 payload.pipeline = pipelineId;
             } else {
                 // On edit, include tasks
@@ -234,6 +253,26 @@ export const LeadModal = ({ isOpen, onClose, onLeadCreated, responsibleId, pipel
                         {error}
                     </div>
                 )}
+
+                {/* Responsible Field */}
+                <div className="space-y-2">
+                    <Label htmlFor="responsible">Responsible</Label>
+                    <Select
+                        value={selectedResponsible}
+                        onValueChange={setSelectedResponsible}
+                    >
+                        <SelectTrigger id="responsible">
+                            <SelectValue placeholder="Select a responsible person" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {salesUsers.map(user => (
+                                <SelectItem key={user.id} value={String(user.id)}>
+                                    {user.first_name} {user.last_name} ({user.username})
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                </div>
 
                 {/* Static Name Field */}
                 <div className="space-y-2">

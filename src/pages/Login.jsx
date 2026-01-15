@@ -104,7 +104,7 @@ export const Login = ({ className, ...props }) => {
                   <div className="flex flex-col items-center text-center md:items-center gap-1">
                     <h1 className="text-2xl font-bold leading-tight">
                       Welcome to{" "}
-                      <span className="font-black text-codex-texto-primary dark:text-codex-texto-primary-variante2">CodeX</span>
+                      <span className="font-black text-codex-texto-primary dark:text-codex-texto-primary-variante2">Climates CRM</span>
                     </h1>
                     <p className="text-muted-foreground text-sm ">
                       Please log in to access the system.
@@ -170,10 +170,10 @@ export const Login = ({ className, ...props }) => {
               <div className="hidden md:flex relative z-10 h-full w-full p-8 flex-col justify-start gap-7 text-foreground bg-codex-fondo-primary-variante1 dark:bg-codex-fondo-terciario-variante3">
                 <div className="space-y-1 text-center md:text-left">
                   <h1 className="text-2xl font-bold leading-tight">
-                    Code<span className="text-codex-texto-primary dark:text-codex-texto-primary-variante2 font-black">X</span>
+                    Codex <span className="text-codex-texto-primary dark:text-codex-texto-primary-variante2 font-black">Academy</span>
                   </h1>
                   <p className="text-sm text-muted-foreground">
-                    Intelligent client.
+                    Intelligent CRM.
                   </p>
                 </div>
 
@@ -185,13 +185,11 @@ export const Login = ({ className, ...props }) => {
                   </li>
                   <li className="flex items-start gap-3">
                     <BarChart3 className="size-5 text-codex-texto-primary dark:text-codex-texto-terciario-variante3 shrink-0" />
-                    Real-time KPIs and Reports.
                     Make better decisions with up-to-date insights.
                   </li>
                   <li className="flex items-start gap-3">
                     <Workflow className="size-5 text-codex-texto-primary dark:text-codex-texto-terciario-variante3 shrink-0" />
-                    Task and Process Automation.
-                    Save time with automated workflows.
+                    Automated Meetings and Follow Ups.
                   </li>
                   <li className="flex items-start gap-3">
                     <ShieldCheck className="size-5 text-codex-texto-primary dark:text-codex-texto-terciario-variante3 shrink-0" />
