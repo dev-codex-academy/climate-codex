@@ -267,7 +267,7 @@ export const LeadModal = ({ isOpen, onClose, onLeadCreated, responsibleId, pipel
                         <SelectContent>
                             {salesUsers.map(user => (
                                 <SelectItem key={user.id} value={String(user.id)}>
-                                    {user.first_name} {user.last_name} ({user.username})
+                                    {user.name}
                                 </SelectItem>
                             ))}
                         </SelectContent>

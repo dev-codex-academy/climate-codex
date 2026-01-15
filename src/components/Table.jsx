@@ -188,7 +188,7 @@ export const Table = ({
   };
 
   return (
-    <div className="space-y-3">
+    <div className="flex flex-col h-full gap-3">
       {/* Toolbar */}
       <div className="flex flex-col gap-3 mt-6 sm:flex-row sm:items-center sm:justify-between">
         <div className="w-full sm:w-auto">
@@ -242,8 +242,8 @@ export const Table = ({
       </div>
 
       {/* Tabla */}
-      <div className="overflow-hidden mt-4 rounded-sm border border-codex-bordes-secondary-variante2 dark:border-codex-bordes-primary-variante4 bg-transparent">
-        <div className="overflow-x-auto">
+      <div className="flex-1 overflow-auto mt-4 rounded-sm border border-codex-bordes-secondary-variante2 dark:border-codex-bordes-primary-variante4 bg-transparent relative">
+        <div className="min-w-full inline-block align-middle">
           <table className="w-full text-sm">
             <thead className="bg-codex-fondo-primary-variante2 dark:bg-codex-fondo-primary-variante3 text-center text-codex-texto-secondary dark:text-codex-texto-primary-variante1">
               <tr>
@@ -255,7 +255,7 @@ export const Table = ({
                       key={col.key}
                       style={col.width ? { width: col.width } : undefined}
                       className={[
-                        "px-2 py-4 text-xs font-semibold tracking-wide text-center",
+                        "px-2 py-4 text-xs font-semibold tracking-wide text-center sticky top-0 z-10 bg-codex-fondo-primary-variante2 dark:bg-codex-fondo-primary-variante3",
                         canSort ? "cursor-pointer select-none" : "",
                       ].join(" ")}
                       onClick={canSort ? () => toggleSort(col.key) : undefined}
@@ -310,7 +310,7 @@ export const Table = ({
       </div>
 
       {/* Paginación */}
-      <div className="mt-6  px-4 py-3 text-xs">
+      <div className="mt-auto px-4 py-3 text-xs border-t border-border">
         <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-between">
           <div className=" text-center sm:text-left">
             <span className="font-medium text-foreground">{startRecord}</span> -{" "}

@@ -3,10 +3,32 @@ import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Badge } from "../ui/badge";
 import { Calendar, User, DollarSign } from "lucide-react";
 
-export const LeadCard = ({ lead, onDragStart, onClick }) => {
+export const LeadCard = ({ lead, salesUsers = [], onDragStart, onClick }) => {
     // Format currency
     const formatCurrency = (amount) => {
         return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount || 0);
+    };
+
+    // Helper to get responsible name
+    const getResponsibleName = () => {
+        const resp = lead.responsible;
+        if (!resp) return "Unassigned";
+
+        // If it's an object with name/username
+        if (typeof resp === 'object') {
+            return resp.name || resp.username || "Unassigned";
+        }
+
+        // If it's a string that looks like a name (contains dot or space, or is just a username)
+        // gracefully handle if it is a string ID
+        if (typeof resp === 'string' && isNaN(parseInt(resp))) {
+            return resp;
+        }
+
+        // If it's an ID (number or string number), look it up
+        const userId = parseInt(resp);
+        const user = salesUsers.find(u => u.id === userId);
+        return user ? (user.name || user.username) : "Unassigned";
     };
 
     return (
@@ -40,8 +62,11 @@ export const LeadCard = ({ lead, onDragStart, onClick }) => {
                         {/* Responsible */}
                         <div className="flex items-center gap-1">
                             <User className="w-3 h-3" />
-                            <span>{lead.responsible_name || "Unassigned"}</span>
+                            <span>
+                                {getResponsibleName()}
+                            </span>
                         </div>
+
                         {/* Date - checking different possible field names */}
                         <div className="flex items-center gap-1">
                             <Calendar className="w-3 h-3" />
@@ -51,6 +76,6 @@ export const LeadCard = ({ lead, onDragStart, onClick }) => {
                     </div>
                 </CardContent>
             </Card>
-        </div>
+        </div >
     );
 };

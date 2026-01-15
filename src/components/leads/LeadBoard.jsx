@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { LeadCard } from "./LeadCard";
 import { getPipelines } from "../../services/pipelineService";
 import { getLeads, updateLead } from "../../services/leadService";
+import { getSales } from "../../services/salesService";
 import { Link } from "react-router-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
@@ -9,6 +10,7 @@ export const LeadBoard = ({ refreshTrigger, selectedPipelineId, setSelectedPipel
     const [pipelines, setPipelines] = useState([]);
     const [leads, setLeads] = useState([]);
     const [stages, setStages] = useState([]);
+    const [salesUsers, setSalesUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const scrollContainerRef = useRef(null);
 
@@ -36,7 +38,18 @@ export const LeadBoard = ({ refreshTrigger, selectedPipelineId, setSelectedPipel
                 setSelectedPipelineId(loadedPipelines[0].id);
             }
         };
+
+        const fetchSalesUsers = async () => {
+            try {
+                const salesData = await getSales();
+                setSalesUsers(salesData.results || salesData || []);
+            } catch (err) {
+                console.error("Failed to load sales users", err);
+            }
+        };
+
         fetchPipelines();
+        fetchSalesUsers();
     }, []);
 
     // Load leads when pipeline or trigger changes
@@ -190,6 +203,7 @@ export const LeadBoard = ({ refreshTrigger, selectedPipelineId, setSelectedPipel
                                     <LeadCard
                                         key={lead.id}
                                         lead={lead}
+                                        salesUsers={salesUsers}
                                         onDragStart={handleDragStart}
                                         onClick={() => onLeadClick && onLeadClick(lead)}
                                     />
