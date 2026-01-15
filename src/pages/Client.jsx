@@ -109,8 +109,8 @@ export const Client = () => {
     };
 
     return (
-        <div className="h-full flex flex-col p-4 w-full">
-            <div className="flex justify-between items-center mb-4">
+        <div className="h-full flex flex-col p-2 w-full">
+            <div className="flex justify-between items-center mb-2">
                 <div>
                     <h1 className="text-2xl font-bold tracking-tight text-codex-texto-primary dark:text-codex-texto-dark-primary">
                         Clients
@@ -129,7 +129,7 @@ export const Client = () => {
                 </div>
             </div>
 
-            <div className="bg-white dark:bg-codex-fondo-secondary p-4 rounded-lg shadow h-full overflow-hidden flex flex-col">
+            <div className="bg-white dark:bg-codex-fondo-secondary p-2 rounded-lg shadow flex-1 min-h-0 overflow-hidden flex flex-col">
                 <Table
                     data={clients}
                     columns={columns}

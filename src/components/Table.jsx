@@ -188,9 +188,9 @@ export const Table = ({
   };
 
   return (
-    <div className="flex flex-col h-full gap-3">
+    <div className="flex flex-col h-full gap-2 min-h-0">
       {/* Toolbar */}
-      <div className="flex flex-col gap-3 mt-6 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-2 mt-2 sm:flex-row sm:items-center sm:justify-between">
         <div className="w-full sm:w-auto">
           {searchable && (
             <div className="relative w-full">
@@ -255,7 +255,7 @@ export const Table = ({
                       key={col.key}
                       style={col.width ? { width: col.width } : undefined}
                       className={[
-                        "px-2 py-4 text-xs font-semibold tracking-wide text-center sticky top-0 z-10 bg-codex-fondo-primary-variante2 dark:bg-codex-fondo-primary-variante3",
+                        "px-2 py-2 text-xs font-semibold tracking-wide text-center sticky top-0 z-10 bg-codex-fondo-primary-variante2 dark:bg-codex-fondo-primary-variante3",
                         canSort ? "cursor-pointer select-none" : "",
                       ].join(" ")}
                       onClick={canSort ? () => toggleSort(col.key) : undefined}
@@ -282,7 +282,7 @@ export const Table = ({
                       <td
                         key={col.key}
                         className={[
-                          "px-4 py-3",
+                          "px-3 py-1",
                           col.key === "_actions" ? "text-center" : "",
                           isDateKey(col.key) ? "text-center" : "",
                           col.key === "activo" ? "text-center" : "",
@@ -310,7 +310,7 @@ export const Table = ({
       </div>
 
       {/* Paginación */}
-      <div className="mt-auto px-4 py-3 text-xs border-t border-border">
+      <div className="mt-auto px-4 py-2 text-xs border-t border-border">
         <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-between">
           <div className=" text-center sm:text-left">
             <span className="font-medium text-foreground">{startRecord}</span> -{" "}
