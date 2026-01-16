@@ -64,3 +64,13 @@ export const deleteFollowup = async (serviceId, followupId) => {
     if (!res.ok) throw new Error("Error deleting followup");
     return true;
 };
+
+export const getFollowupAttributes = async () => {
+    const res = await fetch(`${API_URL}/attributes/followup/`, {
+        method: "GET",
+        headers: getHeaders(),
+    });
+    if (!res.ok) throw new Error("Error fetching follow-up attributes");
+    const data = await res.json();
+    return data.results || data;
+};

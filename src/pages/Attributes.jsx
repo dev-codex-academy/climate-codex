@@ -18,8 +18,8 @@ const Modal = ({ isOpen, children }) => {
 };
 
 export const Attributes = () => {
-    const [entities] = useState(['client', 'lead', 'service']);
-    const [attributesData, setAttributesData] = useState({ client: [], lead: [], service: [] });
+    const [entities] = useState(['client', 'lead', 'service', 'followup']);
+    const [attributesData, setAttributesData] = useState({ client: [], lead: [], service: [], followup: [] });
     const [loading, setLoading] = useState(true);
 
     // Modal State
@@ -39,6 +39,7 @@ export const Attributes = () => {
                 client: results[0].results || results[0] || [],
                 lead: results[1].results || results[1] || [],
                 service: results[2].results || results[2] || [],
+                followup: results[3].results || results[3] || [],
             };
             setAttributesData(newData);
         } catch (error) {

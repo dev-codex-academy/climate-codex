@@ -27,3 +27,12 @@ export const createEnrollmentDetail = async (data) => {
     }
     return res.json();
 };
+
+export const deleteEnrollmentDetail = async (id) => {
+    const res = await fetch(`${url}${id}/`, {
+        method: "DELETE",
+        headers: getHeaders(),
+    });
+    if (!res.ok) throw new Error("Error deleting enrollment detail");
+    return true;
+};

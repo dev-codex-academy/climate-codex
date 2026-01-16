@@ -39,7 +39,7 @@ Returns current user permissions and group membership.
 
 ### List Attributes
 **GET** `/api/attributes/<entity_name>/`
-*(entity_name: client, service, lead)*
+*(entity_name: client, service, lead, follow_up)*
 
 **Response:**
 ```json
@@ -100,7 +100,46 @@ Returns current user permissions and group membership.
     "attributes": {
         "industry": "Tech",
         "custom_field": "value"
-    }
+    },
+    "list_of_tasks": [],
+    "list_of_notes": []
+}
+```
+
+### Manage Client Tasks and Notes
+You can add tasks and notes to a client by including them in the `list_of_tasks` or `list_of_notes` arrays.
+**Note:** The system uses `UUIDs` to uniquely identify each task and note. If you add a task or note without an `id`, the system will automatically generate a UUID for it.
+
+
+**Task Structure:**
+```json
+{
+    "task": "Call client",
+    "date": "2025-01-20",
+    "completed": false,
+    "user_id": 1,                         // Output Only
+    "user_name": "John Doe"               // Output Only
+}
+```
+
+**Note Structure:**
+```json
+{
+    "note": "Client requested new proposal",
+    "user_id": 1,                         // Output Only
+    "user_name": "John Doe"               // Output Only
+}
+```
+
+**Example - Add Task and Note (PATCH):**
+```json
+{
+    "list_of_tasks": [
+        { "task": "New Task", "date": "2026-01-01", "completed": false }
+    ],
+    "list_of_notes": [
+        { "note": "Spoke with CEO", "user_id": 1 }
+    ]
 }
 ```
 
@@ -115,8 +154,29 @@ Returns current user permissions and group membership.
 {
     "name": "Acme Inc",
     "attributes": {
+    "attributes": {
         "industry": "Finance"
     }
+}
+```
+
+### Client Atomic Updates
+Avoid race conditions by using these atomic endpoints instead of updating the full lists.
+
+#### Update Task Status
+**POST** `/api/clients/<uuid>/update-task/`
+```json
+{
+    "task_id": "uuid-of-task",
+    "completed": true
+}
+```
+
+#### Delete Note
+**POST** `/api/clients/<uuid>/delete-note/`
+```json
+{
+    "id": "uuid-of-note"
 }
 ```
 
@@ -132,6 +192,18 @@ Returns current user permissions and group membership.
 
 ### Delete Client
 **DELETE** `/api/clients/<uuid>/`
+
+#### Client Fields Reference
+| Field Name | Type | Description |
+| :--- | :--- | :--- |
+| `id` | UUID | Unique identifier (Auto-generated) |
+| `name` | String | Name of the client/company (Max 255 chars) |
+| `attributes` | JSONB | Dynamic key-value attributes (e.g., industry, source) |
+| `list_of_tasks` | JSONB | List of tasks `{task, date, completed, date_created, user_id (Output Only), user_name (Output Only)}` |
+| `list_of_notes` | JSONB | List of notes `{date, note, user_id (Output Only), user_name (Output Only)}` |
+| `list_of_images` | JSONB | List of image URLs |
+| `created_at` | DateTime | Timestamp of creation |
+| `created_by` | User | User who created the record |
 
 ---
 
@@ -151,7 +223,44 @@ Returns current user permissions and group membership.
     "client": "<client_uuid>",
     "attributes": {
         "program": "Full Stack"
-    }
+    },
+    "list_of_tasks": [],
+    "list_of_notes": []
+}
+```
+
+### Manage Service Tasks and Notes
+Similar to Clients and Leads, Services support task and note management.
+**Note:** The system uses `UUIDs` to uniquely identify each task and note. If you add a task or note without an `id`, the system will automatically generate a UUID for it.
+
+**Example - Add Task and Note (PATCH):**
+```json
+{
+    "list_of_tasks": [
+        { "task": "Prepare Materials", "date": "2026-02-01", "completed": false }
+    ],
+    "list_of_notes": [
+        { "note": "Student requested delay", "user_id": 1 }
+    ]
+}
+```
+
+### Service Atomic Updates
+
+#### Update Task Status
+**POST** `/api/services/<uuid>/update-task/`
+```json
+{
+    "task_id": "uuid-of-task",
+    "completed": true
+}
+```
+
+#### Delete Note
+**POST** `/api/services/<uuid>/delete-note/`
+```json
+{
+    "id": "uuid-of-note"
 }
 ```
 
@@ -174,6 +283,20 @@ Returns current user permissions and group membership.
 
 ### Delete Service
 **DELETE** `/api/services/<uuid>/`
+
+#### Service Fields Reference
+| Field Name | Type | Description |
+| :--- | :--- | :--- |
+| `id` | UUID | Unique identifier (Auto-generated) |
+| `name` | String | Name of the student/service |
+| `client` | ForeignKey | UUID of the associated Client |
+| `actual_cohort` | ForeignKey | Current active Cohort |
+| `origin_cohort` | UUID (FK) | Original cohort assigned to the service |
+| `attributes` | JSONB | Dynamic key-value attributes |
+| `list_of_tasks` | JSONB | List of tasks `{task, date, completed, date_created, user_id (Output Only), user_name (Output Only)}` |
+| `list_of_notes` | JSONB | List of notes `{date, note, user_id (Output Only), user_name (Output Only)}` |
+| `list_of_images` | JSONB | List of image URLs |
+| `created_at` | DateTime | Timestamp of creation |
 
 ---
 
@@ -217,6 +340,14 @@ Returns current user permissions and group membership.
 ### Delete Pipeline
 **DELETE** `/api/pipelines/<uuid>/`
 
+#### Pipeline Fields Reference
+| Field Name | Type | Description |
+| :--- | :--- | :--- |
+| `id` | UUID | Unique identifier |
+| `name` | String | Name of the pipeline |
+| `description` | Text | Optional description |
+| `stages` | JSONB | List of stages. Each stage has `id`, `name`, `color`, `order`. |
+
 ---
 
 ## 5. Leads
@@ -237,7 +368,52 @@ Returns current user permissions and group membership.
     "stage": "Prospecting",
     "attributes": {
         "source": "LinkedIn"
-    }
+    },
+    "list_of_tasks": [
+        {
+            "task": "Initial call",
+            "date": "2025-01-20",
+            "completed": false
+        }
+    ]
+}
+```
+
+### Manage Lead Tasks
+You can add tasks to a lead by including them in the `list_of_tasks` array.
+The system automatically adds a `date_created` timestamp to new tasks if it's missing.
+**Note:** The system uses `UUIDs` to uniquely identify each task and note. If you add a task or note without an `id`, the system will automatically generate a UUID for it.
+
+**Task Structure:**
+```json
+{
+    "task": "Description of the task",    // Required
+    "date": "YYYY-MM-DD",                 // Target date
+    "completed": false,                   // Status
+    "date_created": "ISO-8601 Timestamp", // Auto-generated
+    "user_id": 1,                         // Output Only
+    "user_name": "User Name"              // Output Only
+}
+```
+
+**Example - Add a new task (PATCH):**
+To add a task, you append it to the list. 
+**Note:** The API usually replaces the entire list on update, so ensure you send the existing tasks + the new one, OR use a specialized endpoint if available (currently standard REST update replaces field value).
+
+```json
+{
+    "list_of_tasks": [
+        {
+            "task": "Previous task",
+            "date": "...",
+            "completed": true
+        },
+        {
+            "task": "New Follow-up",
+            "date": "2025-02-01",
+            "completed": false
+        }
+    ]
 }
 ```
 
@@ -256,8 +432,40 @@ Returns current user permissions and group membership.
 }
 ```
 
+### Lead Atomic Updates
+
+#### Update Task Status
+**POST** `/api/leads/<uuid>/update-task/`
+```json
+{
+    "task_id": "uuid-of-task",
+    "completed": true
+}
+```
+
+#### Delete Note
+**POST** `/api/leads/<uuid>/delete-note/`
+```json
+{
+    "id": "uuid-of-note"
+}
+```
+
 ### Delete Lead
 **DELETE** `/api/leads/<uuid>/`
+
+#### Lead Fields Reference
+| Field Name | Type | Description |
+| :--- | :--- | :--- |
+| `id` | UUID | Unique identifier |
+| `name` | String | Name of the lead |
+| `responsible` | ForeignKey | User ID of the responsible person |
+| `pipeline` | ForeignKey | Pipeline ID |
+| `possible_client` | UUID | Optional link to an existing client |
+| `stage` | String | Current stage name |
+| `attributes` | JSONB | Dynamic attributes |
+| `list_of_tasks` | JSONB | List of tasks `{task, date, completed, date_created, user_id (Output Only), user_name (Output Only)}` |
+| `list_of_notes` | JSONB | List of notes `{date, note, user_id (Output Only), user_name (Output Only)}` |
 
 ---
 
@@ -272,7 +480,9 @@ Returns current user permissions and group membership.
 **Payload:**
 ```json
 {
-    "type": "email", 
+    "attributes": {
+        "channel": "email"
+    },
     "follow_up_date": "2025-01-15T10:00:00Z",
     "comment": "Sent brochure."
 }
@@ -332,6 +542,15 @@ Returns current user permissions and group membership.
 ### Delete Cohort
 **DELETE** `/api/cohorts/<uuid>/`
 
+#### Cohort Fields Reference
+| Field Name | Type | Description |
+| :--- | :--- | :--- |
+| `id` | UUID | Unique identifier |
+| `name_cohort` | String | Name of the cohort |
+| `start_date` | Date | Start date (YYYY-MM-DD) |
+| `end_date` | Date | End date (YYYY-MM-DD) |
+| `instructor` | ForeignKey | User ID of the instructor |
+
 ---
 
 ## 8. Attendance
@@ -356,6 +575,14 @@ Returns current user permissions and group membership.
 
 ### Delete Attendance
 **DELETE** `/api/attendances/<uuid>/`
+
+#### Attendance Fields Reference
+| Field Name | Type | Description |
+| :--- | :--- | :--- |
+| `id` | UUID | Unique identifier |
+| `date` | Date | Date of attendance |
+| `cohort` | ForeignKey | Cohort ID |
+| `instructor` | ForeignKey | Instructor taking attendance |
 
 ---
 
@@ -419,6 +646,15 @@ Links a Cohort to an Instructor and a Pathway.
 ### Delete Enrollment
 **DELETE** `/api/enrollments/<uuid>/`
 
+#### Enrollment Fields Reference
+| Field Name | Type | Description |
+| :--- | :--- | :--- |
+| `id` | UUID | Unique identifier |
+| `cohort` | ForeignKey | Cohort ID |
+| `instructor` | ForeignKey | Lead Instructor ID |
+| `pathway_name` | String | Name of the educational pathway |
+| `teaching_assistants` | JSONB | List of TAs `[{"id": 1, "name": "..."}]` |
+
 ---
 
 ## 11. Enrollment Details
@@ -465,6 +701,13 @@ Links a specific Student (Service) to an Enrollment.
 ### Delete Request
 **DELETE** `/api/transfer-requests/<uuid>/`
 
+#### Transfer Request Fields Reference
+| Field Name | Type | Description |
+| :--- | :--- | :--- |
+| `id` | UUID | Unique identifier |
+| `student` | ForeignKey | Service (Student) ID |
+| `cohort_request` | String | Name of the requested cohort |
+
 ---
 
 ## 13. File Uploads
@@ -500,3 +743,10 @@ Returns users in the 'Instructors' group.
 **GET** `/api/tas/`
 Returns users in the 'Teacher Assistant' group.
 
+### List Sales
+**GET** `/api/sales/`
+Returns users in the 'Sales' group.
+
+### List Operations
+**GET** `/api/operations/`
+Returns users in the 'Operations' group.

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Modal } from "../Modal";
 import { useAuth } from "../../context/AuthContext";
-import { createFollowup, updateFollowup } from "../../services/followupService";
+import { createFollowup, updateFollowup, getFollowupAttributes } from "../../services/followupService";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Button } from "../ui/button";
@@ -14,37 +14,82 @@ export const FollowupModal = ({ isOpen, onClose, onFollowupSaved, followupToEdit
     const [error, setError] = useState(null);
 
     // Model fields: type, follow_up_date, comment
-    const [type, setType] = useState("");
+    // Model fields: follow_up_date, comment, attributes
+    // Type is removed
     const [followUpDate, setFollowUpDate] = useState(new Date().toISOString().split('T')[0]);
     const [comment, setComment] = useState("");
 
-    const FOLLOW_UP_TYPES = [
-        { value: 'email', label: 'Email' },
-        { value: 'psychological_orientation', label: 'Psychological Orientation' },
-        { value: 'ta_mentorship', label: 'TA Mentorship' },
-        { value: 'phone_call', label: 'Phone Call' },
-    ];
+    // Dynamic attributes
+    const [attributes, setAttributes] = useState([]);
+    const [formData, setFormData] = useState({});
+
+    // Fetch attributes instructions
+    const fetchAttributes = async () => {
+        try {
+            const data = await getFollowupAttributes();
+            // Map list_values to options if options is missing (similar to LeadModal logic if needed)
+            const processedData = data.map(attr => {
+                let options = attr.options;
+                if (!options && attr.list_values) {
+                    options = typeof attr.list_values === 'string'
+                        ? JSON.parse(attr.list_values)
+                        : attr.list_values;
+                }
+                return { ...attr, options };
+            });
+            setAttributes(processedData);
+
+            // Initialize form data based on attributes
+            const initialData = {};
+            if (followupToEdit) {
+                processedData.forEach(attr => {
+                    // Check if attribute is at root or in attributes object
+                    const val = followupToEdit[attr.name] !== undefined
+                        ? followupToEdit[attr.name]
+                        : (followupToEdit.attributes?.[attr.name] || "");
+                    initialData[attr.name] = val;
+                });
+            } else {
+                processedData.forEach(attr => {
+                    initialData[attr.name] = "";
+                });
+            }
+            setFormData(initialData);
+
+        } catch (err) {
+            console.error("Error fetching attributes", err);
+            // Non-blocking error, but good to know
+        }
+    };
 
     useEffect(() => {
         if (isOpen) {
             setError(null);
+            fetchAttributes(); // Fetch attributes on open
+
             if (followupToEdit) {
-                setType(followupToEdit.type || "");
                 // Handle extraction of YYYY-MM-DD from DateTime string if necessary
                 const dateVal = followupToEdit.follow_up_date ? followupToEdit.follow_up_date.split('T')[0] : new Date().toISOString().split('T')[0];
                 setFollowUpDate(dateVal);
                 setComment(followupToEdit.comment || "");
             } else {
-                setType("");
                 setFollowUpDate(new Date().toISOString().split('T')[0]);
                 setComment("");
+                setFormData({});
             }
         }
     }, [isOpen, followupToEdit]);
 
+    const handleAttributeChange = (name, value) => {
+        setFormData(prev => ({
+            ...prev,
+            [name]: value
+        }));
+    };
+
     const handleSubmit = async () => {
-        if (!type || !followUpDate || !comment.trim()) {
-            setError("All fields are required.");
+        if (!followUpDate || !comment.trim()) {
+            setError("Date and Comment are required.");
             return;
         }
 
@@ -52,9 +97,9 @@ export const FollowupModal = ({ isOpen, onClose, onFollowupSaved, followupToEdit
         setError(null);
         try {
             const payload = {
-                type,
                 follow_up_date: followUpDate,
                 comment,
+                attributes: formData,
                 service: serviceId,
                 user: user.id
             };
@@ -88,21 +133,38 @@ export const FollowupModal = ({ isOpen, onClose, onFollowupSaved, followupToEdit
                     </div>
                 )}
 
-                <div className="space-y-2">
-                    <Label htmlFor="type">Type</Label>
-                    <Select value={type} onValueChange={setType}>
-                        <SelectTrigger>
-                            <SelectValue placeholder="Select Type" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {FOLLOW_UP_TYPES.map((t) => (
-                                <SelectItem key={t.value} value={t.value}>
-                                    {t.label}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                </div>
+                {/* Dynamic Attributes */}
+                {attributes.map((attr) => (
+                    <div key={attr.name} className="space-y-2">
+                        <Label htmlFor={attr.name}>{attr.label}</Label>
+
+                        {attr.type === 'list' ? (
+                            <Select
+                                onValueChange={(val) => handleAttributeChange(attr.name, val)}
+                                value={formData[attr.name]}
+                            >
+                                <SelectTrigger className="w-full">
+                                    <SelectValue placeholder={`Select ${attr.label}`} />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {attr.options?.map((opt) => (
+                                        <SelectItem key={opt.value || opt} value={opt.value || opt}>
+                                            {opt.label || opt}
+                                        </SelectItem>
+                                    )) || <SelectItem value="no-options">No options available</SelectItem>}
+                                </SelectContent>
+                            </Select>
+                        ) : (
+                            <Input
+                                id={attr.name}
+                                type={attr.type === 'number' ? 'number' : attr.type === 'date' ? 'date' : 'text'}
+                                placeholder={attr.label}
+                                value={formData[attr.name] || ""}
+                                onChange={(e) => handleAttributeChange(attr.name, e.target.value)}
+                            />
+                        )}
+                    </div>
+                ))}
 
                 <div className="space-y-2">
                     <Label htmlFor="date">Date</Label>

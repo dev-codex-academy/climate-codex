@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { getEnrollmentDetails, createEnrollmentDetail } from "@/services/enrollmentDetailService";
+import { getEnrollmentDetails, createEnrollmentDetail, deleteEnrollmentDetail } from "@/services/enrollmentDetailService";
 import { searchServices, getServiceAttributes, getServiceById } from "@/services/serviceService";
 import { getClientById } from "@/services/clientService";
 import { getEnrollments } from "@/services/enrollmentService";
@@ -11,6 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/componen
 import { Table } from "@/components/Table";
 import { Search, Plus } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+import Swal from "sweetalert2";
 
 export const EnrollmentDetail = () => {
     const { id } = useParams();
@@ -162,6 +163,37 @@ export const EnrollmentDetail = () => {
         }
     };
 
+    const handleDelete = async (row) => {
+        const result = await Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, delete it!'
+        });
+
+        if (result.isConfirmed) {
+            try {
+                await deleteEnrollmentDetail(row.id);
+                fetchDetails();
+                Swal.fire(
+                    'Deleted!',
+                    'Record has been deleted.',
+                    'success'
+                );
+            } catch (error) {
+                console.error("Error deleting detail", error);
+                Swal.fire(
+                    'Error!',
+                    'There was an error deleting the record.',
+                    'error'
+                );
+            }
+        }
+    };
+
     const attributeColumns = attributes.map(attr => ({
         key: attr.name || attr,
         label: attr.name || attr,
@@ -244,6 +276,7 @@ export const EnrollmentDetail = () => {
                     data={tableData}
                     columns={columns}
                     searchable={false}
+                    onAskDelete={handleDelete}
                 />
             </div>
 

@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Table } from "../components/Table";
 import { Button } from "../components/ui/button";
 import { Plus, Download } from "lucide-react";
 import { getClients, deleteClient, getClientAttributes } from "../services/clientService";
-import { ClientModal } from "../components/clients/ClientModal";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import Swal from "sweetalert2";
@@ -11,9 +11,8 @@ import Swal from "sweetalert2";
 export const Client = () => {
     const [clients, setClients] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [clientToEdit, setClientToEdit] = useState(null);
     const [attributes, setAttributes] = useState([]);
+    const navigate = useNavigate();
 
     const staticColumns = [
         { key: "name", label: "Name" },
@@ -55,8 +54,7 @@ export const Client = () => {
     };
 
     const handleEdit = (client) => {
-        setClientToEdit(client);
-        setIsModalOpen(true);
+        navigate(`/client/${client.id}`);
     };
 
     const handleDelete = async (client) => {
@@ -99,15 +97,6 @@ export const Client = () => {
         saveAs(data, "clients_report.xlsx");
     };
 
-    const handleClientSaved = () => {
-        fetchData();
-    };
-
-    const openNewClientModal = () => {
-        setClientToEdit(null);
-        setIsModalOpen(true);
-    };
-
     return (
         <div className="h-full flex flex-col p-2 w-full">
             <div className="flex justify-between items-center mb-2">
@@ -123,7 +112,7 @@ export const Client = () => {
                     <Button variant="outline" onClick={handleExportExcel}>
                         <Download className="mr-2 h-4 w-4" /> Export Excel
                     </Button>
-                    <Button onClick={openNewClientModal}>
+                    <Button onClick={() => navigate("/client/new")}>
                         <Plus className="mr-2 h-4 w-4" /> Add Client
                     </Button>
                 </div>
@@ -138,14 +127,6 @@ export const Client = () => {
                     searchable={true}
                 />
             </div>
-
-            <ClientModal
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
-                onClientSaved={handleClientSaved}
-                clientToEdit={clientToEdit}
-                attributes={attributes}
-            />
         </div>
     );
 };

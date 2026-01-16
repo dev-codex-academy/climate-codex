@@ -22,8 +22,7 @@ export const Modal = ({
       aria-labelledby="modal-title"
     >
       <div
-        className={`bg-gradient-to-br from-codex-fondo-primary-variante1 via-codex-fondo-secondary-variante1 to-codex-fondo-terciario-variante1 
-        dark:from-codex-fondo-secondary dark:via-codex-fondo-terciario-variante5 dark:to-codex-fondo-terciario-variante6
+        className={`bg-white dark:bg-codex-fondo-secondary 
           rounded-lg shadow-xl w-full mx-4 max-h-[90vh] overflow-y-auto animate-in fade-in-0 zoom-in-95 ${widthClass}
           `}
       >

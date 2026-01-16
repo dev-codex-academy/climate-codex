@@ -21,6 +21,21 @@ export const useMenu = () => {
                 ];
 
                 // Filter and format
+                const iconMap = {
+                    "Attendance": "CalendarCheck",
+                    "AttendanceDetail": "ListChecks",
+                    "Attribute": "Tag",
+                    "Client": "Building2",
+                    "Cohort": "School",
+                    "Enrollment": "UserPlus",
+                    "EnrollmentDetail": "FileText",
+                    "Followup": "MessageSquare",
+                    "Lead": "Magnet",
+                    "Pipeline": "GitMerge",
+                    "Service": "GraduationCap",
+                    "TransferRequest": "ArrowLeftRight",
+                };
+
                 const formattedMenu = permissions
                     .filter(perm => perm.startsWith("app.add_"))
                     .map(perm => {
@@ -48,7 +63,7 @@ export const useMenu = () => {
                         return {
                             title: name,
                             url: `/${name.toLowerCase()}`, // Basic inferred URL
-                            icon: "CircleEllipsis", // Default icon
+                            icon: iconMap[name] || "CircleEllipsis", // Mapped icon or default
                             items: [] // No subitems for now
                         };
                     });

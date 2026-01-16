@@ -1,23 +1,37 @@
 import React, { useState, useEffect } from "react";
 import { Modal } from "../Modal";
 import { createClient, updateClient, uploadClientImage } from "../../services/clientService";
+import { useAuth } from "../../context/AuthContext";
 
 // UI Components
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Button } from "../ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select"; // Import Select components
+import { Checkbox } from "../ui/checkbox";
+import { Textarea } from "../ui/textarea";
 
 export const ClientModal = ({ isOpen, onClose, onClientSaved, clientToEdit = null, attributes = [] }) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [name, setName] = useState("");
     const [dynamicData, setDynamicData] = useState({});
+    const { user } = useAuth();
 
     // File upload state
     const [uploading, setUploading] = useState(false);
     const [images, setImages] = useState([]);
     const [selectedFile, setSelectedFile] = useState(null);
+
+    // Task state (Edit Mode Only)
+    const [tasks, setTasks] = useState([]);
+    const [newTaskDate, setNewTaskDate] = useState(new Date().toISOString().split('T')[0]);
+    const [newTaskDesc, setNewTaskDesc] = useState("");
+    const [newTaskCompleted, setNewTaskCompleted] = useState(false);
+
+    // Notes state
+    const [notes, setNotes] = useState([]);
+    const [newNote, setNewNote] = useState("");
 
     useEffect(() => {
         if (isOpen) {
@@ -48,6 +62,10 @@ export const ClientModal = ({ isOpen, onClose, onClientSaved, clientToEdit = nul
                 // Images
                 setImages(clientToEdit.list_of_images || []);
 
+                // Tasks & Notes
+                setTasks(clientToEdit.list_of_tasks || []);
+                setNotes(clientToEdit.list_of_notes || []);
+
             } else {
                 setName("");
                 // Initialize dynamic data
@@ -57,6 +75,12 @@ export const ClientModal = ({ isOpen, onClose, onClientSaved, clientToEdit = nul
                 });
                 setDynamicData(newDynamicData);
                 setImages([]);
+                setTasks([]);
+                setNewTaskDate(new Date().toISOString().split('T')[0]);
+                setNewTaskDesc("");
+                setNewTaskCompleted(false);
+                setNotes([]);
+                setNewNote("");
             }
         }
     }, [isOpen, clientToEdit, attributes]);
@@ -95,6 +119,71 @@ export const ClientModal = ({ isOpen, onClose, onClientSaved, clientToEdit = nul
         }
     };
 
+    // --- Task Management ---
+    const addTask = async () => {
+        if (!newTaskDesc.trim()) return;
+        const newTask = {
+            date: newTaskDate,
+            task: newTaskDesc,
+            completed: newTaskCompleted
+        };
+
+        const updatedTasks = [...tasks, newTask];
+        setTasks(updatedTasks);
+        setNewTaskDesc("");
+        setNewTaskCompleted(false);
+
+        if (clientToEdit) {
+            try {
+                await updateClient(clientToEdit.id, { list_of_tasks: updatedTasks });
+            } catch (err) {
+                console.error("Error adding task", err);
+                setError("Failed to save task immediately.");
+            }
+        }
+    };
+
+    const removeTask = async (index) => {
+        const newTasks = tasks.filter((_, i) => i !== index);
+        setTasks(newTasks);
+        if (clientToEdit) {
+            await updateClient(clientToEdit.id, { list_of_tasks: newTasks });
+        }
+    };
+
+    const toggleTask = async (index) => {
+        const newTasks = [...tasks];
+        newTasks[index].completed = !newTasks[index].completed;
+        setTasks(newTasks);
+        if (clientToEdit) {
+            await updateClient(clientToEdit.id, { list_of_tasks: newTasks });
+        }
+    };
+
+    // --- Note Management ---
+    const addNote = async () => {
+        if (!newNote.trim()) return;
+
+        const newEntry = {
+            date: new Date().toISOString(),
+            note: newNote,
+            user_id: user?.id
+        };
+
+        const updatedNotes = [...notes, newEntry];
+        setNotes(updatedNotes);
+        setNewNote("");
+
+        if (clientToEdit) {
+            try {
+                await updateClient(clientToEdit.id, { list_of_notes: updatedNotes });
+            } catch (err) {
+                console.error("Error adding note", err);
+                setError("Failed to save note immediately.");
+            }
+        }
+    };
+
     const handleSubmit = async () => {
         setLoading(true);
         setError(null);
@@ -103,6 +192,11 @@ export const ClientModal = ({ isOpen, onClose, onClientSaved, clientToEdit = nul
                 name,
                 attributes: dynamicData
             };
+
+            if (clientToEdit) {
+                payload.list_of_tasks = tasks;
+                payload.list_of_notes = notes;
+            }
 
             let savedClient;
             if (clientToEdit) {
@@ -235,6 +329,107 @@ export const ClientModal = ({ isOpen, onClose, onClientSaved, clientToEdit = nul
                     </div>
                 )}
 
+                {/* Tasks & Notes (Only in Edit Mode) */}
+                {clientToEdit && (
+                    <>
+                        <div className="border-t pt-4 space-y-4">
+                            <h4 className="font-medium text-sm text-muted-foreground">Tasks</h4>
+                            <div className="bg-muted/30 p-3 rounded-md space-y-2">
+                                <div className="flex gap-2 items-end">
+                                    <div className="flex-1">
+                                        <Label className="text-xs">Task</Label>
+                                        <Input
+                                            value={newTaskDesc}
+                                            onChange={(e) => setNewTaskDesc(e.target.value)}
+                                            placeholder="Task description..."
+                                            className="h-8"
+                                        />
+                                    </div>
+                                    <div className="w-32">
+                                        <Label className="text-xs">Date</Label>
+                                        <Input
+                                            type="date"
+                                            value={newTaskDate}
+                                            onChange={(e) => setNewTaskDate(e.target.value)}
+                                            className="h-8"
+                                        />
+                                    </div>
+                                    <div className="flex items-center space-x-2 pb-2">
+                                        <Checkbox
+                                            id="new-completed"
+                                            checked={newTaskCompleted}
+                                            onCheckedChange={setNewTaskCompleted}
+                                        />
+                                        <label htmlFor="new-completed" className="text-xs font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                                            Done
+                                        </label>
+                                    </div>
+                                    <Button size="sm" type="button" onClick={addTask} disabled={!newTaskDesc}>Add</Button>
+                                </div>
+                            </div>
+
+                            <div className="space-y-2 max-h-40 overflow-y-auto">
+                                {tasks.length === 0 ? (
+                                    <p className="text-sm text-muted-foreground italic">No tasks added.</p>
+                                ) : (
+                                    tasks.map((task, idx) => (
+                                        <div key={idx} className="flex items-center justify-between p-2 bg-card border rounded-md">
+                                            <div className="flex items-center gap-2">
+                                                <Checkbox
+                                                    checked={task.completed}
+                                                    onCheckedChange={() => toggleTask(idx)}
+                                                />
+                                                <div className={task.completed ? "line-through text-muted-foreground" : ""}>
+                                                    <p className="text-sm font-medium">{task.task || task.description}</p>
+                                                    <p className="text-xs text-muted-foreground">{task.date}</p>
+                                                </div>
+                                            </div>
+                                            <Button variant="ghost" size="sm" type="button" onClick={() => removeTask(idx)} className="h-6 w-6 p-0 text-red-500">
+                                                &times;
+                                            </Button>
+                                        </div>
+                                    ))
+                                )}
+                            </div>
+                        </div>
+
+                        <div className="border-t pt-4 space-y-4">
+                            <h4 className="font-medium text-sm text-muted-foreground">Notes</h4>
+
+                            <div className="bg-muted/30 p-3 rounded-md space-y-2">
+                                <div className="flex gap-2 items-end">
+                                    <div className="flex-1">
+                                        <Label className="text-xs">Note</Label>
+                                        <Textarea
+                                            value={newNote}
+                                            onChange={(e) => setNewNote(e.target.value)}
+                                            placeholder="Add a new note..."
+                                            className="h-20 min-h-[80px] text-sm"
+                                        />
+                                    </div>
+                                    <Button size="sm" type="button" onClick={addNote} disabled={!newNote}>Add Note</Button>
+                                </div>
+                            </div>
+
+                            <div className="space-y-2 max-h-60 overflow-y-auto">
+                                {notes.length === 0 ? (
+                                    <p className="text-sm text-muted-foreground italic">No notes added.</p>
+                                ) : (
+                                    notes.slice().reverse().map((item, idx) => (
+                                        <div key={idx} className="p-3 bg-card border rounded-md space-y-1">
+                                            <p className="text-sm">{item.note}</p>
+                                            <div className="flex justify-between items-center text-[10px] text-muted-foreground">
+                                                <span>{new Date(item.date).toLocaleString()}</span>
+                                                {item.user_id && <span>User ID: {item.user_id}</span>}
+                                            </div>
+                                        </div>
+                                    ))
+                                )}
+                            </div>
+                        </div>
+                    </>
+                )}
+
                 <div className="flex justify-end pt-4 gap-2 border-t mt-4">
                     <Button variant="outline" onClick={onClose} disabled={loading || uploading}>
                         Cancel
@@ -244,6 +439,6 @@ export const ClientModal = ({ isOpen, onClose, onClientSaved, clientToEdit = nul
                     </Button>
                 </div>
             </div>
-        </Modal>
+        </Modal >
     );
 };

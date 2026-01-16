@@ -33,6 +33,15 @@ export const updateLead = async (id, data) => {
     return res.json();
 };
 
+export const getLead = async (id) => {
+    const res = await fetch(`${API_URL}/leads/${id}/`, {
+        method: "GET",
+        headers: getHeaders(),
+    });
+    if (!res.ok) throw new Error("Error fetching lead");
+    return res.json();
+};
+
 export const getLeadAttributes = async () => {
     const res = await fetch(`${API_URL}/attributes/lead/`, {
         method: "GET",

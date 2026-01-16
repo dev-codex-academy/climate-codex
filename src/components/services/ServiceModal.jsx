@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Modal } from "../Modal";
 import { createService, updateService, uploadServiceImage } from "../../services/serviceService";
 import { getClients } from "../../services/clientService";
+import { useAuth } from "../../context/AuthContext";
 
 // UI Components
 import { Input } from "../ui/input";
@@ -11,13 +12,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { Checkbox } from "../ui/checkbox";
 import { Textarea } from "../ui/textarea";
 
-export const ServiceModal = ({ isOpen, onClose, onServiceSaved, serviceToEdit = null, attributes = [] }) => {
+export const ServiceModal = ({ isOpen, onClose, onServiceSaved, serviceToEdit = null, attributes = [], preSelectedClient = null }) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [name, setName] = useState("");
     const [clientId, setClientId] = useState("");
     const [clients, setClients] = useState([]);
     const [dynamicData, setDynamicData] = useState({});
+    const { user } = useAuth();
 
     // File upload state (Edit Mode Only)
     const [uploading, setUploading] = useState(false);
@@ -29,6 +31,10 @@ export const ServiceModal = ({ isOpen, onClose, onServiceSaved, serviceToEdit = 
     const [newTaskDate, setNewTaskDate] = useState(new Date().toISOString().split('T')[0]);
     const [newTaskDesc, setNewTaskDesc] = useState("");
     const [newTaskCompleted, setNewTaskCompleted] = useState(false);
+
+    // Notes state
+    const [notes, setNotes] = useState([]);
+    const [newNote, setNewNote] = useState("");
 
     useEffect(() => {
         if (isOpen) {
@@ -66,11 +72,12 @@ export const ServiceModal = ({ isOpen, onClose, onServiceSaved, serviceToEdit = 
 
                 // Tasks
                 setTasks(serviceToEdit.list_of_tasks || []);
+                setNotes(serviceToEdit.list_of_notes || []);
 
             } else {
                 // Reset for new creation
                 setName("");
-                setClientId("");
+                setClientId(preSelectedClient || "");
                 const newDynamicData = {};
                 attributes.forEach(attr => {
                     newDynamicData[attr.name] = "";
@@ -78,9 +85,11 @@ export const ServiceModal = ({ isOpen, onClose, onServiceSaved, serviceToEdit = 
                 setDynamicData(newDynamicData);
                 setImages([]);
                 setTasks([]);
+                setNotes([]);
+                setNewNote("");
             }
         }
-    }, [isOpen, serviceToEdit, attributes]);
+    }, [isOpen, serviceToEdit, attributes, preSelectedClient]);
 
     const handleDynamicChange = (name, value) => {
         setDynamicData(prev => ({
@@ -157,6 +166,28 @@ export const ServiceModal = ({ isOpen, onClose, onServiceSaved, serviceToEdit = 
         }
     };
 
+    // --- Note Management ---
+    const addNote = async () => {
+        if (!newNote.trim()) return;
+
+        const newEntry = {
+            date: new Date().toISOString(),
+            note: newNote,
+            user_id: user?.id
+        };
+
+        const updatedNotes = [...notes, newEntry];
+        setNotes(updatedNotes);
+        setNewNote("");
+
+        try {
+            await updateService(serviceToEdit.id, { list_of_notes: updatedNotes });
+        } catch (err) {
+            console.error("Error adding note", err);
+            setError("Failed to save note immediately.");
+        }
+    };
+
     const handleSubmit = async () => {
         setLoading(true);
         setError(null);
@@ -167,9 +198,10 @@ export const ServiceModal = ({ isOpen, onClose, onServiceSaved, serviceToEdit = 
                 attributes: dynamicData
             };
 
-            // If editing, include tasks update
+            // If editing, include tasks and notes
             if (serviceToEdit) {
                 payload.list_of_tasks = tasks;
+                payload.list_of_notes = notes;
             }
 
             if (serviceToEdit) {
@@ -214,16 +246,22 @@ export const ServiceModal = ({ isOpen, onClose, onServiceSaved, serviceToEdit = 
                     </div>
                     <div className="space-y-2">
                         <Label htmlFor="client">Client</Label>
-                        <Select value={clientId} onValueChange={setClientId}>
-                            <SelectTrigger>
-                                <SelectValue placeholder="Select Client" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {clients.map(c => (
-                                    <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
+                        {preSelectedClient ? (
+                            <div className="p-2 border rounded-md bg-muted/50 text-sm font-medium">
+                                {clients.find(c => String(c.id) === String(preSelectedClient))?.name || "Client Selected"}
+                            </div>
+                        ) : (
+                            <Select value={clientId} onValueChange={setClientId}>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select Client" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {clients.map(c => (
+                                        <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        )}
                     </div>
                 </div>
 
@@ -330,6 +368,40 @@ export const ServiceModal = ({ isOpen, onClose, onServiceSaved, serviceToEdit = 
                                 )}
                             </div>
                         </div>
+                        <div className="border-t pt-4 space-y-4">
+                            <h4 className="font-medium text-sm text-muted-foreground">Notes</h4>
+
+                            <div className="bg-muted/30 p-3 rounded-md space-y-2">
+                                <div className="flex gap-2 items-end">
+                                    <div className="flex-1">
+                                        <Label className="text-xs">Note</Label>
+                                        <Textarea
+                                            value={newNote}
+                                            onChange={(e) => setNewNote(e.target.value)}
+                                            placeholder="Add a new note..."
+                                            className="h-20 min-h-[80px] text-sm"
+                                        />
+                                    </div>
+                                    <Button size="sm" type="button" onClick={addNote} disabled={!newNote}>Add Note</Button>
+                                </div>
+                            </div>
+
+                            <div className="space-y-2 max-h-60 overflow-y-auto">
+                                {notes.length === 0 ? (
+                                    <p className="text-sm text-muted-foreground italic">No notes added.</p>
+                                ) : (
+                                    notes.slice().reverse().map((item, idx) => (
+                                        <div key={idx} className="p-3 bg-card border rounded-md space-y-1">
+                                            <p className="text-sm">{item.note}</p>
+                                            <div className="flex justify-between items-center text-[10px] text-muted-foreground">
+                                                <span>{new Date(item.date).toLocaleString()}</span>
+                                                {item.user_id && <span>User ID: {item.user_id}</span>}
+                                            </div>
+                                        </div>
+                                    ))
+                                )}
+                            </div>
+                        </div>
 
                         <div className="border-t pt-4 space-y-4">
                             <h4 className="font-medium text-sm text-muted-foreground">Files & Images</h4>
@@ -381,6 +453,6 @@ export const ServiceModal = ({ isOpen, onClose, onServiceSaved, serviceToEdit = 
                     </Button>
                 </div>
             </div>
-        </Modal>
+        </Modal >
     );
 };

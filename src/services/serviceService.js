@@ -3,8 +3,11 @@ import { API_URL, getHeaders } from "./api";
 const endPoint = "services";
 const url = `${API_URL}/${endPoint}/`;
 
-export const getServices = async () => {
-    const res = await fetch(url, {
+export const getServices = async (filters = {}) => {
+    const queryParams = new URLSearchParams(filters).toString();
+    const finalUrl = queryParams ? `${url}?${queryParams}` : url;
+
+    const res = await fetch(finalUrl, {
         method: "GET",
         headers: getHeaders(),
     });
@@ -24,14 +27,12 @@ export const searchServices = async (name) => {
 };
 
 export const getServiceById = async (id) => {
-    const res = await fetch(`${url}?id=${id}`, {
+    const res = await fetch(`${url}${id}/`, {
         method: "GET",
         headers: getHeaders(),
     });
     if (!res.ok) throw new Error("Error fetching service");
-    const data = await res.json();
-    const result = data.results || data;
-    return Array.isArray(result) ? result[0] : result;
+    return res.json();
 };
 
 export const createService = async (data) => {

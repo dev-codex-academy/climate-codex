@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Modal } from "../Modal";
 import { getLeadAttributes, createLead, updateLead, uploadLeadImage } from "../../services/leadService";
 import { getSales } from "../../services/salesService";
+import { useAuth } from "../../context/AuthContext";
 
 // UI Components
 import { Input } from "../ui/input";
@@ -33,6 +34,11 @@ export const LeadModal = ({ isOpen, onClose, onLeadCreated, responsibleId, pipel
     const [newTaskDesc, setNewTaskDesc] = useState("");
     const [newTaskCompleted, setNewTaskCompleted] = useState(false);
 
+    // Notes state (formerly Follow-ups)
+    const [notes, setNotes] = useState([]);
+    const [newNote, setNewNote] = useState("");
+    const { user } = useAuth();
+
     useEffect(() => {
         if (isOpen) {
             fetchAttributes();
@@ -50,6 +56,7 @@ export const LeadModal = ({ isOpen, onClose, onLeadCreated, responsibleId, pipel
                 // We will populate formData after fetching attributes to ensure we catch all fields
                 setImages(leadToEdit.list_of_images || []);
                 setTasks(leadToEdit.list_of_tasks || []);
+                setNotes(leadToEdit.list_of_notes || leadToEdit.list_of_follow_ups || []);
             } else {
                 // Create Mode
                 setName("");
@@ -57,8 +64,11 @@ export const LeadModal = ({ isOpen, onClose, onLeadCreated, responsibleId, pipel
                 setFormData({});
                 setImages([]);
                 setTasks([]);
+                setNewTaskDate(new Date().toISOString().split('T')[0]);
                 setNewTaskDesc("");
                 setNewTaskCompleted(false);
+                setNotes([]);
+                setNewNote("");
             }
         }
     }, [isOpen, leadToEdit]);
@@ -146,21 +156,27 @@ export const LeadModal = ({ isOpen, onClose, onLeadCreated, responsibleId, pipel
         if (!newTaskDesc.trim()) return;
         const newTask = {
             date: newTaskDate,
-            description: newTaskDesc,
+            description: newTaskDesc, // Using description to map to 'task' field in backend usually, or we adapt payload
+            // Doc says: "task": "Description of the task"
+            task: newTaskDesc,
             completed: newTaskCompleted
         };
+        // Backend expects 'task' key, frontend used 'description' before? 
+        // Let's stick to 'task' for the object we save, but maybe display uses description?
+        // Old code used 'description'. I'll support both or map it.
+        // Doc: "list_of_tasks": [{ "task": "...", "date": "...", "completed": ... }]
+
         const updatedTasks = [...tasks, newTask];
         setTasks(updatedTasks);
         setNewTaskDesc("");
         setNewTaskCompleted(false);
 
-        // Auto-save tasks if editing
         if (leadToEdit) {
             try {
                 await updateLead(leadToEdit.id, { list_of_tasks: updatedTasks });
             } catch (err) {
                 console.error("Error adding task", err);
-                setError("Failed to save task immediately. It will be saved on form submit.");
+                setError("Failed to save task immediately.");
             }
         }
     };
@@ -168,14 +184,8 @@ export const LeadModal = ({ isOpen, onClose, onLeadCreated, responsibleId, pipel
     const removeTask = async (index) => {
         const newTasks = tasks.filter((_, i) => i !== index);
         setTasks(newTasks);
-
         if (leadToEdit) {
-            try {
-                await updateLead(leadToEdit.id, { list_of_tasks: newTasks });
-            } catch (err) {
-                console.error("Error removing task", err);
-                setError("Failed to remove task immediately.");
-            }
+            await updateLead(leadToEdit.id, { list_of_tasks: newTasks });
         }
     };
 
@@ -183,13 +193,32 @@ export const LeadModal = ({ isOpen, onClose, onLeadCreated, responsibleId, pipel
         const newTasks = [...tasks];
         newTasks[index].completed = !newTasks[index].completed;
         setTasks(newTasks);
+        if (leadToEdit) {
+            await updateLead(leadToEdit.id, { list_of_tasks: newTasks });
+        }
+    };
 
+    // --- Note Management ---
+    const addNote = async () => {
+        if (!newNote.trim()) return;
+
+        const newEntry = {
+            date: new Date().toISOString(),
+            note: newNote,
+            user_id: user?.id
+        };
+
+        const updatedNotes = [...notes, newEntry];
+        setNotes(updatedNotes);
+        setNewNote("");
+
+        // Auto-save notes if editing
         if (leadToEdit) {
             try {
-                await updateLead(leadToEdit.id, { list_of_tasks: newTasks });
+                await updateLead(leadToEdit.id, { list_of_notes: updatedNotes });
             } catch (err) {
-                console.error("Error toggling task", err);
-                setError("Failed to update task state immediately.");
+                console.error("Error adding note", err);
+                setError("Failed to save note immediately. It will be saved on form submit.");
             }
         }
     };
@@ -210,8 +239,9 @@ export const LeadModal = ({ isOpen, onClose, onLeadCreated, responsibleId, pipel
             if (!leadToEdit) {
                 payload.pipeline = pipelineId;
             } else {
-                // On edit, include tasks
+                // On edit, include tasks and notes
                 payload.list_of_tasks = tasks;
+                payload.list_of_notes = notes;
             }
 
             if (leadToEdit) {
@@ -245,7 +275,7 @@ export const LeadModal = ({ isOpen, onClose, onLeadCreated, responsibleId, pipel
             onClose={onClose}
             title={leadToEdit ? "Edit Opportunity" : "New Opportunity"}
             showFooter={false}
-            widthClass="sm:w-[700px]"
+            widthClass="sm:w-[1000px] max-w-[95vw]"
         >
             <div className="space-y-4 max-h-[80vh] overflow-y-auto p-1">
                 {error && (
@@ -254,80 +284,83 @@ export const LeadModal = ({ isOpen, onClose, onLeadCreated, responsibleId, pipel
                     </div>
                 )}
 
-                {/* Responsible Field */}
-                <div className="space-y-2">
-                    <Label htmlFor="responsible">Responsible</Label>
-                    <Select
-                        value={selectedResponsible}
-                        onValueChange={setSelectedResponsible}
-                    >
-                        <SelectTrigger id="responsible">
-                            <SelectValue placeholder="Select a responsible person" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {salesUsers.map(user => (
-                                <SelectItem key={user.id} value={String(user.id)}>
-                                    {user.name}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {/* Responsible Field */}
+                    <div className="space-y-2">
+                        <Label htmlFor="responsible">Responsible</Label>
+                        <Select
+                            value={selectedResponsible}
+                            onValueChange={setSelectedResponsible}
+                        >
+                            <SelectTrigger id="responsible" className="w-full">
+                                <SelectValue placeholder="Select a responsible person" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {salesUsers.map(user => (
+                                    <SelectItem key={user.id} value={String(user.id)}>
+                                        {user.name}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
 
-                {/* Static Name Field */}
-                <div className="space-y-2">
-                    <Label htmlFor="lead-name">Opportunity Name</Label>
-                    <Input
-                        id="lead-name"
-                        placeholder="e.g. Acme Corp Deal"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                    />
+                    {/* Static Name Field */}
+                    <div className="space-y-2">
+                        <Label htmlFor="lead-name">Opportunity Name</Label>
+                        <Input
+                            id="lead-name"
+                            placeholder="e.g. Acme Corp Deal"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                        />
+                    </div>
                 </div>
 
                 {/* Dynamic Attributes */}
-                {attributes.map((attr) => (
-                    <div key={attr.name} className="space-y-2">
-                        <Label htmlFor={attr.name}>{attr.label}</Label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {attributes.map((attr) => (
+                        <div key={attr.name} className="space-y-2">
+                            <Label htmlFor={attr.name}>{attr.label}</Label>
 
-                        {attr.type === 'list' ? (
-                            <Select
-                                onValueChange={(val) => handleAttributeChange(attr.name, val)}
-                                value={formData[attr.name]}
-                            >
-                                <SelectTrigger>
-                                    <SelectValue placeholder={`Select ${attr.label}`} />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {attr.options?.map((opt) => (
-                                        <SelectItem key={opt.value || opt} value={opt.value || opt}>
-                                            {opt.label || opt}
-                                        </SelectItem>
-                                    )) || <SelectItem value="no-options">No options available</SelectItem>}
-                                </SelectContent>
-                            </Select>
-                        ) : (
-                            <Input
-                                id={attr.name}
-                                type={attr.type === 'number' ? 'number' : attr.type === 'date' ? 'date' : 'text'}
-                                placeholder={attr.label}
-                                value={formData[attr.name] || ""}
-                                onChange={(e) => handleAttributeChange(attr.name, e.target.value)}
-                            />
-                        )}
-                    </div>
-                ))}
+                            {attr.type === 'list' ? (
+                                <Select
+                                    onValueChange={(val) => handleAttributeChange(attr.name, val)}
+                                    value={formData[attr.name]}
+                                >
+                                    <SelectTrigger className="w-full">
+                                        <SelectValue placeholder={`Select ${attr.label}`} />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {attr.options?.map((opt) => (
+                                            <SelectItem key={opt.value || opt} value={opt.value || opt}>
+                                                {opt.label || opt}
+                                            </SelectItem>
+                                        )) || <SelectItem value="no-options">No options available</SelectItem>}
+                                    </SelectContent>
+                                </Select>
+                            ) : (
+                                <Input
+                                    id={attr.name}
+                                    type={attr.type === 'number' ? 'number' : attr.type === 'date' ? 'date' : 'text'}
+                                    placeholder={attr.label}
+                                    value={formData[attr.name] || ""}
+                                    onChange={(e) => handleAttributeChange(attr.name, e.target.value)}
+                                />
+                            )}
+                        </div>
+                    ))}
+                </div>
 
                 {/* --- EDIT MODE ONLY SECTIONS --- */}
                 {leadToEdit && (
                     <>
                         <div className="border-t pt-4 space-y-4">
                             <h4 className="font-medium text-sm text-muted-foreground">Tasks</h4>
-
                             <div className="bg-muted/30 p-3 rounded-md space-y-2">
                                 <div className="flex gap-2 items-end">
                                     <div className="flex-1">
-                                        <Label className="text-xs">Description</Label>
+                                        <Label className="text-xs">Task</Label>
                                         <Input
                                             value={newTaskDesc}
                                             onChange={(e) => setNewTaskDesc(e.target.value)}
@@ -370,13 +403,48 @@ export const LeadModal = ({ isOpen, onClose, onLeadCreated, responsibleId, pipel
                                                     onCheckedChange={() => toggleTask(idx)}
                                                 />
                                                 <div className={task.completed ? "line-through text-muted-foreground" : ""}>
-                                                    <p className="text-sm font-medium">{task.description}</p>
+                                                    <p className="text-sm font-medium">{task.task || task.description}</p>
                                                     <p className="text-xs text-muted-foreground">{task.date}</p>
                                                 </div>
                                             </div>
                                             <Button variant="ghost" size="sm" type="button" onClick={() => removeTask(idx)} className="h-6 w-6 p-0 text-red-500">
                                                 &times;
                                             </Button>
+                                        </div>
+                                    ))
+                                )}
+                            </div>
+                        </div>
+
+                        <div className="border-t pt-4 space-y-4">
+                            <h4 className="font-medium text-sm text-muted-foreground">Notes</h4>
+
+                            <div className="bg-muted/30 p-3 rounded-md space-y-2">
+                                <div className="flex gap-2 items-end">
+                                    <div className="flex-1">
+                                        <Label className="text-xs">Note</Label>
+                                        <Textarea
+                                            value={newNote}
+                                            onChange={(e) => setNewNote(e.target.value)}
+                                            placeholder="Add a new note..."
+                                            className="h-20 min-h-[80px] text-sm"
+                                        />
+                                    </div>
+                                    <Button size="sm" type="button" onClick={addNote} disabled={!newNote}>Add Note</Button>
+                                </div>
+                            </div>
+
+                            <div className="space-y-2 max-h-60 overflow-y-auto">
+                                {notes.length === 0 ? (
+                                    <p className="text-sm text-muted-foreground italic">No notes added.</p>
+                                ) : (
+                                    notes.slice().reverse().map((item, idx) => (
+                                        <div key={idx} className="p-3 bg-card border rounded-md space-y-1">
+                                            <p className="text-sm">{item.note}</p>
+                                            <div className="flex justify-between items-center text-[10px] text-muted-foreground">
+                                                <span>{new Date(item.date).toLocaleString()}</span>
+                                                {item.user_id && <span>User ID: {item.user_id}</span>}
+                                            </div>
                                         </div>
                                     ))
                                 )}

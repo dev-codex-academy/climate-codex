@@ -3,7 +3,7 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import { Table } from "../components/Table";
 import { Button } from "../components/ui/button";
 import { Plus, ArrowLeft } from "lucide-react";
-import { getFollowups, deleteFollowup } from "../services/followupService";
+import { getFollowups, deleteFollowup, getFollowupAttributes } from "../services/followupService";
 import { FollowupModal } from "../components/followups/FollowupModal";
 import Swal from "sweetalert2";
 
@@ -18,11 +18,32 @@ export const Followup = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [followupToEdit, setFollowupToEdit] = useState(null);
 
-    const columns = [
+    // Dynamic columns support
+    const staticColumns = [
         { key: "follow_up_date", label: "Date" },
-        { key: "type", label: "Type" },
         { key: "comment", label: "Comment" },
     ];
+    const [columns, setColumns] = useState(staticColumns);
+    const [attributes, setAttributes] = useState([]);
+
+    useEffect(() => {
+        // Fetch Attributes on mount
+        const loadAttributes = async () => {
+            try {
+                const attrs = await getFollowupAttributes();
+                setAttributes(attrs);
+
+                const dynamicCols = attrs.map(attr => ({
+                    key: attr.name,
+                    label: attr.label
+                }));
+                setColumns([...staticColumns, ...dynamicCols]);
+            } catch (err) {
+                console.error("Error loading attributes", err);
+            }
+        };
+        loadAttributes();
+    }, []);
 
     useEffect(() => {
         if (serviceId) {
@@ -38,7 +59,9 @@ export const Followup = () => {
             const data = await getFollowups(serviceId);
             const formattedData = data.map(item => ({
                 ...item,
-                follow_up_date: item.follow_up_date ? item.follow_up_date.split('T')[0] : ""
+                follow_up_date: item.follow_up_date ? item.follow_up_date.split('T')[0] : "",
+                // Flatten dynamic attributes
+                ...(item.attributes || {})
             }));
             setFollowups(formattedData);
         } catch (error) {
