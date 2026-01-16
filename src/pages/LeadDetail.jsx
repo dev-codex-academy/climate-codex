@@ -290,9 +290,9 @@ export const LeadDetail = () => {
     }
 
     return (
-        <div className="flex flex-col h-full bg-background">
+        <div className="min-h-screen bg-background flex flex-col">
             {/* Header */}
-            <div className="border-b px-6 py-4 flex items-center justify-between bg-card">
+            <div className="sticky top-0 z-10 border-b px-6 py-4 flex items-center justify-between bg-card shrink-0">
                 <div className="flex items-center gap-4">
                     <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
                         <ArrowLeft className="h-5 w-5" />
@@ -315,7 +315,7 @@ export const LeadDetail = () => {
             </div>
 
             {/* Scrollable Content */}
-            <div className="flex-1 overflow-y-auto p-6 max-w-6xl mx-auto w-full">
+            <div className="flex-1 p-6 max-w-6xl mx-auto w-full">
                 {error && (
                     <div className="p-4 mb-6 text-sm text-red-500 bg-red-50 rounded-md border border-red-200">
                         {error}
