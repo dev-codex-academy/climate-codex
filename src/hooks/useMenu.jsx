@@ -37,7 +37,7 @@ export const useMenu = () => {
                 };
 
                 const formattedMenu = permissions
-                    .filter(perm => perm.startsWith("app.add_"))
+                    .filter(perm => perm.startsWith("app.add_") && !perm.includes("enrollmentdetail") && !perm.includes("followup"))
                     .map(perm => {
                         // Remove the 'app.add_' prefix
                         let rawName = perm.replace("app.add_", "");
