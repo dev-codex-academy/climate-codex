@@ -1,7 +1,7 @@
-import React from 'react'
+import { ErrorPage } from '../components/ErrorPage'
 
 export const NotFound = () => {
     return (
-        <div>NotFound</div>
+        <ErrorPage code={404} />
     )
 }

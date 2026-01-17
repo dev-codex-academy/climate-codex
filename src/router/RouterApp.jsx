@@ -16,6 +16,7 @@ import { ServiceDetail } from "../pages/ServiceDetail";
 import { TransferRequests } from "../pages/TransferRequests";
 import AdminLayout from "@/layout/AdminLayout"
 import { useAuth } from "@/context/AuthContext"
+import { PermissionGuard } from "../components/PermissionGuard"
 
 const LoginValidate = ({ children }) => {
     const { isAuthenticated, loading } = useAuth();
@@ -49,19 +50,19 @@ export const RouterApp = () => {
 
             <Route path="/" element={<LoginValidate><AdminLayout /></LoginValidate>}>
                 {/*  <Route path="rol" element={<Rol />} /> */}
-                <Route path="lead" element={<Lead />} />
-                <Route path="lead/:id" element={<LeadDetail />} />
-                <Route path="pipeline" element={<Pipeline />} />
-                <Route path="attribute" element={<Attributes />} />
-                <Route path="client" element={<Client />} />
-                <Route path="client/:id" element={<ClientDetail />} />
-                <Route path="service" element={<Service />} />
-                <Route path="service/:id" element={<ServiceDetail />} />
-                <Route path="followup" element={<Followup />} />
-                <Route path="cohort" element={<Cohort />} />
-                <Route path="enrollment" element={<Enrollment />} />
-                <Route path="enrollment/:id" element={<EnrollmentDetail />} />
-                <Route path="transferrequest" element={<TransferRequests />} />
+                <Route path="lead" element={<PermissionGuard requiredPermission="app.add_lead"><Lead /></PermissionGuard>} />
+                <Route path="lead/:id" element={<PermissionGuard requiredPermission="app.add_lead"><LeadDetail /></PermissionGuard>} />
+                <Route path="pipeline" element={<PermissionGuard requiredPermission="app.add_pipeline"><Pipeline /></PermissionGuard>} />
+                <Route path="attribute" element={<PermissionGuard requiredPermission="app.add_attribute"><Attributes /></PermissionGuard>} />
+                <Route path="client" element={<PermissionGuard requiredPermission="app.add_client"><Client /></PermissionGuard>} />
+                <Route path="client/:id" element={<PermissionGuard requiredPermission="app.add_client"><ClientDetail /></PermissionGuard>} />
+                <Route path="service" element={<PermissionGuard requiredPermission="app.add_service"><Service /></PermissionGuard>} />
+                <Route path="service/:id" element={<PermissionGuard requiredPermission="app.add_service"><ServiceDetail /></PermissionGuard>} />
+                <Route path="followup" element={<PermissionGuard requiredPermission="app.add_followup"><Followup /></PermissionGuard>} />
+                <Route path="cohort" element={<PermissionGuard requiredPermission="app.add_cohort"><Cohort /></PermissionGuard>} />
+                <Route path="enrollment" element={<PermissionGuard requiredPermission="app.add_enrollment"><Enrollment /></PermissionGuard>} />
+                <Route path="enrollment/:id" element={<PermissionGuard requiredPermission="app.add_enrollment"><EnrollmentDetail /></PermissionGuard>} />
+                <Route path="transferrequest" element={<PermissionGuard requiredPermission="app.add_transferrequest"><TransferRequests /></PermissionGuard>} />
             </Route>
 
             {/* default routes */}

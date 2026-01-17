@@ -74,10 +74,27 @@ export const ServiceDetail = () => {
     const fetchAttributes = async () => {
         try {
             const data = await getServiceAttributes();
-            setAttributes(data);
+
+            // Parse options for list types
+            const processedAttributes = data.map(attr => {
+                let options = attr.options;
+                if (!options && attr.list_values) {
+                    try {
+                        options = typeof attr.list_values === 'string'
+                            ? JSON.parse(attr.list_values)
+                            : attr.list_values;
+                    } catch (e) {
+                        console.error("Error parsing list_values for attribute", attr.name, e);
+                        options = [];
+                    }
+                }
+                return { ...attr, options };
+            });
+
+            setAttributes(processedAttributes);
             // Init default dynamic data
             const initialDynamic = {};
-            data.forEach(attr => initialDynamic[attr.name] = "");
+            processedAttributes.forEach(attr => initialDynamic[attr.name] = "");
             setDynamicData(initialDynamic);
         } catch (err) {
             console.error("Error fetching attributes", err);
