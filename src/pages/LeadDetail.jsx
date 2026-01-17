@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { getLeadAttributes, createLead, updateLead, uploadLeadImage, getLead } from "../services/leadService";
 import { getSales } from "../services/salesService";
+import { getClients } from "../services/clientService";
 import { useAuth } from "../context/AuthContext";
 
 // UI Components
@@ -33,6 +34,9 @@ export const LeadDetail = () => {
     // Standard static fields for a Lead
     const [name, setName] = useState("");
     const [selectedResponsible, setSelectedResponsible] = useState("");
+    const [possibleClient, setPossibleClient] = useState("");
+    const [moodleCourseId, setMoodleCourseId] = useState("");
+    const [clients, setClients] = useState([]);
 
     // File upload state
     const [uploading, setUploading] = useState(false);
@@ -53,13 +57,18 @@ export const LeadDetail = () => {
         const init = async () => {
             setFetching(true);
             try {
-                await Promise.all([fetchAttributes(), fetchSalesUsers()]);
+                // Fetch independently to avoid one blocking others
+                fetchAttributes().catch(e => console.error(e));
+                fetchSalesUsers().catch(e => console.error(e));
+                fetchClients().catch(e => console.error(e));
 
                 if (!isNew) {
                     await fetchLeadData(id);
                 } else {
                     // Initialize new lead defaults
                     setName("");
+                    setPossibleClient("");
+                    setMoodleCourseId("");
                     if (user?.id) setSelectedResponsible(String(user.id));
                 }
             } catch (err) {
@@ -88,6 +97,13 @@ export const LeadDetail = () => {
         // Handle responsible
         const respId = leadData.responsible?.id || leadData.responsible || "";
         setSelectedResponsible(String(respId));
+
+        // Handle possible client
+        const clientId = leadData.possible_client?.id || leadData.possible_client || "";
+        setPossibleClient(String(clientId));
+
+        // Handle Moodle Course ID
+        setMoodleCourseId(leadData.moodle_course_id || "");
 
         // Populate dynamic attributes
         // formData state is initialized in fetchAttributes, but we update it here
@@ -120,6 +136,18 @@ export const LeadDetail = () => {
             console.error("Error fetching sales users", err);
         }
     };
+
+    const fetchClients = async () => {
+        try {
+            const data = await getClients();
+            console.log("Fetched clients:", data);
+            setClients(Array.isArray(data) ? data : []);
+        } catch (err) {
+            console.error("Error fetching clients", err);
+        }
+    };
+
+
 
     const fetchAttributes = async () => {
         try {
@@ -252,7 +280,9 @@ export const LeadDetail = () => {
             const payload = {
                 name,
                 attributes: formData,
-                responsible: selectedResponsible
+                responsible: selectedResponsible,
+                possible_client: possibleClient || null,
+                moodle_course_id: moodleCourseId || ""
             };
 
             if (isNew) {
@@ -345,6 +375,26 @@ export const LeadDetail = () => {
                             </Select>
                         </div>
 
+                        {/* Possible Client Field */}
+                        <div className="space-y-2">
+                            <Label htmlFor="possible-client">Possible Client</Label>
+                            <Select
+                                value={possibleClient}
+                                onValueChange={setPossibleClient}
+                            >
+                                <SelectTrigger id="possible-client" className="w-full">
+                                    <SelectValue placeholder="Select a client (optional)" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {clients.map(client => (
+                                        <SelectItem key={client.id} value={String(client.id)}>
+                                            {client.name}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+
                         {/* Static Name Field */}
                         <div className="space-y-2">
                             <Label htmlFor="lead-name">Opportunity Name</Label>
@@ -353,6 +403,17 @@ export const LeadDetail = () => {
                                 placeholder="e.g. Acme Corp Deal"
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
+                            />
+                        </div>
+
+                        {/* Moodle Course ID */}
+                        <div className="space-y-2">
+                            <Label htmlFor="moodle-id">Moodle Course ID</Label>
+                            <Input
+                                id="moodle-id"
+                                placeholder="e.g. 123456"
+                                value={moodleCourseId}
+                                onChange={(e) => setMoodleCourseId(e.target.value)}
                             />
                         </div>
                     </div>

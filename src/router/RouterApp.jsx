@@ -13,6 +13,7 @@ import { EnrollmentDetail } from "../pages/EnrollmentDetail";
 import { LeadDetail } from "../pages/LeadDetail";
 import { ClientDetail } from "../pages/ClientDetail";
 import { ServiceDetail } from "../pages/ServiceDetail";
+import { TransferRequests } from "../pages/TransferRequests";
 import AdminLayout from "@/layout/AdminLayout"
 import { useAuth } from "@/context/AuthContext"
 
@@ -60,6 +61,7 @@ export const RouterApp = () => {
                 <Route path="cohort" element={<Cohort />} />
                 <Route path="enrollment" element={<Enrollment />} />
                 <Route path="enrollment/:id" element={<EnrollmentDetail />} />
+                <Route path="transferrequest" element={<TransferRequests />} />
             </Route>
 
             {/* default routes */}

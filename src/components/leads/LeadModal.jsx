@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Modal } from "../Modal";
 import { getLeadAttributes, createLead, updateLead, uploadLeadImage } from "../../services/leadService";
 import { getSales } from "../../services/salesService";
+import { getClients } from "../../services/clientService";
 import { useAuth } from "../../context/AuthContext";
 
 // UI Components
@@ -22,6 +23,9 @@ export const LeadModal = ({ isOpen, onClose, onLeadCreated, responsibleId, pipel
     // Standard static fields for a Lead
     const [name, setName] = useState("");
     const [selectedResponsible, setSelectedResponsible] = useState("");
+    const [possibleClient, setPossibleClient] = useState("");
+    const [moodleCourseId, setMoodleCourseId] = useState("");
+    const [clients, setClients] = useState([]);
 
     // File upload state (Edit Mode Only)
     const [uploading, setUploading] = useState(false);
@@ -43,6 +47,7 @@ export const LeadModal = ({ isOpen, onClose, onLeadCreated, responsibleId, pipel
         if (isOpen) {
             fetchAttributes();
             fetchSalesUsers();
+            fetchClients();
             setError(null);
 
             if (leadToEdit) {
@@ -51,6 +56,13 @@ export const LeadModal = ({ isOpen, onClose, onLeadCreated, responsibleId, pipel
                 // Handle responsible - check if it's an object (id/name) or just ID
                 const respId = leadToEdit.responsible?.id || leadToEdit.responsible || "";
                 setSelectedResponsible(String(respId));
+
+                // Handle possible client
+                const clientId = leadToEdit.possible_client?.id || leadToEdit.possible_client || "";
+                setPossibleClient(String(clientId));
+
+                // Handle Moodle Course ID
+                setMoodleCourseId(leadToEdit.moodle_course_id || "");
 
                 // Assuming attributes might be at root or in 'attributes' object
                 // We will populate formData after fetching attributes to ensure we catch all fields
@@ -61,6 +73,8 @@ export const LeadModal = ({ isOpen, onClose, onLeadCreated, responsibleId, pipel
                 // Create Mode
                 setName("");
                 setSelectedResponsible(String(responsibleId || ""));
+                setPossibleClient("");
+                setMoodleCourseId("");
                 setFormData({});
                 setImages([]);
                 setTasks([]);
@@ -72,6 +86,15 @@ export const LeadModal = ({ isOpen, onClose, onLeadCreated, responsibleId, pipel
             }
         }
     }, [isOpen, leadToEdit]);
+
+    const fetchClients = async () => {
+        try {
+            const data = await getClients();
+            setClients(Array.isArray(data) ? data : []);
+        } catch (err) {
+            console.error("Error fetching clients", err);
+        }
+    };
 
     const fetchSalesUsers = async () => {
         try {
@@ -231,7 +254,9 @@ export const LeadModal = ({ isOpen, onClose, onLeadCreated, responsibleId, pipel
             const payload = {
                 name,
                 attributes: formData,
-                responsible: selectedResponsible // Include responsible in payload
+                responsible: selectedResponsible, // Include responsible in payload
+                possible_client: possibleClient || null,
+                moodle_course_id: moodleCourseId || ""
             };
 
             // Only send static fields if creating, or if they changed. 
@@ -305,6 +330,26 @@ export const LeadModal = ({ isOpen, onClose, onLeadCreated, responsibleId, pipel
                         </Select>
                     </div>
 
+                    {/* Possible Client Field */}
+                    <div className="space-y-2">
+                        <Label htmlFor="possible-client">Possible Client</Label>
+                        <Select
+                            value={possibleClient}
+                            onValueChange={setPossibleClient}
+                        >
+                            <SelectTrigger id="possible-client" className="w-full">
+                                <SelectValue placeholder="Select a client (optional)" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {clients.map(client => (
+                                    <SelectItem key={client.id} value={String(client.id)}>
+                                        {client.name}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+
                     {/* Static Name Field */}
                     <div className="space-y-2">
                         <Label htmlFor="lead-name">Opportunity Name</Label>
@@ -313,6 +358,17 @@ export const LeadModal = ({ isOpen, onClose, onLeadCreated, responsibleId, pipel
                             placeholder="e.g. Acme Corp Deal"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
+                        />
+                    </div>
+
+                    {/* Moodle Course ID */}
+                    <div className="space-y-2">
+                        <Label htmlFor="moodle-id">Moodle Course ID</Label>
+                        <Input
+                            id="moodle-id"
+                            placeholder="e.g. 123456"
+                            value={moodleCourseId}
+                            onChange={(e) => setMoodleCourseId(e.target.value)}
                         />
                     </div>
                 </div>

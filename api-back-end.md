@@ -462,6 +462,7 @@ To add a task, you append it to the list.
 | `responsible` | ForeignKey | User ID of the responsible person |
 | `pipeline` | ForeignKey | Pipeline ID |
 | `possible_client` | UUID | Optional link to an existing client |
+| `moodle_course_id` | String | Optional Moodle Course ID |
 | `stage` | String | Current stage name |
 | `attributes` | JSONB | Dynamic attributes |
 | `list_of_tasks` | JSONB | List of tasks `{task, date, completed, date_created, user_id (Output Only), user_name (Output Only)}` |
@@ -691,7 +692,8 @@ Links a specific Student (Service) to an Enrollment.
 ```json
 {
     "student": "<student_service_uuid>",
-    "cohort_request": "Winter 2026 Batch"
+    "cohort_request": "Winter 2026 Batch",
+    "possible_transfer_date": "2026-02-01"
 }
 ```
 
@@ -706,7 +708,9 @@ Links a specific Student (Service) to an Enrollment.
 | :--- | :--- | :--- |
 | `id` | UUID | Unique identifier |
 | `student` | ForeignKey | Service (Student) ID |
+| `student_name` | String | Name of the student (Output Only) |
 | `cohort_request` | String | Name of the requested cohort |
+| `possible_transfer_date` | Date | Requested transfer date (YYYY-MM-DD) |
 
 ---
 
@@ -750,3 +754,4 @@ Returns users in the 'Sales' group.
 ### List Operations
 **GET** `/api/operations/`
 Returns users in the 'Operations' group.
+

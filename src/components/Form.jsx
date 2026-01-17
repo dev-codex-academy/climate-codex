@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/select";
 import { useAuth } from "@/context/AuthContext";
 import { Switch } from "./ui/switch";
+import { SearchableSelect } from "./SearchableSelect";
 
 export function Form({
   fields,
@@ -204,6 +205,14 @@ export function Form({
                       ))}
                     </SelectContent>
                   </Select>
+                ) : type === "searchable-selector" ? (
+                  <SearchableSelect
+                    options={options}
+                    value={value}
+                    onChange={(val) => handleChange(name, val, "text")}
+                    placeholder={placeholder}
+                    disabled={finalDisabled || finalReadOnly}
+                  />
                 ) : (
                   <Input
                     id={name}
@@ -232,68 +241,70 @@ export function Form({
         );
       })}
 
-      {esAtributo && (
-        <div className="p-4 border border-codex-bordes-secondary-variante2 dark:border-codex-bordes-secondary-variante4 rounded-xl space-y-4">
+      {
+        esAtributo && (
+          <div className="p-4 border border-codex-bordes-secondary-variante2 dark:border-codex-bordes-secondary-variante4 rounded-xl space-y-4">
 
-          <div className="flex items-center justify-between">
-            <Label className="text-sm font-medium text-codex-secondary dark:text-codex-texto-terciario-variante1">
-              Is selector?
-            </Label>
+            <div className="flex items-center justify-between">
+              <Label className="text-sm font-medium text-codex-secondary dark:text-codex-texto-terciario-variante1">
+                Is selector?
+              </Label>
 
-            <Switch className="h-full w-8 accent-primary"
-              checked={useAttributes}
-              onCheckedChange={setUseAttributes}
-            />
-          </div>
-
-          {useAttributes && (
-            <div className="space-y-4">
-
-              <div className="flex gap-2">
-                <Input
-                  value={inputValue}
-                  onChange={(e) => setInputValue(e.target.value)}
-                  placeholder="New value"
-                  className="bg-card flex-1"
-                />
-
-                <Button
-                  type="button"
-                  variant={"terciary"}
-                  onClick={addValue}
-                  className="shrink-0"
-                >
-                  Add
-                </Button>
-              </div>
-
-              <div className="flex gap-2 flex-wrap">
-                {valuesList.map((item, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center bg-codex-fondo-primary-variante1 dark:bg-codex-fondo-terciario-variante5 text-codex-cards-primary dark:text-codex-texto-terciario-variante1 px-3 py-1 rounded-full border border-primary/20 shadow-sm"
-                  >
-                    <span className="text-sm">{item}</span>
-                    <button
-                      type="button"
-                      onClick={() => removeValue(index)}
-                      className="ml-2 text-codex-cards-primary dark:text-codex-texto-terciario-variante1 hover:text-red-500 transition"
-                    >
-                      ×
-                    </button>
-                  </div>
-                ))}
-
-                {valuesList.length === 0 && (
-                  <p className="text-sm text-codex-cards-secondary-variante3 dark:text-codex-texto-terciario-variante2">
-                    No values added.
-                  </p>
-                )}
-              </div>
+              <Switch className="h-full w-8 accent-primary"
+                checked={useAttributes}
+                onCheckedChange={setUseAttributes}
+              />
             </div>
-          )}
-        </div>
-      )}
+
+            {useAttributes && (
+              <div className="space-y-4">
+
+                <div className="flex gap-2">
+                  <Input
+                    value={inputValue}
+                    onChange={(e) => setInputValue(e.target.value)}
+                    placeholder="New value"
+                    className="bg-card flex-1"
+                  />
+
+                  <Button
+                    type="button"
+                    variant={"terciary"}
+                    onClick={addValue}
+                    className="shrink-0"
+                  >
+                    Add
+                  </Button>
+                </div>
+
+                <div className="flex gap-2 flex-wrap">
+                  {valuesList.map((item, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center bg-codex-fondo-primary-variante1 dark:bg-codex-fondo-terciario-variante5 text-codex-cards-primary dark:text-codex-texto-terciario-variante1 px-3 py-1 rounded-full border border-primary/20 shadow-sm"
+                    >
+                      <span className="text-sm">{item}</span>
+                      <button
+                        type="button"
+                        onClick={() => removeValue(index)}
+                        className="ml-2 text-codex-cards-primary dark:text-codex-texto-terciario-variante1 hover:text-red-500 transition"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+
+                  {valuesList.length === 0 && (
+                    <p className="text-sm text-codex-cards-secondary-variante3 dark:text-codex-texto-terciario-variante2">
+                      No values added.
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        )
+      }
 
 
 
@@ -302,6 +313,6 @@ export function Form({
           {submitting ? "Saving..." : submitText}
         </Button>
       </div>
-    </form>
+    </form >
   );
 }

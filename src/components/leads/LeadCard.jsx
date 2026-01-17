@@ -1,7 +1,7 @@
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Badge } from "../ui/badge";
-import { Calendar, User } from "lucide-react";
+import { Calendar, User, Building } from "lucide-react";
 
 export const LeadCard = ({ lead, salesUsers = [], onDragStart, onClick }) => {
 
@@ -26,6 +26,17 @@ export const LeadCard = ({ lead, salesUsers = [], onDragStart, onClick }) => {
         const userId = parseInt(resp);
         const user = salesUsers.find(u => u.id === userId);
         return user ? (user.name || user.username) : "Unassigned";
+    };
+
+    const getPossibleClientName = () => {
+        const client = lead.possible_client;
+        if (!client) return null;
+        if (typeof client === 'object') return client.name || "Unknown Client";
+        // If it's a string/number ID, we can't easily resolve it here without a list of clients.
+        // Assuming backend might send expanded object or we just show "Client ID: ..." if strictly needed,
+        // but typically for cards index the backend sends the name. 
+        // If it sends just ID, we might need to skip or show placeholder. 
+        return "Client #" + client;
     };
 
     return (
@@ -60,6 +71,13 @@ export const LeadCard = ({ lead, salesUsers = [], onDragStart, onClick }) => {
                             <Calendar className="w-3 h-3" />
                             <span>{lead.created_at?.split('T')[0] || lead.date || "No date"}</span>
                         </div>
+
+                        {getPossibleClientName() && (
+                            <div className="flex items-center gap-1">
+                                <Building className="w-3 h-3" />
+                                <span>{getPossibleClientName()}</span>
+                            </div>
+                        )}
 
                     </div>
                 </CardContent>

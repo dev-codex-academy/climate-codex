@@ -17,7 +17,7 @@ export const useMenu = () => {
                 // Dictionary of known words to separate
                 const commonWords = [
                     "Detail", "List", "History", "Report", "User", "Profile",
-                    "Settings", "Dashboard", "Company", "Role", "Log", "Board", "Lead"
+                    "Settings", "Dashboard", "Company", "Role", "Log", "Board", "Lead", "Request"
                 ];
 
                 // Filter and format
