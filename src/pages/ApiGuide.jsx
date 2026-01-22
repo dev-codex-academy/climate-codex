@@ -257,7 +257,11 @@ export const ApiGuide = () => {
     "model": "Lead",
     "url": "https://external.app/hook/{id}",
     "method": "POST",
-    "is_active": true
+    "is_active": true,
+    "conditions": [
+        { "field": "stage", "operator": "=", "value": "Closed" }
+    ],
+    "condition_logic": "AND"
 }`} />
                                             <div className="mt-4 p-3 bg-slate-100 dark:bg-slate-800 rounded text-xs">
                                                 <strong>Template Substitution:</strong> You can use placeholders like <code>{`{id}`}</code> or <code>{`{name}`}</code> in the URL and Headers.

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Save, Play, Trash2, Info } from "lucide-react";
+import { ArrowLeft, Save, Play, Trash2, Info, Plus, Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,6 +15,7 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { getWebhook, createWebhook, updateWebhook, deleteWebhook } from "@/services/webhookService";
+import { getAttributes } from "@/services/attributeService";
 import Swal from 'sweetalert2';
 
 export const WebhookDetail = () => {
@@ -31,7 +32,47 @@ export const WebhookDetail = () => {
         method: "POST",
         headers: "{}",
         is_active: true,
+        conditions: [],
+        condition_logic: "AND"
     });
+
+    const [availableAttributes, setAvailableAttributes] = useState([]);
+
+    useEffect(() => {
+        const fetchAttributes = async () => {
+            if (!formData.model) return;
+            try {
+                // Map model name to entity name expected by API (lowercase)
+                const entityMap = {
+                    'Lead': 'lead',
+                    'Client': 'client',
+                    'Service': 'service',
+                    'FollowUp': 'followup'
+                };
+                const entity = entityMap[formData.model];
+                if (entity) {
+                    const attrs = await getAttributes(entity);
+                    // The API returns attributes used in forms. We can also include standard fields if needed, 
+                    // but for now let's assume valid conditional fields come from here + standard ones.
+                    // Let's add standard fields manually since getAttributes might only return custom ones.
+                    const standardFields = {
+                        'Lead': ['name', 'stage', 'source'],
+                        'Client': ['name'],
+                        'Service': ['name'],
+                        'FollowUp': ['follow_up_date', 'comment']
+                    };
+
+                    const attrOptions = (attrs || []).map(a => `attributes.${a.name}`);
+                    const stdOptions = standardFields[formData.model] || [];
+
+                    setAvailableAttributes([...stdOptions, ...attrOptions]);
+                }
+            } catch (error) {
+                console.error("Failed to fetch attributes", error);
+            }
+        };
+        fetchAttributes();
+    }, [formData.model]);
 
     useEffect(() => {
         if (!isNew) {
@@ -64,6 +105,28 @@ export const WebhookDetail = () => {
 
     const handleChange = (field, value) => {
         setFormData((prev) => ({ ...prev, [field]: value }));
+    };
+
+    const handleAddCondition = () => {
+        setFormData(prev => ({
+            ...prev,
+            conditions: [...(prev.conditions || []), { field: '', operator: '=', value: '' }]
+        }));
+    };
+
+    const handleRemoveCondition = (index) => {
+        setFormData(prev => ({
+            ...prev,
+            conditions: prev.conditions.filter((_, i) => i !== index)
+        }));
+    };
+
+    const handleConditionChange = (index, field, value) => {
+        setFormData(prev => {
+            const newConditions = [...prev.conditions];
+            newConditions[index] = { ...newConditions[index], [field]: value };
+            return { ...prev, conditions: newConditions };
+        });
     };
 
     const handleSave = async () => {
@@ -327,6 +390,125 @@ export const WebhookDetail = () => {
                                     Enter valid JSON object. These headers will be included in the webhook request.
                                 </p>
                             </div>
+                        </CardContent>
+                    </Card>
+
+                    {/* Conditional Logic */}
+                    <Card className="border-t-4 border-t-purple-500">
+                        <CardHeader className="pb-3">
+                            <CardTitle className="flex items-center gap-2">
+                                <div className="p-2 bg-purple-100 dark:bg-purple-900 rounded-md">
+                                    <Filter className="h-5 w-5 text-purple-600 dark:text-purple-300" />
+                                </div>
+                                Conditional Execution
+                            </CardTitle>
+                            <CardDescription>
+                                Only trigger this webhook when these conditions are met.
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            <div className="flex items-center gap-4 p-3 bg-slate-50 dark:bg-slate-900 rounded-md border">
+                                <Label className="whitespace-nowrap">Logic:</Label>
+                                <Select
+                                    value={formData.condition_logic}
+                                    onValueChange={(val) => handleChange("condition_logic", val)}
+                                >
+                                    <SelectTrigger className="w-32">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="AND">Match ALL</SelectItem>
+                                        <SelectItem value="OR">Match ANY</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                <span className="text-xs text-muted-foreground">
+                                    {formData.condition_logic === 'AND'
+                                        ? 'Webhook fires only if ALL conditions are true.'
+                                        : 'Webhook fires if AT LEAST ONE condition is true.'
+                                    }
+                                </span>
+                            </div>
+
+                            <div className="space-y-3">
+                                {(formData.conditions || []).map((condition, index) => (
+                                    <div key={index} className="flex gap-2 items-start animate-in fade-in slide-in-from-top-1">
+                                        <div className="flex-1">
+                                            {/* Field Selector */}
+                                            <Select
+                                                value={condition.field}
+                                                onValueChange={(val) => handleConditionChange(index, 'field', val)}
+                                            >
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Select Field" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {availableAttributes.map((attr) => (
+                                                        <SelectItem key={attr} value={attr}>
+                                                            {attr}
+                                                        </SelectItem>
+                                                    ))}
+                                                    <SelectItem value="custom">Custom...</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                            {/* Allow custom input if needed, or if current value is not in list */}
+                                            {!availableAttributes.includes(condition.field) && condition.field !== '' && (
+                                                <div className="mt-1">
+                                                    <Input
+                                                        placeholder="Custom field name"
+                                                        value={condition.field}
+                                                        onChange={(e) => handleConditionChange(index, 'field', e.target.value)}
+                                                        className="h-8 text-xs"
+                                                    />
+                                                </div>
+                                            )}
+                                        </div>
+                                        <div className="w-32">
+                                            <Select
+                                                value={condition.operator}
+                                                onValueChange={(val) => handleConditionChange(index, 'operator', val)}
+                                            >
+                                                <SelectTrigger>
+                                                    <SelectValue />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="=">=</SelectItem>
+                                                    <SelectItem value="!=">!=</SelectItem>
+                                                    <SelectItem value=">">&gt;</SelectItem>
+                                                    <SelectItem value="<">&lt;</SelectItem>
+                                                    <SelectItem value=">=">&gt;=</SelectItem>
+                                                    <SelectItem value="<=">&lt;=</SelectItem>
+                                                    <SelectItem value="in">in</SelectItem>
+                                                    <SelectItem value="contains">contains</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                        <div className="flex-1">
+                                            <Input
+                                                placeholder="Value"
+                                                value={condition.value}
+                                                onChange={(e) => handleConditionChange(index, 'value', e.target.value)}
+                                            />
+                                        </div>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="text-muted-foreground hover:text-red-500"
+                                            onClick={() => handleRemoveCondition(index)}
+                                        >
+                                            <Trash2 className="h-4 w-4" />
+                                        </Button>
+                                    </div>
+                                ))}
+                            </div>
+
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                className="w-full border-dashed"
+                                onClick={handleAddCondition}
+                            >
+                                <Plus className="h-4 w-4 mr-2" /> Add Condition
+                            </Button>
                         </CardContent>
                     </Card>
                 </div>

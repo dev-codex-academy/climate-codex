@@ -709,9 +709,21 @@ Webhooks allow you to configure HTTP callbacks triggered by events on Leads, Cli
         "Authorization": "Bearer token",
         "X-Custom-ID": "{id}"
     },
-    "is_active": true
+    "is_active": true,
+    "conditions": [            // Optional: Only trigger if these rules pass
+        { "field": "stage", "operator": "=", "value": "Moodle" }
+    ],
+    "condition_logic": "AND"   // Options: AND, OR
 }
 ```
+
+**Conditional Execution:**
+You can define a list of `conditions` that must be met for the webhook to trigger.
+- **Fields**: Any top-level field of the model (e.g., `stage`, `name`).
+- **Operators**: `=`, `!=`, `>`, `<`, `>=`, `<=`, `in`, `contains`.
+- **Logic**: 
+    - `AND`: All conditions must be true.
+    - `OR`: At least one condition must be true.
 **Template Substitution:**
 You can use `{field_name}` placeholders in `url` and `headers` values. These will be replaced by the corresponding values from the triggered instance (e.g., `{id}`, `{name}`).
 
