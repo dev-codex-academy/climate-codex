@@ -552,75 +552,8 @@ To add a task, you append it to the list.
 | `end_date` | Date | End date (YYYY-MM-DD) |
 | `instructor` | ForeignKey | User ID of the instructor |
 
----
 
-## 8. Attendance
-
-### List Attendances
-**GET** `/api/attendances/`
-
-### Create Attendance
-**POST** `/api/attendances/`
-
-**Payload:**
-```json
-{
-    "date": "2025-07-01",
-    "cohort": "<cohort_uuid>",
-    "instructor": 1
-}
-```
-
-### Retrieve Attendance
-**GET** `/api/attendances/<uuid>/`
-
-### Delete Attendance
-**DELETE** `/api/attendances/<uuid>/`
-
-#### Attendance Fields Reference
-| Field Name | Type | Description |
-| :--- | :--- | :--- |
-| `id` | UUID | Unique identifier |
-| `date` | Date | Date of attendance |
-| `cohort` | ForeignKey | Cohort ID |
-| `instructor` | ForeignKey | Instructor taking attendance |
-
----
-
-## 9. Attendance Details
-Records individual student presence for a specific attendance sheet.
-
-### List Details
-**GET** `/api/attendance-details/`
-
-### Create Detail
-**POST** `/api/attendance-details/`
-
-**Payload:**
-```json
-{
-    "attendance": "<attendance_uuid>",
-    "service": "<student_service_uuid>",
-    "type": "P" // Options: P (Present), A (Absent), E (Excused)
-}
-```
-
-### Update Detail
-**PUT** `/api/attendance-details/<uuid>/`
-
-**Payload:**
-```json
-{
-    "type": "A"
-}
-```
-
-### Delete Detail
-**DELETE** `/api/attendance-details/<uuid>/`
-
----
-
-## 10. Enrollments
+## 8. Enrollments
 Links a Cohort to an Instructor and a Pathway.
 
 ### List Enrollments
@@ -658,7 +591,7 @@ Links a Cohort to an Instructor and a Pathway.
 
 ---
 
-## 11. Enrollment Details
+## 9. Enrollment Details
 Links a specific Student (Service) to an Enrollment.
 
 ### List Details
@@ -680,7 +613,7 @@ Links a specific Student (Service) to an Enrollment.
 
 ---
 
-## 12. Transfer Requests
+## 10. Transfer Requests
 
 ### List Requests
 **GET** `/api/transfer-requests/`
@@ -714,7 +647,7 @@ Links a specific Student (Service) to an Enrollment.
 
 ---
 
-## 13. File Uploads
+## 11. File Uploads
 Files are stored in S3 and linked to entities.
 
 ### Upload Service (Student) Image
@@ -737,7 +670,7 @@ Files are stored in S3 and linked to entities.
 
 ---
 
-## 14. Users (Read-Only Lists)
+## 12. Users (Read-Only Lists)
 
 ### List Instructors
 **GET** `/api/instructors/`
@@ -755,3 +688,38 @@ Returns users in the 'Sales' group.
 **GET** `/api/operations/`
 Returns users in the 'Operations' group.
 
+
+## 13. Webhooks
+Webhooks allow you to configure HTTP callbacks triggered by events on Leads, Clients, Services, or FollowUps.
+
+### List Webhooks
+**GET** `/api/webhooks/`
+
+### Create Webhook
+**POST** `/api/webhooks/`
+
+**Payload:**
+```json
+{
+    "name": "Notify External System",
+    "model": "Lead",            // Options: Lead, Client, Service, FollowUp
+    "url": "https://api.external.com/hooks/{id}",
+    "method": "POST",           // Options: POST, PUT, PATCH, DELETE, GET
+    "headers": {
+        "Authorization": "Bearer token",
+        "X-Custom-ID": "{id}"
+    },
+    "is_active": true
+}
+```
+**Template Substitution:**
+You can use `{field_name}` placeholders in `url` and `headers` values. These will be replaced by the corresponding values from the triggered instance (e.g., `{id}`, `{name}`).
+
+### Retrieve Webhook
+**GET** `/api/webhooks/<uuid>/`
+
+### Update Webhook
+**PUT/PATCH** `/api/webhooks/<uuid>/`
+
+### Delete Webhook
+**DELETE** `/api/webhooks/<uuid>/`

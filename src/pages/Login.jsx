@@ -159,8 +159,12 @@ export const Login = ({ className, ...props }) => {
               </Button>
             </form>
 
-            <div className="text-center text-xs text-muted-foreground mt-4">
-              © {new Date().getFullYear()} CodeX Academy. Secure System access.
+            <div className="text-center text-xs text-muted-foreground mt-4 space-x-4">
+              <span>© {new Date().getFullYear()} CodeX Academy</span>
+              <span className="text-slate-300">|</span>
+              <a href="/faq" className="hover:text-primary transition-colors">FAQ</a>
+              <span className="text-slate-300">|</span>
+              <a href="/api" className="hover:text-primary transition-colors">API Docs</a>
             </div>
           </div>
         </div>

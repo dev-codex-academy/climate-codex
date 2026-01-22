@@ -109,14 +109,26 @@ export function NavUser({
             )} */}
 
             <DropdownMenuGroup>
-                <DropdownMenuItem>
-                  <a href="/cuenta" className="w-full flex items-center gap-2">
+              <DropdownMenuItem>
+                <a href="/cuenta" className="w-full flex items-center gap-2">
                   <BadgeCheck />
                   Account
-                  </a>
-                </DropdownMenuItem>
-              </DropdownMenuGroup>
-              
+                </a>
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <a href="/faq" className="w-full flex items-center gap-2">
+                  <Sparkles />
+                  FAQ
+                </a>
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <a href="/api" className="w-full flex items-center gap-2">
+                  <Settings />
+                  API Docs
+                </a>
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+
             <DropdownMenuSeparator />
             <DropdownMenuItem onSelect={handleLogout}>
               <LogOut />

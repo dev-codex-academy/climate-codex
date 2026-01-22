@@ -14,6 +14,10 @@ import { LeadDetail } from "../pages/LeadDetail";
 import { ClientDetail } from "../pages/ClientDetail";
 import { ServiceDetail } from "../pages/ServiceDetail";
 import { TransferRequests } from "../pages/TransferRequests";
+import { WebhookList } from "../pages/Webhooks/WebhookList";
+import { WebhookDetail } from "../pages/Webhooks/WebhookDetail";
+import { ApiGuide } from "../pages/ApiGuide";
+import { Faq } from "../pages/Faq";
 import AdminLayout from "@/layout/AdminLayout"
 import { useAuth } from "@/context/AuthContext"
 import { PermissionGuard } from "../components/PermissionGuard"
@@ -63,7 +67,13 @@ export const RouterApp = () => {
                 <Route path="enrollment" element={<PermissionGuard requiredPermission="app.add_enrollment"><Enrollment /></PermissionGuard>} />
                 <Route path="enrollment/:id" element={<PermissionGuard requiredPermission="app.add_enrollment"><EnrollmentDetail /></PermissionGuard>} />
                 <Route path="transferrequest" element={<PermissionGuard requiredPermission="app.add_transferrequest"><TransferRequests /></PermissionGuard>} />
+                <Route path="webhook" element={<PermissionGuard requiredPermission="app.add_webhook"><WebhookList /></PermissionGuard>} />
+                <Route path="webhook/:id" element={<PermissionGuard requiredPermission="app.add_webhook"><WebhookDetail /></PermissionGuard>} />
             </Route>
+
+            {/* Public Documentation Routes */}
+            <Route path="/api" element={<ApiGuide />} />
+            <Route path="/faq" element={<Faq />} />
 
             {/* default routes */}
             <Route path="*" element={<NotFound />} />
