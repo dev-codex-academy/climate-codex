@@ -10,6 +10,13 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { getWebhooks, deleteWebhook } from "@/services/webhookService";
@@ -18,6 +25,7 @@ import Swal from 'sweetalert2';
 export const WebhookList = () => {
     const [webhooks, setWebhooks] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [selectedModel, setSelectedModel] = useState("Lead");
 
     useEffect(() => {
         loadWebhooks();
@@ -92,12 +100,25 @@ export const WebhookList = () => {
                         Manage your system webhooks and event listeners.
                     </p>
                 </div>
-                <Link to="/webhook/new">
-                    <Button>
-                        <Plus className="mr-2 h-4 w-4" />
-                        Add Webhook
-                    </Button>
-                </Link>
+                <div className="flex gap-2 items-center">
+                    <Select value={selectedModel} onValueChange={setSelectedModel}>
+                        <SelectTrigger className="w-[180px]">
+                            <SelectValue placeholder="Select Model" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="Lead">Lead</SelectItem>
+                            <SelectItem value="Client">Client</SelectItem>
+                            <SelectItem value="Service">Service</SelectItem>
+                            <SelectItem value="FollowUp">FollowUp</SelectItem>
+                        </SelectContent>
+                    </Select>
+                    <Link to={`/webhook/new?model=${selectedModel}`}>
+                        <Button>
+                            <Plus className="mr-2 h-4 w-4" />
+                            Add Webhook
+                        </Button>
+                    </Link>
+                </div>
             </div>
 
             <Card>
@@ -169,6 +190,6 @@ export const WebhookList = () => {
                     )}
                 </CardContent>
             </Card>
-        </div>
+        </div >
     );
 };

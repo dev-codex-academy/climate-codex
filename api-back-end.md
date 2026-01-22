@@ -711,21 +711,33 @@ Webhooks allow you to configure HTTP callbacks triggered by events on Leads, Cli
     },
     "is_active": true,
     "conditions": [            // Optional: Only trigger if these rules pass
-        { "field": "stage", "operator": "=", "value": "Moodle" }
+        { "field": "stage", "operator": "=", "value": "Moodle" },
+        { "field": "self.attributes.source", "operator": "=", "value": "Web" }
     ],
-    "condition_logic": "AND"   // Options: AND, OR
+    "condition_logic": "AND",   // Options: AND, OR
+    "payload": {                // Optional: Custom body template
+        "external_id": "{self.id}",
+        "data": {
+            "email": "{self.attributes.email}",
+            "full_name": "{self.name}"
+        }
+    }
 }
 ```
 
 **Conditional Execution:**
 You can define a list of `conditions` that must be met for the webhook to trigger.
-- **Fields**: Any top-level field of the model (e.g., `stage`, `name`).
+- **Fields**: Supports dot notation for nested fields (e.g., `self.stage`, `self.attributes.industry`).
 - **Operators**: `=`, `!=`, `>`, `<`, `>=`, `<=`, `in`, `contains`.
 - **Logic**: 
     - `AND`: All conditions must be true.
     - `OR`: At least one condition must be true.
+
 **Template Substitution:**
-You can use `{field_name}` placeholders in `url` and `headers` values. These will be replaced by the corresponding values from the triggered instance (e.g., `{id}`, `{name}`).
+You can use `{self.field_name}` placeholders in `url`, `headers`, and `payload` values. These will be replaced by the corresponding values from the triggered instance.
+- **Support for Nested Data**: You can access nested attributes using dot notation, e.g., `{self.attributes.email}`.
+- **Dynamic URL**: The URL field is now a string that supports placeholders, e.g., `https://api.example.com/hooks/{self.id}`.
+- **Custom Payload**: If `payload` is defined, it will be used as the request body with placeholders substituted. Otherwise, the full object data is sent.
 
 ### Retrieve Webhook
 **GET** `/api/webhooks/<uuid>/`
