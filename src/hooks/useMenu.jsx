@@ -34,6 +34,7 @@ export const useMenu = () => {
                     "Pipeline": "GitMerge",
                     "Service": "GraduationCap",
                     "TransferRequest": "ArrowLeftRight",
+                    "Webhook": "Webhook",
                 };
 
                 const formattedMenu = permissions
@@ -68,8 +69,27 @@ export const useMenu = () => {
                         };
                     });
 
-                menuRef.current = formattedMenu;
-                setMenu(formattedMenu);
+                // Grouping Logic
+                const crmItems = ["Lead", "Service", "Client"];
+                const adminItems = ["Webhook", "Pipeline", "Attribute"];
+
+                const groupedMenu = [
+                    {
+                        label: "CRM",
+                        items: formattedMenu.filter(item => crmItems.includes(item.title))
+                    },
+                    {
+                        label: "Admin",
+                        items: formattedMenu.filter(item => adminItems.includes(item.title))
+                    },
+                    {
+                        label: "Others",
+                        items: formattedMenu.filter(item => !crmItems.includes(item.title) && !adminItems.includes(item.title))
+                    }
+                ];
+
+                menuRef.current = groupedMenu;
+                setMenu(groupedMenu);
             } catch (error) {
                 console.error("Error parsing user_permissions:", error);
                 menuRef.current = [];

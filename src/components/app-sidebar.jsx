@@ -8,6 +8,9 @@ import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar"
@@ -46,7 +49,14 @@ export function AppSidebar({
       <hr className="dark:border-codex-bordes-terciario-variante4 border-codex-bordes-primary-variante2" />
 
       <SidebarContent>
-        <NavMain items={menuRef.current} />
+        {menu.map((group) => (
+          <SidebarGroup key={group.label}>
+            <SidebarGroupLabel>{group.label}</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <NavMain items={group.items} />
+            </SidebarGroupContent>
+          </SidebarGroup>
+        ))}
       </SidebarContent>
 
       <hr className="dark:border-codex-bordes-terciario-variante4 border-codex-bordes-primary-variante2" />
