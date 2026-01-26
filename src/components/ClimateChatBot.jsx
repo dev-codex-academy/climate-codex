@@ -14,7 +14,7 @@ export const ClimateChatBot = () => {
             showWelcomeScreen: false,
             defaultLanguage: "es",
             initialMessages: [
-                "👋 Hello! I'm ClimatesBot, your virtual CRM assistant. How can I help you today?",
+                "Hello! I'm ClimatesBot, your virtual CRM assistant. How can I help you today?",
             ],
             i18n: {
                 es: {
@@ -40,7 +40,7 @@ export const ClimateChatBot = () => {
                     btn.style.cssText = `
                     background: transparent;
                     border: none;
-                    color: white;
+                    color: var(--primary-foreground);
                     font-size: 1rem;      
                     cursor: pointer;
                     position: absolute;       
@@ -75,53 +75,43 @@ export const ClimateChatBot = () => {
         const style = document.createElement("style");
         style.innerHTML = `
       :root {
-        --chat--color-primary: #417dcf;
-        --chat--color-primary-shade-50: #1C6CBF;
-        --chat--color-primary-shade-100: #1F7ADB;
-        --chat--color-secondary: #EAF3FB;
-        --chat--color-accent: #1CE299;
-        --chat--color-white: #FFFFFF;
-        --chat--color-light: #F8FAFC;
-        --chat--color-dark: #1E293B;
-        --chat--color-muted: #CBD5E1;
+        --chat--color-primary: var(--primary);
+        --chat--color-secondary: var(--muted);
+        --chat--color-accent: var(--accent);
+        --chat--color-white: var(--background);
+        --chat--color-light: var(--card);
+        --chat--color-dark: var(--foreground);
+        --chat--color-muted: var(--muted-foreground);
 
         --chat--window--width: 380px;
         --chat--window--height: 520px;
         --chat--window--bottom: 15px;
         --chat--window--right: 1.5rem;
-        --chat--window--border-radius: 0.75rem;
-        --chat--window--border: 0px solid var(--chat--color-secondary);
+        --chat--window--border-radius: var(--radius);
+        --chat--window--border: 1px solid var(--border);
         --chat--window--z-index: 9999;
 	
-        --chat--header--background: linear-gradient(135deg, #14528E, #1C6CBF);
-        --chat--header--color: var(--chat--color-white);
+        --chat--header--background: var(--primary);
+        --chat--header--color: var(--primary-foreground);
 
-        --chat--message--bot--background: var(--chat--color-secondary);
-        --chat--message--bot--color: var(--chat--color-dark);
-        --chat--message--user--background: color-mix(in oklab, #202e4b 80%, transparent);
-        --chat--message--user--color: var(--chat--color-white);
+        --chat--message--bot--background: var(--muted);
+        --chat--message--bot--color: var(--foreground);
+        --chat--message--user--background: var(--primary);
+        --chat--message--user--color: var(--primary-foreground);
 	      --chat--message--padding: 0.7em;
 
-        --chat--input--background: var(--chat--color-white);
-        --chat--input--text-color: var(--chat--color-dark);
-        --chat--input--border-active: 1px solid var(--chat--color-primary);
-        --chat--input--send--button--color: var(--chat--color-primary);
-        --chat--input--send--button--color-hover: var(--chat--color-accent);
+        --chat--input--background: var(--card);
+        --chat--input--text-color: var(--foreground);
+        --chat--input--border-active: 1px solid var(--ring);
+        --chat--input--send--button--color: var(--primary);
+        --chat--input--send--button--color-hover: var(--accent);
         --chat--input--font-size: 0.9em;
 
         --chat--toggle--size: 47px;
-        --chat--toggle--background: linear-gradient(
-          145deg,
-          var(--color-novo-fondo-terciario-variante6),
-          var(--color-novo-fondo-terciario-variante3)
-        );
-        --chat--toggle--hover--background: linear-gradient(
-          145deg,
-          var(--color-novo-fondo-terciario-variante3),
-          var(--color-novo-fondo-terciario-variante4)
-        );
-        --chat--toggle--active--background: var(--color-novo-fondo-terciario-variante4);
-        --chat--toggle--color: #ffffff;
+        --chat--toggle--background: var(--primary);
+        --chat--toggle--hover--background: var(--accent);
+        --chat--toggle--active--background: var(--primary);
+        --chat--toggle--color: var(--primary-foreground);
         --chat--toggle--bottom: 20px;
         --chat--toggle--right: 40px;
         --chat--toggle--border-radius: 50%;
@@ -145,10 +135,16 @@ export const ClimateChatBot = () => {
         display: inline-block;
         width: 50px;
         height: 50px;
-        background-image: url("/images/NOVOChat.svg");
-        background-size: contain;
-        background-repeat: no-repeat;
-        background-position: center;
+        background-color: var(--chat--header--color);
+        -webkit-mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>');
+        mask-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>');
+        -webkit-mask-size: contain;
+        mask-size: contain;
+        -webkit-mask-repeat: no-repeat;
+        mask-repeat: no-repeat;
+        -webkit-mask-position: center;
+        mask-position: center;
+        background-image: none;
       }
 
       .chat-layout .chat-header p{
@@ -205,6 +201,10 @@ export const ClimateChatBot = () => {
           height: auto !important;
         }
       }
+        .chat-input input, .chat-input textarea {
+           background-color: var(--input);
+           color: var(--foreground);
+        }
     `;
         document.head.appendChild(style);
 
