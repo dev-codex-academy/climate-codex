@@ -14,6 +14,8 @@ import {
     SidebarTrigger,
 } from "@/components/ui/sidebar"
 
+//inicio de admin
+
 export default function Admin2() {
     return (
         <SidebarProvider>
