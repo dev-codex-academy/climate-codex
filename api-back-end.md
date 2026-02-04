@@ -39,7 +39,7 @@ Returns current user permissions and group membership.
 
 ### List Attributes
 **GET** `/api/attributes/<entity_name>/`
-*(entity_name: client, service, lead, follow_up)*
+*(entity_name: client, service, lead, lead_client_info, lead_service_info, follow_up)*
 
 **Response:**
 ```json
@@ -369,6 +369,17 @@ Similar to Clients and Leads, Services support task and note management.
     "attributes": {
         "source": "LinkedIn"
     },
+    "client_attributes": {
+        "age": 25,
+        "location": "New York"
+    },
+    "service_attributes": [
+        {
+            "name": "Full Stack Course",
+            "cost": 5000,
+            "quantity": 1
+        }
+    ],
     "list_of_tasks": [
         {
             "task": "Initial call",
@@ -465,6 +476,8 @@ To add a task, you append it to the list.
 | `moodle_course_id` | String | Optional Moodle Course ID |
 | `stage` | String | Current stage name |
 | `attributes` | JSONB | Dynamic attributes |
+| `client_attributes` | JSONB | Attributes for potential new client (validates against `lead_client_info`) |
+| `service_attributes` | JSONB | List of services `{id, name, cost, quantity}` (items validate against `lead_service_info`) |
 | `list_of_tasks` | JSONB | List of tasks `{task, date, completed, date_created, user_id (Output Only), user_name (Output Only)}` |
 | `list_of_notes` | JSONB | List of notes `{date, note, user_id (Output Only), user_name (Output Only)}` |
 

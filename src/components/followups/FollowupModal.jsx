@@ -7,6 +7,7 @@ import { Label } from "../ui/label";
 import { Button } from "../ui/button";
 import { Textarea } from "../ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import { Switch } from "../ui/switch";
 
 export const FollowupModal = ({ isOpen, onClose, onFollowupSaved, followupToEdit = null, serviceId }) => {
     const { user } = useAuth();
@@ -46,12 +47,16 @@ export const FollowupModal = ({ isOpen, onClose, onFollowupSaved, followupToEdit
                     // Check if attribute is at root or in attributes object
                     const val = followupToEdit[attr.name] !== undefined
                         ? followupToEdit[attr.name]
-                        : (followupToEdit.attributes?.[attr.name] || "");
-                    initialData[attr.name] = val;
+                        : (followupToEdit.attributes?.[attr.name]);
+                    if (val === undefined || val === null) {
+                        initialData[attr.name] = attr.type === 'boolean' ? false : "";
+                    } else {
+                        initialData[attr.name] = val;
+                    }
                 });
             } else {
                 processedData.forEach(attr => {
-                    initialData[attr.name] = "";
+                    initialData[attr.name] = attr.type === 'boolean' ? false : "";
                 });
             }
             setFormData(initialData);
@@ -96,10 +101,23 @@ export const FollowupModal = ({ isOpen, onClose, onFollowupSaved, followupToEdit
         setLoading(true);
         setError(null);
         try {
+            // Helper to format values based on attribute type
+            const formatAttributes = (data, attrs) => {
+                const formatted = { ...data };
+                attrs.forEach(attr => {
+                    if (attr.type === 'number' && formatted[attr.name]) {
+                        formatted[attr.name] = Number(formatted[attr.name]);
+                    }
+                });
+                return formatted;
+            };
+
+            const formattedAttributes = formatAttributes(formData, attributes);
+
             const payload = {
                 follow_up_date: followUpDate,
                 comment,
-                attributes: formData,
+                attributes: formattedAttributes,
                 service: serviceId,
                 user: user.id
             };
@@ -154,6 +172,17 @@ export const FollowupModal = ({ isOpen, onClose, onFollowupSaved, followupToEdit
                                     )) || <SelectItem value="no-options">No options available</SelectItem>}
                                 </SelectContent>
                             </Select>
+                        ) : attr.type === 'boolean' ? (
+                            <div className="flex items-center space-x-2 h-10">
+                                <Switch
+                                    id={attr.name}
+                                    checked={!!formData[attr.name]}
+                                    onCheckedChange={(checked) => handleAttributeChange(attr.name, checked)}
+                                />
+                                <Label htmlFor={attr.name} className="cursor-pointer font-normal text-muted-foreground">
+                                    {formData[attr.name] ? 'Yes' : 'No'}
+                                </Label>
+                            </div>
                         ) : (
                             <Input
                                 id={attr.name}

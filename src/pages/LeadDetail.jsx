@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
-import { getLeadAttributes, createLead, updateLead, uploadLeadImage, getLead } from "../services/leadService";
+import { getLeadAttributes, getLeadClientAttributes, getLeadServiceAttributes, createLead, updateLead, uploadLeadImage, getLead } from "../services/leadService";
 import { getSales } from "../services/salesService";
 import { getClients } from "../services/clientService";
 import { useAuth } from "../context/AuthContext";
@@ -13,6 +13,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { Checkbox } from "../components/ui/checkbox";
 import { Textarea } from "../components/ui/textarea";
 import { ArrowLeft } from "lucide-react";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../components/ui/table";
+import { Switch } from "../components/ui/switch";
 
 export const LeadDetail = () => {
     const { id } = useParams();
@@ -25,8 +27,12 @@ export const LeadDetail = () => {
     const pipelineId = location.state?.pipelineId;
 
     const [attributes, setAttributes] = useState([]);
+    const [clientAttributes, setClientAttributes] = useState([]);
+    const [serviceAttributes, setServiceAttributes] = useState([]);
     const [salesUsers, setSalesUsers] = useState([]);
     const [formData, setFormData] = useState({});
+    const [clientInfoData, setClientInfoData] = useState({});
+    const [serviceInfoList, setServiceInfoList] = useState([]);
     const [loading, setLoading] = useState(false);
     const [fetching, setFetching] = useState(!isNew);
     const [error, setError] = useState(null);
@@ -74,6 +80,8 @@ export const LeadDetail = () => {
             } catch (err) {
                 console.error("Initialization error", err);
                 setError("Failed to load page data.");
+                setClientInfoData({});
+                setServiceInfoList([]);
             } finally {
                 setFetching(false);
             }
@@ -123,6 +131,9 @@ export const LeadDetail = () => {
             return updated;
         });
 
+        setClientInfoData(leadData.client_attributes || leadData.client_info || {});
+        setServiceInfoList(leadData.service_attributes || leadData.service_info || []);
+
         setImages(leadData.list_of_images || []);
         setTasks(leadData.list_of_tasks || []);
         setNotes(leadData.list_of_notes || leadData.list_of_follow_ups || []);
@@ -151,10 +162,14 @@ export const LeadDetail = () => {
 
     const fetchAttributes = async () => {
         try {
-            const data = await getLeadAttributes();
+            const [leadAttrs, clientAttrs, serviceAttrs] = await Promise.all([
+                getLeadAttributes(),
+                getLeadClientAttributes(),
+                getLeadServiceAttributes()
+            ]);
 
-            // Process options
-            const processedData = data.map(attr => {
+            // Helper to process options
+            const processAttrs = (attrs) => attrs.map(attr => {
                 let options = attr.options;
                 if (!options && attr.list_values) {
                     options = typeof attr.list_values === 'string'
@@ -164,14 +179,33 @@ export const LeadDetail = () => {
                 return { ...attr, options };
             });
 
-            setAttributes(processedData);
+            const processedLeadAttrs = processAttrs(leadAttrs);
+            const processedClientAttrs = processAttrs(clientAttrs);
+            const processedServiceAttrs = processAttrs(serviceAttrs);
+
+            setAttributes(processedLeadAttrs);
+            setClientAttributes(processedClientAttrs);
+            setServiceAttributes(processedServiceAttrs);
 
             // Initialize form data keys
             const initialData = {};
-            processedData.forEach(attr => {
-                initialData[attr.name] = "";
+            processedLeadAttrs.forEach(attr => {
+                initialData[attr.name] = attr.type === 'boolean' ? false : "";
             });
             setFormData(initialData);
+
+            // Initialize client info keys if needed, but normally populated from lead data or empty
+            // We can ensure keys exist
+            setClientInfoData(prev => {
+                const updated = { ...prev };
+                processedClientAttrs.forEach(attr => {
+                    if (updated[attr.name] === undefined) {
+                        updated[attr.name] = attr.type === 'boolean' ? false : "";
+                    }
+                });
+                return updated;
+            });
+
         } catch (err) {
             console.error("Error fetching attributes", err);
             setError("Failed to load form attributes.");
@@ -183,6 +217,32 @@ export const LeadDetail = () => {
             ...prev,
             [name]: value
         }));
+    };
+
+    const handleClientAttributeChange = (name, value) => {
+        setClientInfoData(prev => ({
+            ...prev,
+            [name]: value
+        }));
+    };
+
+    // Service list management
+    const addService = () => {
+        const newService = {};
+        serviceAttributes.forEach(attr => {
+            newService[attr.name] = "";
+        });
+        setServiceInfoList([...serviceInfoList, newService]);
+    };
+
+    const removeService = (index) => {
+        setServiceInfoList(serviceInfoList.filter((_, i) => i !== index));
+    };
+
+    const handleServiceAttributeChange = (index, name, value) => {
+        const updatedList = [...serviceInfoList];
+        updatedList[index] = { ...updatedList[index], [name]: value };
+        setServiceInfoList(updatedList);
     };
 
     // --- File Management ---
@@ -277,13 +337,32 @@ export const LeadDetail = () => {
         setLoading(true);
         setError(null);
         try {
+            // Helper to format values based on attribute type
+            const formatAttributes = (data, attrs) => {
+                const formatted = { ...data };
+                attrs.forEach(attr => {
+                    if (attr.type === 'number' && formatted[attr.name]) {
+                        formatted[attr.name] = Number(formatted[attr.name]);
+                    }
+                });
+                return formatted;
+            };
+
+            const formattedAttributes = formatAttributes(formData, attributes);
+            const formattedClientAttributes = formatAttributes(clientInfoData, clientAttributes);
+            const formattedServiceAttributes = serviceInfoList.map(service => formatAttributes(service, serviceAttributes));
+
             const payload = {
                 name,
-                attributes: formData,
+                attributes: formattedAttributes,
+                client_attributes: formattedClientAttributes,
+                service_attributes: formattedServiceAttributes,
                 responsible: selectedResponsible,
-                possible_client: possibleClient || null,
+                possible_client: (possibleClient === "new_client" || !possibleClient) ? null : possibleClient,
                 moodle_course_id: moodleCourseId || ""
             };
+
+            console.log("LEAD DETAIL PAYLOAD:", payload);
 
             if (isNew) {
                 payload.pipeline = pipelineId;
@@ -386,6 +465,7 @@ export const LeadDetail = () => {
                                     <SelectValue placeholder="Select a client (optional)" />
                                 </SelectTrigger>
                                 <SelectContent>
+                                    <SelectItem value="new_client">+ New Client</SelectItem>
                                     {clients.map(client => (
                                         <SelectItem key={client.id} value={String(client.id)}>
                                             {client.name}
@@ -441,6 +521,17 @@ export const LeadDetail = () => {
                                                 )) || <SelectItem value="no-options">No options available</SelectItem>}
                                             </SelectContent>
                                         </Select>
+                                    ) : attr.type === 'boolean' ? (
+                                        <div className="flex items-center space-x-2 h-10">
+                                            <Switch
+                                                id={attr.name}
+                                                checked={!!formData[attr.name]}
+                                                onCheckedChange={(checked) => handleAttributeChange(attr.name, checked)}
+                                            />
+                                            <Label htmlFor={attr.name} className="cursor-pointer font-normal text-muted-foreground">
+                                                {formData[attr.name] ? 'Yes' : 'No'}
+                                            </Label>
+                                        </div>
                                     ) : (
                                         <Input
                                             id={attr.name}
@@ -454,6 +545,129 @@ export const LeadDetail = () => {
                             ))}
                         </div>
                     </div>
+
+                    {/* Client Info */}
+                    {clientAttributes.length > 0 && (!possibleClient || possibleClient === 'new_client') && (
+                        <div className="bg-card p-6 rounded-lg border shadow-sm space-y-4">
+                            <h3 className="font-medium text-lg border-b pb-2">Client Details</h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                {clientAttributes.map((attr) => (
+                                    <div key={attr.name} className="space-y-2">
+                                        <Label htmlFor={`client-${attr.name}`}>{attr.label}</Label>
+                                        {attr.type === 'list' ? (
+                                            <Select
+                                                onValueChange={(val) => handleClientAttributeChange(attr.name, val)}
+                                                value={clientInfoData[attr.name]}
+                                            >
+                                                <SelectTrigger className="w-full">
+                                                    <SelectValue placeholder={`Select ${attr.label}`} />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {attr.options?.map((opt) => (
+                                                        <SelectItem key={opt.value || opt} value={opt.value || opt}>
+                                                            {opt.label || opt}
+                                                        </SelectItem>
+                                                    )) || <SelectItem value="no-options">No options available</SelectItem>}
+                                                </SelectContent>
+                                            </Select>
+                                        ) : attr.type === 'boolean' ? (
+                                            <div className="flex items-center space-x-2 h-10">
+                                                <Switch
+                                                    id={`client-${attr.name}`}
+                                                    checked={!!clientInfoData[attr.name]}
+                                                    onCheckedChange={(checked) => handleClientAttributeChange(attr.name, checked)}
+                                                />
+                                                <Label htmlFor={`client-${attr.name}`} className="cursor-pointer font-normal text-muted-foreground">
+                                                    {clientInfoData[attr.name] ? 'Yes' : 'No'}
+                                                </Label>
+                                            </div>
+                                        ) : (
+                                            <Input
+                                                id={`client-${attr.name}`}
+                                                type={attr.type === 'number' ? 'number' : attr.type === 'date' ? 'date' : 'text'}
+                                                placeholder={attr.label}
+                                                value={clientInfoData[attr.name] || ""}
+                                                onChange={(e) => handleClientAttributeChange(attr.name, e.target.value)}
+                                            />
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Service Info */}
+                    {serviceAttributes.length > 0 && (
+                        <div className="bg-card p-6 rounded-lg border shadow-sm space-y-4">
+                            <div className="flex items-center justify-between border-b pb-2">
+                                <h3 className="font-medium text-lg">Services of Interest</h3>
+                                <Button size="sm" type="button" onClick={addService} variant="outline">
+                                    + Add Service
+                                </Button>
+                            </div>
+
+                            {serviceInfoList.length === 0 ? (
+                                <p className="text-sm text-muted-foreground italic">No services added.</p>
+                            ) : (
+                                <div className="border rounded-md">
+                                    <Table>
+                                        <TableHeader>
+                                            <TableRow>
+                                                {serviceAttributes.map((attr) => (
+                                                    <TableHead key={attr.name}>{attr.label}</TableHead>
+                                                ))}
+                                                <TableHead className="w-[50px]"></TableHead>
+                                            </TableRow>
+                                        </TableHeader>
+                                        <TableBody>
+                                            {serviceInfoList.map((service, index) => (
+                                                <TableRow key={index}>
+                                                    {serviceAttributes.map((attr) => (
+                                                        <TableCell key={`${index}-${attr.name}`} className="p-2">
+                                                            {attr.type === 'list' ? (
+                                                                <Select
+                                                                    onValueChange={(val) => handleServiceAttributeChange(index, attr.name, val)}
+                                                                    value={service[attr.name]}
+                                                                >
+                                                                    <SelectTrigger className="h-8 w-full min-w-[120px]">
+                                                                        <SelectValue placeholder="Select" />
+                                                                    </SelectTrigger>
+                                                                    <SelectContent>
+                                                                        {attr.options?.map((opt) => (
+                                                                            <SelectItem key={opt.value || opt} value={opt.value || opt}>
+                                                                                {opt.label || opt}
+                                                                            </SelectItem>
+                                                                        )) || <SelectItem value="no-options">No options</SelectItem>}
+                                                                    </SelectContent>
+                                                                </Select>
+                                                            ) : (
+                                                                <Input
+                                                                    type={attr.type === 'number' ? 'number' : attr.type === 'date' ? 'date' : 'text'}
+                                                                    value={service[attr.name] || ""}
+                                                                    onChange={(e) => handleServiceAttributeChange(index, attr.name, e.target.value)}
+                                                                    className="h-8 min-w-[100px]"
+                                                                />
+                                                            )}
+                                                        </TableCell>
+                                                    ))}
+                                                    <TableCell className="p-2 text-right">
+                                                        <Button
+                                                            size="sm"
+                                                            variant="ghost"
+                                                            className="h-8 w-8 p-0 text-red-500 hover:text-red-700"
+                                                            onClick={() => removeService(index)}
+                                                        >
+                                                            &times;
+                                                        </Button>
+                                                    </TableCell>
+                                                </TableRow>
+                                            ))}
+                                        </TableBody>
+                                    </Table>
+                                </div>
+                            )}
+                        </div>
+                    )}
 
                     {/* Tasks & Notes Row */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

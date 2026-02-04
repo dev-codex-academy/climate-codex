@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { Checkbox } from "../components/ui/checkbox";
 import { Textarea } from "../components/ui/textarea";
 import { ArrowLeft } from "lucide-react";
+import { Switch } from "../components/ui/switch";
 
 export const ClientDetail = () => {
     const { id } = useParams();
@@ -79,7 +80,9 @@ export const ClientDetail = () => {
 
             // Init default dynamic data
             const initialDynamic = {};
-            processedData.forEach(attr => initialDynamic[attr.name] = "");
+            processedData.forEach(attr => {
+                initialDynamic[attr.name] = attr.type === 'boolean' ? false : "";
+            });
             setDynamicData(initialDynamic);
 
         } catch (err) {
@@ -108,7 +111,12 @@ export const ClientDetail = () => {
             // Ideally we iterate known attributes
             Object.keys(updated).forEach(key => {
                 // Check root, then attributes object
-                const val = data[key] !== undefined ? data[key] : (data.attributes?.[key] || "");
+                let val = data[key] !== undefined ? data[key] : (data.attributes?.[key]);
+                if (val === undefined || val === null) {
+                    // Check attribute type if available in attributes state
+                    const attrDef = attributes.find(a => a.name === key);
+                    val = (attrDef && attrDef.type === 'boolean') ? false : "";
+                }
                 updated[key] = val;
             });
             return updated;
@@ -216,9 +224,22 @@ export const ClientDetail = () => {
         setLoading(true);
         setError(null);
         try {
+            // Helper to format values based on attribute type
+            const formatAttributes = (data, attrs) => {
+                const formatted = { ...data };
+                attrs.forEach(attr => {
+                    if (attr.type === 'number' && formatted[attr.name]) {
+                        formatted[attr.name] = Number(formatted[attr.name]);
+                    }
+                });
+                return formatted;
+            };
+
+            const formattedAttributes = formatAttributes(dynamicData, attributes);
+
             const payload = {
                 name,
-                attributes: dynamicData
+                attributes: formattedAttributes
             };
 
             if (isNew) {
@@ -319,6 +340,17 @@ export const ClientDetail = () => {
                                                     )) || <SelectItem value="no-options">No options available</SelectItem>}
                                                 </SelectContent>
                                             </Select>
+                                        ) : attr.type === 'boolean' ? (
+                                            <div className="flex items-center space-x-2 h-10">
+                                                <Switch
+                                                    id={attr.name}
+                                                    checked={!!dynamicData[attr.name]}
+                                                    onCheckedChange={(checked) => handleDynamicChange(attr.name, checked)}
+                                                />
+                                                <Label htmlFor={attr.name} className="cursor-pointer font-normal text-muted-foreground">
+                                                    {dynamicData[attr.name] ? 'Yes' : 'No'}
+                                                </Label>
+                                            </div>
                                         ) : (
                                             <Input
                                                 id={attr.name}

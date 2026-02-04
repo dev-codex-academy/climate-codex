@@ -10,6 +10,7 @@ import { Button } from "../ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select"; // Import Select components
 import { Checkbox } from "../ui/checkbox";
 import { Textarea } from "../ui/textarea";
+import { Switch } from "../ui/switch";
 
 export const ClientModal = ({ isOpen, onClose, onClientSaved, clientToEdit = null, attributes = [] }) => {
     const [loading, setLoading] = useState(false);
@@ -54,7 +55,10 @@ export const ClientModal = ({ isOpen, onClose, onClientSaved, clientToEdit = nul
                 const newDynamicData = {};
                 attributes.forEach(attr => {
                     // Try to find the value in root or in attributes dict
-                    const val = clientToEdit[attr.name] !== undefined ? clientToEdit[attr.name] : (clientToEdit.attributes?.[attr.name] || "");
+                    let val = clientToEdit[attr.name] !== undefined ? clientToEdit[attr.name] : (clientToEdit.attributes?.[attr.name]);
+                    if (val === undefined || val === null) {
+                        val = attr.type === 'boolean' ? false : "";
+                    }
                     newDynamicData[attr.name] = val;
                 });
                 setDynamicData(newDynamicData);
@@ -71,7 +75,7 @@ export const ClientModal = ({ isOpen, onClose, onClientSaved, clientToEdit = nul
                 // Initialize dynamic data
                 const newDynamicData = {};
                 attributes.forEach(attr => {
-                    newDynamicData[attr.name] = "";
+                    newDynamicData[attr.name] = attr.type === 'boolean' ? false : "";
                 });
                 setDynamicData(newDynamicData);
                 setImages([]);
@@ -188,9 +192,22 @@ export const ClientModal = ({ isOpen, onClose, onClientSaved, clientToEdit = nul
         setLoading(true);
         setError(null);
         try {
+            // Helper to format values based on attribute type
+            const formatAttributes = (data, attrs) => {
+                const formatted = { ...data };
+                attrs.forEach(attr => {
+                    if (attr.type === 'number' && formatted[attr.name]) {
+                        formatted[attr.name] = Number(formatted[attr.name]);
+                    }
+                });
+                return formatted;
+            };
+
+            const formattedAttributes = formatAttributes(dynamicData, attributes);
+
             const payload = {
                 name,
-                attributes: dynamicData
+                attributes: formattedAttributes
             };
 
             if (clientToEdit) {
@@ -273,6 +290,17 @@ export const ClientModal = ({ isOpen, onClose, onClientSaved, clientToEdit = nul
                                                 )) || <SelectItem value="no-options">No options available</SelectItem>}
                                             </SelectContent>
                                         </Select>
+                                    ) : attr.type === 'boolean' ? (
+                                        <div className="flex items-center space-x-2 h-10">
+                                            <Switch
+                                                id={attr.name}
+                                                checked={!!dynamicData[attr.name]}
+                                                onCheckedChange={(checked) => handleDynamicChange(attr.name, checked)}
+                                            />
+                                            <Label htmlFor={attr.name} className="cursor-pointer font-normal text-muted-foreground">
+                                                {dynamicData[attr.name] ? 'Yes' : 'No'}
+                                            </Label>
+                                        </div>
                                     ) : (
                                         <Input
                                             id={attr.name}

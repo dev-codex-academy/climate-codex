@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Modal } from "../Modal";
-import { getLeadAttributes, createLead, updateLead, uploadLeadImage } from "../../services/leadService";
+import { getLeadAttributes, getLeadClientAttributes, getLeadServiceAttributes, createLead, updateLead, uploadLeadImage } from "../../services/leadService";
 import { getSales } from "../../services/salesService";
 import { getClients } from "../../services/clientService";
 import { useAuth } from "../../context/AuthContext";
@@ -12,11 +12,17 @@ import { Button } from "../ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { Checkbox } from "../ui/checkbox";
 import { Textarea } from "../ui/textarea";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
+import { Switch } from "../ui/switch";
 
 export const LeadModal = ({ isOpen, onClose, onLeadCreated, responsibleId, pipelineId, leadToEdit = null }) => {
     const [attributes, setAttributes] = useState([]);
+    const [clientAttributes, setClientAttributes] = useState([]);
+    const [serviceAttributes, setServiceAttributes] = useState([]);
     const [salesUsers, setSalesUsers] = useState([]);
     const [formData, setFormData] = useState({});
+    const [clientInfoData, setClientInfoData] = useState({});
+    const [serviceInfoList, setServiceInfoList] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
@@ -66,6 +72,8 @@ export const LeadModal = ({ isOpen, onClose, onLeadCreated, responsibleId, pipel
 
                 // Assuming attributes might be at root or in 'attributes' object
                 // We will populate formData after fetching attributes to ensure we catch all fields
+                setClientInfoData(leadToEdit.client_attributes || leadToEdit.client_info || {});
+                setServiceInfoList(leadToEdit.service_attributes || leadToEdit.service_info || []);
                 setImages(leadToEdit.list_of_images || []);
                 setTasks(leadToEdit.list_of_tasks || []);
                 setNotes(leadToEdit.list_of_notes || leadToEdit.list_of_follow_ups || []);
@@ -81,6 +89,8 @@ export const LeadModal = ({ isOpen, onClose, onLeadCreated, responsibleId, pipel
                 setNewTaskDate(new Date().toISOString().split('T')[0]);
                 setNewTaskDesc("");
                 setNewTaskCompleted(false);
+                setClientInfoData({});
+                setServiceInfoList([]);
                 setNotes([]);
                 setNewNote("");
             }
@@ -108,10 +118,14 @@ export const LeadModal = ({ isOpen, onClose, onLeadCreated, responsibleId, pipel
 
     const fetchAttributes = async () => {
         try {
-            const data = await getLeadAttributes();
+            const [leadAttrs, clientAttrs, serviceAttrs] = await Promise.all([
+                getLeadAttributes(),
+                getLeadClientAttributes(),
+                getLeadServiceAttributes()
+            ]);
 
-            // Map list_values to options if options is missing
-            const processedData = data.map(attr => {
+            // Helper to process options
+            const processAttrs = (attrs) => attrs.map(attr => {
                 let options = attr.options;
                 if (!options && attr.list_values) {
                     options = typeof attr.list_values === 'string'
@@ -121,25 +135,54 @@ export const LeadModal = ({ isOpen, onClose, onLeadCreated, responsibleId, pipel
                 return { ...attr, options };
             });
 
-            setAttributes(processedData);
+            const processedLeadAttrs = processAttrs(leadAttrs);
+            const processedClientAttrs = processAttrs(clientAttrs);
+            const processedServiceAttrs = processAttrs(serviceAttrs);
+
+            setAttributes(processedLeadAttrs);
+            setClientAttributes(processedClientAttrs);
+            setServiceAttributes(processedServiceAttrs);
 
             // Initialize form data based on attributes
             const initialData = {};
+            const initialClientData = {};
 
             if (leadToEdit) {
-                data.forEach(attr => {
-                    const val = leadToEdit[attr.name] !== undefined ? leadToEdit[attr.name] : (leadToEdit.attributes?.[attr.name] || "");
+                processedLeadAttrs.forEach(attr => {
+                    let val = leadToEdit[attr.name] !== undefined ? leadToEdit[attr.name] : (leadToEdit.attributes?.[attr.name]);
+                    if (val === undefined || val === null) {
+                        val = attr.type === 'boolean' ? false : "";
+                    }
                     initialData[attr.name] = val;
                 });
+
+                // client_info is usually a direct JSON object
+                const clientInfoSource = leadToEdit.client_attributes || leadToEdit.client_info || {};
+                processedClientAttrs.forEach(attr => {
+                    let val = clientInfoSource[attr.name];
+                    if (val === undefined || val === null) {
+                        val = attr.type === 'boolean' ? false : "";
+                    }
+                    initialClientData[attr.name] = val;
+                });
             } else {
-                data.forEach(attr => {
-                    initialData[attr.name] = "";
+                processedLeadAttrs.forEach(attr => {
+                    initialData[attr.name] = attr.type === 'boolean' ? false : "";
+                });
+                processedClientAttrs.forEach(attr => {
+                    initialClientData[attr.name] = attr.type === 'boolean' ? false : "";
                 });
             }
             setFormData(initialData);
+            // If we are editing, we might have setClientInfoData in useEffect, 
+            // but we need to ensure all keys exist. 
+            // If useEffect ran first, it set value from leadToEdit. 
+            // Let's just merge or ensure defaults.
+            setClientInfoData(prev => ({ ...initialClientData, ...prev }));
+
         } catch (err) {
             console.error("Error fetching attributes", err);
-            setError("Failed to load lead attributes.");
+            setError("Failed to load attributes.");
         }
     };
 
@@ -148,6 +191,32 @@ export const LeadModal = ({ isOpen, onClose, onLeadCreated, responsibleId, pipel
             ...prev,
             [name]: value
         }));
+    };
+
+    const handleClientAttributeChange = (name, value) => {
+        setClientInfoData(prev => ({
+            ...prev,
+            [name]: value
+        }));
+    };
+
+    // Service List Management
+    const addService = () => {
+        const newService = {};
+        serviceAttributes.forEach(attr => {
+            newService[attr.name] = "";
+        });
+        setServiceInfoList([...serviceInfoList, newService]);
+    };
+
+    const removeService = (index) => {
+        setServiceInfoList(serviceInfoList.filter((_, i) => i !== index));
+    };
+
+    const handleServiceAttributeChange = (index, name, value) => {
+        const updatedList = [...serviceInfoList];
+        updatedList[index] = { ...updatedList[index], [name]: value };
+        setServiceInfoList(updatedList);
     };
 
     // --- File Management ---
@@ -251,13 +320,32 @@ export const LeadModal = ({ isOpen, onClose, onLeadCreated, responsibleId, pipel
         setLoading(true);
         setError(null);
         try {
+            // Helper to format values based on attribute type
+            const formatAttributes = (data, attrs) => {
+                const formatted = { ...data };
+                attrs.forEach(attr => {
+                    if (attr.type === 'number' && formatted[attr.name]) {
+                        formatted[attr.name] = Number(formatted[attr.name]);
+                    }
+                });
+                return formatted;
+            };
+
+            const formattedAttributes = formatAttributes(formData, attributes);
+            const formattedClientAttributes = formatAttributes(clientInfoData, clientAttributes);
+            const formattedServiceAttributes = serviceInfoList.map(service => formatAttributes(service, serviceAttributes));
+
             const payload = {
                 name,
-                attributes: formData,
+                attributes: formattedAttributes,
+                client_attributes: formattedClientAttributes,
+                service_attributes: formattedServiceAttributes,
                 responsible: selectedResponsible, // Include responsible in payload
-                possible_client: possibleClient || null,
+                possible_client: (possibleClient === "new_client" || !possibleClient) ? null : possibleClient,
                 moodle_course_id: moodleCourseId || ""
             };
+
+            console.log("LEAD PAYLOAD:", payload);
 
             // Only send static fields if creating, or if they changed. 
             // For now, we always send them.
@@ -341,6 +429,7 @@ export const LeadModal = ({ isOpen, onClose, onLeadCreated, responsibleId, pipel
                                 <SelectValue placeholder="Select a client (optional)" />
                             </SelectTrigger>
                             <SelectContent>
+                                <SelectItem value="new_client">+ New Client</SelectItem>
                                 {clients.map(client => (
                                     <SelectItem key={client.id} value={String(client.id)}>
                                         {client.name}
@@ -395,6 +484,17 @@ export const LeadModal = ({ isOpen, onClose, onLeadCreated, responsibleId, pipel
                                         )) || <SelectItem value="no-options">No options available</SelectItem>}
                                     </SelectContent>
                                 </Select>
+                            ) : attr.type === 'boolean' ? (
+                                <div className="flex items-center space-x-2 h-10">
+                                    <Switch
+                                        id={attr.name}
+                                        checked={!!formData[attr.name]}
+                                        onCheckedChange={(checked) => handleAttributeChange(attr.name, checked)}
+                                    />
+                                    <Label htmlFor={attr.name} className="cursor-pointer font-normal text-muted-foreground">
+                                        {formData[attr.name] ? 'Yes' : 'No'}
+                                    </Label>
+                                </div>
                             ) : (
                                 <Input
                                     id={attr.name}
@@ -408,145 +508,274 @@ export const LeadModal = ({ isOpen, onClose, onLeadCreated, responsibleId, pipel
                     ))}
                 </div>
 
-                {/* --- EDIT MODE ONLY SECTIONS --- */}
-                {leadToEdit && (
-                    <>
+                {/* Client Info Section - Conditional: Only if 'new_client' is selected or no client is selected (default for new) */}
+                {
+                    clientAttributes.length > 0 && (!possibleClient || possibleClient === 'new_client') && (
                         <div className="border-t pt-4 space-y-4">
-                            <h4 className="font-medium text-sm text-muted-foreground">Tasks</h4>
-                            <div className="bg-muted/30 p-3 rounded-md space-y-2">
-                                <div className="flex gap-2 items-end">
-                                    <div className="flex-1">
-                                        <Label className="text-xs">Task</Label>
-                                        <Input
-                                            value={newTaskDesc}
-                                            onChange={(e) => setNewTaskDesc(e.target.value)}
-                                            placeholder="Task description..."
-                                            className="h-8"
-                                        />
-                                    </div>
-                                    <div className="w-32">
-                                        <Label className="text-xs">Date</Label>
-                                        <Input
-                                            type="date"
-                                            value={newTaskDate}
-                                            onChange={(e) => setNewTaskDate(e.target.value)}
-                                            className="h-8"
-                                        />
-                                    </div>
-                                    <div className="flex items-center space-x-2 pb-2">
-                                        <Checkbox
-                                            id="new-completed"
-                                            checked={newTaskCompleted}
-                                            onCheckedChange={setNewTaskCompleted}
-                                        />
-                                        <label htmlFor="new-completed" className="text-xs font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                                            Done
-                                        </label>
-                                    </div>
-                                    <Button size="sm" type="button" onClick={addTask} disabled={!newTaskDesc}>Add</Button>
-                                </div>
-                            </div>
-
-                            <div className="space-y-2 max-h-40 overflow-y-auto">
-                                {tasks.length === 0 ? (
-                                    <p className="text-sm text-muted-foreground italic">No tasks added.</p>
-                                ) : (
-                                    tasks.map((task, idx) => (
-                                        <div key={idx} className="flex items-center justify-between p-2 bg-card border rounded-md">
-                                            <div className="flex items-center gap-2">
-                                                <Checkbox
-                                                    checked={task.completed}
-                                                    onCheckedChange={() => toggleTask(idx)}
+                            <h4 className="font-medium text-sm text-muted-foreground">Client Details</h4>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                {clientAttributes.map((attr) => (
+                                    <div key={attr.name} className="space-y-2">
+                                        <Label htmlFor={`client-${attr.name}`}>{attr.label}</Label>
+                                        {attr.type === 'list' ? (
+                                            <Select
+                                                onValueChange={(val) => handleClientAttributeChange(attr.name, val)}
+                                                value={clientInfoData[attr.name]}
+                                            >
+                                                <SelectTrigger className="w-full">
+                                                    <SelectValue placeholder={`Select ${attr.label}`} />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {attr.options?.map((opt) => (
+                                                        <SelectItem key={opt.value || opt} value={opt.value || opt}>
+                                                            {opt.label || opt}
+                                                        </SelectItem>
+                                                    )) || <SelectItem value="no-options">No options available</SelectItem>}
+                                                </SelectContent>
+                                            </Select>
+                                        ) : attr.type === 'boolean' ? (
+                                            <div className="flex items-center space-x-2 h-10">
+                                                <Switch
+                                                    id={`client-${attr.name}`}
+                                                    checked={!!clientInfoData[attr.name]}
+                                                    onCheckedChange={(checked) => handleClientAttributeChange(attr.name, checked)}
                                                 />
-                                                <div className={task.completed ? "line-through text-muted-foreground" : ""}>
-                                                    <p className="text-sm font-medium">{task.task || task.description}</p>
-                                                    <p className="text-xs text-muted-foreground">{task.date}</p>
-                                                </div>
+                                                <Label htmlFor={`client-${attr.name}`} className="cursor-pointer font-normal text-muted-foreground">
+                                                    {clientInfoData[attr.name] ? 'Yes' : 'No'}
+                                                </Label>
                                             </div>
-                                            <Button variant="ghost" size="sm" type="button" onClick={() => removeTask(idx)} className="h-6 w-6 p-0 text-red-500">
-                                                &times;
-                                            </Button>
-                                        </div>
-                                    ))
-                                )}
-                            </div>
-                        </div>
-
-                        <div className="border-t pt-4 space-y-4">
-                            <h4 className="font-medium text-sm text-muted-foreground">Notes</h4>
-
-                            <div className="bg-muted/30 p-3 rounded-md space-y-2">
-                                <div className="flex gap-2 items-end">
-                                    <div className="flex-1">
-                                        <Label className="text-xs">Note</Label>
-                                        <Textarea
-                                            value={newNote}
-                                            onChange={(e) => setNewNote(e.target.value)}
-                                            placeholder="Add a new note..."
-                                            className="h-20 min-h-[80px] text-sm"
-                                        />
+                                        ) : (
+                                            <Input
+                                                id={`client-${attr.name}`}
+                                                type={attr.type === 'number' ? 'number' : attr.type === 'date' ? 'date' : 'text'}
+                                                placeholder={attr.label}
+                                                value={clientInfoData[attr.name] || ""}
+                                                onChange={(e) => handleClientAttributeChange(attr.name, e.target.value)}
+                                            />
+                                        )}
                                     </div>
-                                    <Button size="sm" type="button" onClick={addNote} disabled={!newNote}>Add Note</Button>
-                                </div>
-                            </div>
+                                ))
+                                }
+                            </div >
+                        </div >
+                    )}
 
-                            <div className="space-y-2 max-h-60 overflow-y-auto">
-                                {notes.length === 0 ? (
-                                    <p className="text-sm text-muted-foreground italic">No notes added.</p>
-                                ) : (
-                                    notes.slice().reverse().map((item, idx) => (
-                                        <div key={idx} className="p-3 bg-card border rounded-md space-y-1">
-                                            <p className="text-sm">{item.note}</p>
-                                            <div className="flex justify-between items-center text-[10px] text-muted-foreground">
-                                                <span>{new Date(item.date).toLocaleString()}</span>
-                                                {item.user_id && <span>User ID: {item.user_id}</span>}
-                                            </div>
-                                        </div>
-                                    ))
-                                )}
-                            </div>
-                        </div>
-
+                {/* Service Info Section */}
+                {
+                    serviceAttributes.length > 0 && (
                         <div className="border-t pt-4 space-y-4">
-                            <h4 className="font-medium text-sm text-muted-foreground">Files & Images</h4>
-
-                            {images.length > 0 ? (
-                                <div className="grid grid-cols-4 gap-2">
-                                    {images.map((imgUrl, idx) => (
-                                        <div key={idx} className="relative aspect-square bg-gray-100 rounded-md overflow-hidden border group">
-                                            <img src={imgUrl} alt={`Uploaded ${idx}`} className="w-full h-full object-cover" />
-                                            <a href={imgUrl} target="_blank" rel="noreferrer" className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs">
-                                                View
-                                            </a>
-                                        </div>
-                                    ))}
-                                </div>
-                            ) : (
-                                <p className="text-sm text-gray-500 italic">No images uploaded yet.</p>
-                            )}
-
-                            <div className="flex gap-2 items-end">
-                                <div className="w-full space-y-2">
-                                    <Label htmlFor="file-upload">Upload New Image</Label>
-                                    <Input
-                                        id="file-upload"
-                                        type="file"
-                                        accept="image/*"
-                                        onChange={handleFileChange}
-                                    />
-                                </div>
-                                <Button
-                                    type="button"
-                                    onClick={handleUpload}
-                                    disabled={!selectedFile || uploading}
-                                    variant="secondary"
-                                >
-                                    {uploading ? "..." : "Upload"}
+                            <div className="flex items-center justify-between">
+                                <h4 className="font-medium text-sm text-muted-foreground">Services of Interest</h4>
+                                <Button size="sm" type="button" onClick={addService} variant="outline">
+                                    + Add Service
                                 </Button>
                             </div>
+
+                            {serviceInfoList.length === 0 ? (
+                                <p className="text-sm text-muted-foreground italic">No services added.</p>
+                            ) : (
+                                <div className="border rounded-md">
+                                    <Table>
+                                        <TableHeader>
+                                            <TableRow>
+                                                {serviceAttributes.map((attr) => (
+                                                    <TableHead key={attr.name}>{attr.label}</TableHead>
+                                                ))}
+                                                <TableHead className="w-[50px]"></TableHead>
+                                            </TableRow>
+                                        </TableHeader>
+                                        <TableBody>
+                                            {serviceInfoList.map((service, index) => (
+                                                <TableRow key={index}>
+                                                    {serviceAttributes.map((attr) => (
+                                                        <TableCell key={`${index}-${attr.name}`} className="p-2">
+                                                            {attr.type === 'list' ? (
+                                                                <Select
+                                                                    onValueChange={(val) => handleServiceAttributeChange(index, attr.name, val)}
+                                                                    value={service[attr.name]}
+                                                                >
+                                                                    <SelectTrigger className="h-8 w-full min-w-[120px]">
+                                                                        <SelectValue placeholder="Select" />
+                                                                    </SelectTrigger>
+                                                                    <SelectContent>
+                                                                        {attr.options?.map((opt) => (
+                                                                            <SelectItem key={opt.value || opt} value={opt.value || opt}>
+                                                                                {opt.label || opt}
+                                                                            </SelectItem>
+                                                                        )) || <SelectItem value="no-options">No options</SelectItem>}
+                                                                    </SelectContent>
+                                                                </Select>
+                                                            ) : (
+                                                                <Input
+                                                                    type={attr.type === 'number' ? 'number' : attr.type === 'date' ? 'date' : 'text'}
+                                                                    value={service[attr.name] || ""}
+                                                                    onChange={(e) => handleServiceAttributeChange(index, attr.name, e.target.value)}
+                                                                    className="h-8 min-w-[100px]"
+                                                                />
+                                                            )}
+                                                        </TableCell>
+                                                    ))}
+                                                    <TableCell className="p-2 text-right">
+                                                        <Button
+                                                            size="sm"
+                                                            variant="ghost"
+                                                            className="h-8 w-8 p-0 text-red-500 hover:text-red-700"
+                                                            onClick={() => removeService(index)}
+                                                        >
+                                                            &times;
+                                                        </Button>
+                                                    </TableCell>
+                                                </TableRow>
+                                            ))}
+                                        </TableBody>
+                                    </Table>
+                                </div>
+                            )}
                         </div>
-                    </>
-                )}
+                    )
+                }
+
+                {/* --- EDIT MODE ONLY SECTIONS --- */}
+                {
+                    leadToEdit && (
+                        <>
+                            <div className="border-t pt-4 space-y-4">
+                                <h4 className="font-medium text-sm text-muted-foreground">Tasks</h4>
+                                <div className="bg-muted/30 p-3 rounded-md space-y-2">
+                                    <div className="flex gap-2 items-end">
+                                        <div className="flex-1">
+                                            <Label className="text-xs">Task</Label>
+                                            <Input
+                                                value={newTaskDesc}
+                                                onChange={(e) => setNewTaskDesc(e.target.value)}
+                                                placeholder="Task description..."
+                                                className="h-8"
+                                            />
+                                        </div>
+                                        <div className="w-32">
+                                            <Label className="text-xs">Date</Label>
+                                            <Input
+                                                type="date"
+                                                value={newTaskDate}
+                                                onChange={(e) => setNewTaskDate(e.target.value)}
+                                                className="h-8"
+                                            />
+                                        </div>
+                                        <div className="flex items-center space-x-2 pb-2">
+                                            <Checkbox
+                                                id="new-completed"
+                                                checked={newTaskCompleted}
+                                                onCheckedChange={setNewTaskCompleted}
+                                            />
+                                            <label htmlFor="new-completed" className="text-xs font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                                                Done
+                                            </label>
+                                        </div>
+                                        <Button size="sm" type="button" onClick={addTask} disabled={!newTaskDesc}>Add</Button>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-2 max-h-40 overflow-y-auto">
+                                    {tasks.length === 0 ? (
+                                        <p className="text-sm text-muted-foreground italic">No tasks added.</p>
+                                    ) : (
+                                        tasks.map((task, idx) => (
+                                            <div key={idx} className="flex items-center justify-between p-2 bg-card border rounded-md">
+                                                <div className="flex items-center gap-2">
+                                                    <Checkbox
+                                                        checked={task.completed}
+                                                        onCheckedChange={() => toggleTask(idx)}
+                                                    />
+                                                    <div className={task.completed ? "line-through text-muted-foreground" : ""}>
+                                                        <p className="text-sm font-medium">{task.task || task.description}</p>
+                                                        <p className="text-xs text-muted-foreground">{task.date}</p>
+                                                    </div>
+                                                </div>
+                                                <Button variant="ghost" size="sm" type="button" onClick={() => removeTask(idx)} className="h-6 w-6 p-0 text-red-500">
+                                                    &times;
+                                                </Button>
+                                            </div>
+                                        ))
+                                    )}
+                                </div>
+                            </div>
+
+                            <div className="border-t pt-4 space-y-4">
+                                <h4 className="font-medium text-sm text-muted-foreground">Notes</h4>
+
+                                <div className="bg-muted/30 p-3 rounded-md space-y-2">
+                                    <div className="flex gap-2 items-end">
+                                        <div className="flex-1">
+                                            <Label className="text-xs">Note</Label>
+                                            <Textarea
+                                                value={newNote}
+                                                onChange={(e) => setNewNote(e.target.value)}
+                                                placeholder="Add a new note..."
+                                                className="h-20 min-h-[80px] text-sm"
+                                            />
+                                        </div>
+                                        <Button size="sm" type="button" onClick={addNote} disabled={!newNote}>Add Note</Button>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-2 max-h-60 overflow-y-auto">
+                                    {notes.length === 0 ? (
+                                        <p className="text-sm text-muted-foreground italic">No notes added.</p>
+                                    ) : (
+                                        notes.slice().reverse().map((item, idx) => (
+                                            <div key={idx} className="p-3 bg-card border rounded-md space-y-1">
+                                                <p className="text-sm">{item.note}</p>
+                                                <div className="flex justify-between items-center text-[10px] text-muted-foreground">
+                                                    <span>{new Date(item.date).toLocaleString()}</span>
+                                                    {item.user_id && <span>User ID: {item.user_id}</span>}
+                                                </div>
+                                            </div>
+                                        ))
+                                    )}
+                                </div>
+                            </div>
+
+                            <div className="border-t pt-4 space-y-4">
+                                <h4 className="font-medium text-sm text-muted-foreground">Files & Images</h4>
+
+                                {images.length > 0 ? (
+                                    <div className="grid grid-cols-4 gap-2">
+                                        {images.map((imgUrl, idx) => (
+                                            <div key={idx} className="relative aspect-square bg-gray-100 rounded-md overflow-hidden border group">
+                                                <img src={imgUrl} alt={`Uploaded ${idx}`} className="w-full h-full object-cover" />
+                                                <a href={imgUrl} target="_blank" rel="noreferrer" className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs">
+                                                    View
+                                                </a>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <p className="text-sm text-gray-500 italic">No images uploaded yet.</p>
+                                )}
+
+                                <div className="flex gap-2 items-end">
+                                    <div className="w-full space-y-2">
+                                        <Label htmlFor="file-upload">Upload New Image</Label>
+                                        <Input
+                                            id="file-upload"
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={handleFileChange}
+                                        />
+                                    </div>
+                                    <Button
+                                        type="button"
+                                        onClick={handleUpload}
+                                        disabled={!selectedFile || uploading}
+                                        variant="secondary"
+                                    >
+                                        {uploading ? "..." : "Upload"}
+                                    </Button>
+                                </div>
+                            </div>
+                        </>
+                    )
+                }
 
                 <div className="flex justify-end pt-4 gap-2 border-t mt-4">
                     <Button variant="outline" onClick={onClose} disabled={loading || uploading}>
@@ -556,7 +785,7 @@ export const LeadModal = ({ isOpen, onClose, onLeadCreated, responsibleId, pipel
                         {loading ? "Saving..." : leadToEdit ? "Save Changes" : "Create Opportunity"}
                     </Button>
                 </div>
-            </div>
-        </Modal>
+            </div >
+        </Modal >
     );
 };

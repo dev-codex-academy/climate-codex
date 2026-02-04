@@ -52,6 +52,26 @@ export const getLeadAttributes = async () => {
     return data.results || data;
 }
 
+export const getLeadClientAttributes = async () => {
+    const res = await fetch(`${API_URL}/attributes/lead_client_info/`, {
+        method: "GET",
+        headers: getHeaders(),
+    });
+    if (!res.ok) throw new Error("Error fetching lead client attributes");
+    const data = await res.json();
+    return data.results || data;
+};
+
+export const getLeadServiceAttributes = async () => {
+    const res = await fetch(`${API_URL}/attributes/lead_service_info/`, {
+        method: "GET",
+        headers: getHeaders(),
+    });
+    if (!res.ok) throw new Error("Error fetching lead service attributes");
+    const data = await res.json();
+    return data.results || data;
+};
+
 export const uploadLeadImage = async (id, file) => {
     const formData = new FormData();
     formData.append("file", file);

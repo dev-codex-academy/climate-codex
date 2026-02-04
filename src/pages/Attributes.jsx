@@ -18,8 +18,8 @@ const Modal = ({ isOpen, children }) => {
 };
 
 export const Attributes = () => {
-    const [entities] = useState(['client', 'lead', 'service', 'followup']);
-    const [attributesData, setAttributesData] = useState({ client: [], lead: [], service: [], followup: [] });
+    const [entities] = useState(['client', 'followup', 'lead', 'lead_client_info', 'lead_service_info', 'service']);
+    const [attributesData, setAttributesData] = useState({});
     const [loading, setLoading] = useState(true);
 
     // Modal State
@@ -35,12 +35,10 @@ export const Attributes = () => {
         setLoading(true);
         try {
             const results = await Promise.all(entities.map(e => getAttributes(e)));
-            const newData = {
-                client: results[0].results || results[0] || [],
-                lead: results[1].results || results[1] || [],
-                service: results[2].results || results[2] || [],
-                followup: results[3].results || results[3] || [],
-            };
+            const newData = {};
+            entities.forEach((entity, index) => {
+                newData[entity] = results[index].results || results[index] || [];
+            });
             setAttributesData(newData);
         } catch (error) {
             console.error("Error fetching all attributes", error);
@@ -149,7 +147,12 @@ export const Attributes = () => {
                     {entities.map(entity => (
                         <div key={entity} className="flex-shrink-0 w-[85vw] md:w-[400px] bg-card text-card-foreground rounded-xl border border-border shadow-sm flex flex-col h-full bg-codex-cards-cuaternario dark:bg-codex-cards-secondary snap-center">
                             <div className="p-6 pb-2 flex justify-between items-center border-b border-border/50">
-                                <h2 className="text-xl font-semibold capitalize">{entity === 'service' ? 'Student (Service)' : entity}</h2>
+                                <h2 className="text-xl font-semibold capitalize">
+                                    {entity === 'service' ? 'Student (Service)'
+                                        : entity === 'lead_client_info' ? 'Lead - Client Info'
+                                            : entity === 'lead_service_info' ? 'Lead - Service Info'
+                                                : entity}
+                                </h2>
                                 <Button size="sm" onClick={() => handleAddClick(entity)}>
                                     <Plus size={16} className="mr-1" /> Add
                                 </Button>
