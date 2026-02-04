@@ -448,6 +448,15 @@ To add a task, you append it to the list.
 }
 ```
 
+**Note:** If updating `stage` to **"Lost"**, you **must** include `lost_reason`.
+
+```json
+{
+    "stage": "Lost",
+    "lost_reason": "Budget constraints"
+}
+```
+
 ### Lead Atomic Updates
 
 #### Update Task Status
@@ -480,6 +489,7 @@ To add a task, you append it to the list.
 | `possible_client` | UUID | Optional link to an existing client |
 | `moodle_course_id` | String | Optional Moodle Course ID |
 | `stage` | String | Current stage name |
+| `lost_reason` | String | Required when stage is 'Lost'. Reason for losing the deal. |
 | `attributes` | JSONB | Dynamic attributes |
 | `client_attributes` | JSONB | Attributes for potential new client (validates against `lead_client_info`) |
 | `service_attributes` | JSONB | List of services `{id, name, cost, quantity}` (items validate against `lead_service_info`) |
@@ -721,6 +731,7 @@ Webhooks allow you to configure HTTP callbacks triggered by events on Leads, Cli
 {
     "name": "Notify External System",
     "model": "Lead",            // Options: Lead, Client, Service, FollowUp
+    "event": "CREATE",          // Options: CREATE, UPDATE, DELETE (Default: UPDATE)
     "url": "https://api.external.com/hooks/{id}",
     "method": "POST",           // Options: POST, PUT, PATCH, DELETE, GET
     "headers": {

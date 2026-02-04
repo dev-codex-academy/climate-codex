@@ -154,6 +154,9 @@ export const WebhookList = () => {
                                             <Badge variant="outline">
                                                 {webhook.model}
                                             </Badge>
+                                            <Badge variant="secondary" className="ml-2 text-xs">
+                                                {webhook.event || 'UPDATE'}
+                                            </Badge>
                                         </TableCell>
                                         <TableCell>
                                             <div className="flex items-center text-sm text-muted-foreground max-w-[300px] truncate" title={webhook.url}>

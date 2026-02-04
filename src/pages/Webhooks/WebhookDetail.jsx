@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { ArrowLeft, Save, Play, Trash2, Info, Plus, Filter, Copy, Check } from "lucide-react";
+import { ArrowLeft, Save, Trash2, Info, Plus, Filter, Copy, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -41,6 +41,7 @@ export const WebhookDetail = () => {
     const [formData, setFormData] = useState({
         name: "",
         model: searchParams.get("model") || "Lead",
+        event: "UPDATE",
         url: "",
         method: "POST",
         headers: "{}",
@@ -571,6 +572,22 @@ export const WebhookDetail = () => {
                                 </SelectContent>
                             </Select>
                         </div>
+                        <div className="w-[150px] space-y-2">
+                            <Label>Trigger Event</Label>
+                            <Select
+                                value={formData.event}
+                                onValueChange={(val) => handleChange("event", val)}
+                            >
+                                <SelectTrigger>
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="CREATE">On Create</SelectItem>
+                                    <SelectItem value="UPDATE">On Update</SelectItem>
+                                    <SelectItem value="DELETE">On Delete</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
                         <div className="flex items-center pb-2.5 space-x-2">
                             <Checkbox
                                 id="active"
@@ -609,9 +626,7 @@ export const WebhookDetail = () => {
                             value={formData.url}
                             onChange={(e) => handleChange("url", e.target.value)}
                         />
-                        <Button onClick={handleSave} size="sm" className="bg-blue-600 hover:bg-blue-700">
-                            Send / Save
-                        </Button>
+
                     </Card>
 
                     {/* Tabs Area */}

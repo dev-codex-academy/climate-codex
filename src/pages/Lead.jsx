@@ -17,7 +17,7 @@ export const Lead = () => {
 
     return (
         <div className="h-full flex flex-col">
-            <div className="flex justify-between items-center mb-4 px-2">
+            <div className="flex justify-between items-center mb-4 px-6">
                 <div>
                     <h1 className="text-2xl font-bold tracking-tight text-codex-texto-primary dark:text-codex-texto-dark-primary">
                         Sales (Kanban)
