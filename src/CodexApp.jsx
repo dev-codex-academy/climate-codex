@@ -1,4 +1,4 @@
-import { RouterApp } from "./router/routerApp"
+import { RouterApp } from "./router/RouterApp"
 
 export const CodexApp = () => {
     return (
