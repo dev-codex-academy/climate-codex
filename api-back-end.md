@@ -320,6 +320,11 @@ Similar to Clients and Leads, Services support task and note management.
 }
 ```
 
+> **Note**: The stages "Won" and "Lost" are **automatically appended** to every pipeline with `order: 99` and `order: 100`, respectively.
+> You **cannot** manually add stages named "Won", "Lost" (case-insensitive) in the payload; doing so will result in a validation error.
+> **Limit**: Use a maximum of 98 custom stages to accommodate the auto-generated ones (Total max: 100).
+
+
 ### Retrieve Pipeline
 **GET** `/api/pipelines/<uuid>/`
 
@@ -346,7 +351,7 @@ Similar to Clients and Leads, Services support task and note management.
 | `id` | UUID | Unique identifier |
 | `name` | String | Name of the pipeline |
 | `description` | Text | Optional description |
-| `stages` | JSONB | List of stages. Each stage has `id`, `name`, `color`, `order`. |
+| `stages` | JSONB | List of initial stages. "Won" and "Lost" are auto-appended. Custom stages must not use these reserved names. |
 
 ---
 

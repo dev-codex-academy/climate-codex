@@ -12,8 +12,7 @@ export const PipelineForm = ({ onPipelineSaved, initialData = null }) => {
             name: "",
             stages: [
                 { name: "Prospecting", color: "#6c6f73", order: 1 },
-                { name: "Negotiation", color: "#007bff", order: 2 },
-                { name: "Closed", color: "#28a745", order: 3 }
+                { name: "Negotiation", color: "#007bff", order: 2 }
             ]
         }
     });
@@ -94,11 +93,20 @@ export const PipelineForm = ({ onPipelineSaved, initialData = null }) => {
 
                                 <div className="flex-1">
                                     <input
-                                        {...register(`stages.${index}.name`, { required: true })}
+                                        {...register(`stages.${index}.name`, {
+                                            required: "Stage name is required",
+                                            validate: (value) => {
+                                                const lower = value.toLowerCase();
+                                                if (lower === 'won' || lower === 'lost') {
+                                                    return "Stage name cannot be 'Won' or 'Lost'";
+                                                }
+                                                return true;
+                                            }
+                                        })}
                                         placeholder="Stage Name"
                                         className="w-full p-1.5 text-sm bg-transparent border-b border-transparent focus:border-primary focus:outline-none transition-colors"
                                     />
-                                    {errors.stages?.[index]?.name && <span className="text-red-500 text-[10px]">Required</span>}
+                                    {errors.stages?.[index]?.name && <span className="text-red-500 text-[10px]">{errors.stages[index].name.message}</span>}
                                 </div>
 
                                 <div className="flex items-center gap-2">

@@ -202,7 +202,15 @@ export const ApiGuide = () => {
                                                 <Badge>POST</Badge>
                                                 <code className="text-sm font-mono text-blue-600 dark:text-blue-400">/api/pipelines/</code>
                                             </div>
-                                            <p className="text-sm text-muted-foreground mb-4">Create a new pipeline with stages.</p>
+                                            <p className="text-sm text-muted-foreground mb-4">
+                                                Create a new pipeline with stages.
+                                                <br /><br />
+                                                <ul className="list-disc list-inside space-y-1">
+                                                    <li>"Won" and "Lost" stages are <strong>automatically appended</strong> (Order 99 & 100).</li>
+                                                    <li>Do <strong>not</strong> include stages named "Won" or "Lost" in your payload.</li>
+                                                    <li>Maximum of 98 custom stages allowed.</li>
+                                                </ul>
+                                            </p>
                                             <CopyBlock text={`{
     "name": "B2B Sales",
     "stages": [

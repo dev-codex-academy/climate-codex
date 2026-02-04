@@ -105,14 +105,35 @@ export const WebhookDetail = () => {
                 if (entity) {
                     const attrs = await getAttributes(entity);
                     const standardFields = {
-                        'Lead': ['name', 'stage', 'source'],
+                        'Lead': ['name', 'stage', 'source', 'lost_reason', 'moodle_course_id', 'possible_client', 'responsible', 'pipeline'],
                         'Client': ['name'],
                         'Service': ['name'],
                         'FollowUp': ['follow_up_date', 'comment']
                     };
 
                     const attrOptions = (attrs || []).map(a => `self.attributes.${a.name}`);
-                    const stdOptions = (standardFields[formData.model] || []).map(f => `self.${f}`);
+                    let stdOptions = (standardFields[formData.model] || []).map(f => `self.${f}`);
+
+                    // Fetch extra attributes for Lead
+                    if (formData.model === 'Lead') {
+                        try {
+                            const [clientAttrs, serviceAttrs] = await Promise.all([
+                                getAttributes('lead_client_info'),
+                                getAttributes('lead_service_info')
+                            ]);
+
+                            const clientOptions = (clientAttrs || []).map(a => `self.client_attributes.${a.name}`);
+                            const serviceOptions = (serviceAttrs || []).map(a => `self.service_attributes.${a.name}`); // Note: service_attributes is a list in model, but for params sometimes we want the key. 
+                            // However, since service_attributes is a list of objects, accessing `self.service_attributes.Price` might imply the Price of the *first* service or mapping logic.
+                            // But usually template substitution handles lists poorly unless it's a specific syntax. 
+                            // Given the user request "detail of those attributes", providing the keys is the best we can do for now.
+
+                            stdOptions = [...stdOptions, ...clientOptions, ...serviceOptions];
+
+                        } catch (err) {
+                            console.error("Failed to fetch extra lead attributes", err);
+                        }
+                    }
 
                     // Combine and dedupe
                     const unique = [...new Set([...stdOptions, ...attrOptions])];
