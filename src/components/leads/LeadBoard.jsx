@@ -137,18 +137,36 @@ export const LeadBoard = ({ refreshTrigger, selectedPipelineId, setSelectedPipel
 
     return (
         <div className="flex flex-col h-[calc(100vh-100px)] relative group/board">
-            {/* Pipeline Selector */}
-            <div className="px-4 py-2 flex items-center gap-3">
-                <label className="text-sm font-medium text-foreground">Pipeline:</label>
-                <select
-                    value={selectedPipelineId || ""}
-                    onChange={(e) => setSelectedPipelineId(e.target.value)}
-                    className="p-2 rounded-md border border-border bg-background text-foreground text-sm focus:ring-1 focus:ring-primary focus:outline-none min-w-[200px]"
-                >
-                    {pipelines.map(p => (
-                        <option key={p.id} value={p.id}>{p.name}</option>
-                    ))}
-                </select>
+            {/* Pipeline Selector / Toolbar */}
+            <div className="px-6 py-3 flex flex-wrap items-center justify-between gap-4 bg-white/40 dark:bg-transparent border-b border-codex-bordes-primary-variante2/30 dark:border-codex-bordes-terciario-variante4/30">
+                <div className="flex items-center gap-3">
+                    <span className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground">Active Pipeline</span>
+                    <div className="relative group/select">
+                        <select
+                            value={selectedPipelineId || ""}
+                            onChange={(e) => setSelectedPipelineId(e.target.value)}
+                            className="appearance-none pl-3 pr-8 py-1.5 rounded-full border border-codex-bordes-primary-variante2 dark:border-codex-bordes-terciario-variante4 bg-white dark:bg-codex-fondo-secondary text-codex-texto-secondary dark:text-codex-texto-terciario-variante1 text-xs font-medium focus:ring-2 focus:ring-codex-primary/20 focus:outline-none min-w-[220px] cursor-pointer shadow-sm transition-all hover:border-codex-primary"
+                        >
+                            {pipelines.map(p => (
+                                <option key={p.id} value={p.id}>{p.name}</option>
+                            ))}
+                        </select>
+                        <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-muted-foreground group-hover/select:text-codex-primary transition-colors">
+                            <ChevronRight size={14} className="rotate-90" />
+                        </div>
+                    </div>
+                </div>
+
+                {/* <div className="flex items-center gap-2">
+                    <div className="flex items-center -space-x-2 overflow-hidden">
+                        {salesUsers.slice(0, 3).map((user, i) => (
+                            <div key={i} className="h-6 w-6 rounded-full ring-2 ring-white dark:ring-codex-fondo-secondary bg-codex-fondo-primary-variante2 flex items-center justify-center text-[8px] font-bold uppercase transition-transform hover:-translate-y-0.5 cursor-help" title={user.name || user.username}>
+                                {user.name?.charAt(0) || user.username?.charAt(0) || "?"}
+                            </div>
+                        ))}
+                    </div>
+                    <span className="text-[10px] text-muted-foreground font-medium">Team leads</span>
+                </div> */}
             </div>
 
             {/* Scroll Button Left */}
@@ -184,21 +202,27 @@ export const LeadBoard = ({ refreshTrigger, selectedPipelineId, setSelectedPipel
                     return (
                         <div
                             key={stage.name}
-                            className="flex-shrink-0 w-80 flex flex-col rounded-lg bg-codex-fondo-terciario-variante1 dark:bg-codex-fondo-secondary border border-border h-full max-h-full"
-                            style={{ borderTop: `4px solid ${stage.color}` }}
+                            className="flex-shrink-0 w-80 flex flex-col rounded-xl bg-white/50 dark:bg-codex-fondo-secondary/40 border border-codex-bordes-primary-variante2/50 dark:border-codex-bordes-terciario-variante4/50 h-full max-h-full shadow-sm backdrop-blur-sm transition-all hover:shadow-md"
+                            style={{ borderTop: `4px solid ${stage.color || '#4F8071'}` }}
                             onDragOver={handleDragOver}
                             onDrop={(e) => handleDrop(e, stage.name)}
                         >
                             {/* Column Header */}
-                            <div className="p-3 border-b border-border flex justify-between items-center sticky top-0 bg-inherit rounded-t-lg z-10">
-                                <h3 className="font-semibold text-sm">{stage.name}</h3>
-                                <span className="bg-codex-fondo-terciario-variante4 text-xs font-medium px-2 py-0.5 rounded-full">
+                            <div className="p-4 flex justify-between items-center sticky top-0 bg-white/80 dark:bg-codex-fondo-secondary/80 rounded-t-xl z-10 backdrop-blur-sm">
+                                <div className="flex items-center gap-2">
+                                    <div
+                                        className="h-2 w-2 rounded-full"
+                                        style={{ backgroundColor: stage.color || '#4F8071' }}
+                                    ></div>
+                                    <h3 className="font-bold text-xs uppercase tracking-widest text-codex-texto-secondary dark:text-codex-texto-terciario-variante1">{stage.name}</h3>
+                                </div>
+                                <span className="bg-codex-fondo-primary-variante1 dark:bg-codex-fondo-terciario-variante5 text-codex-primary dark:text-codex-texto-terciario-variante1 text-[10px] font-bold px-2 py-0.5 rounded-full tabular-nums">
                                     {stageLeads.length}
                                 </span>
                             </div>
 
                             {/* Drop Zone / List */}
-                            <div className="flex-1 p-2 overflow-y-auto min-h-[100px]">
+                            <div className="flex-1 p-3 overflow-y-auto min-h-[100px] space-y-3 custom-scrollbar">
                                 {stageLeads.map((lead) => (
                                     <LeadCard
                                         key={lead.id}
@@ -209,8 +233,9 @@ export const LeadBoard = ({ refreshTrigger, selectedPipelineId, setSelectedPipel
                                     />
                                 ))}
                                 {stageLeads.length === 0 && (
-                                    <div className="text-center text-xs text-muted-foreground mt-10 italic">
-                                        Drop items here
+                                    <div className="h-24 flex flex-col items-center justify-center border-2 border-dashed border-codex-bordes-primary-variante2/30 dark:border-codex-bordes-terciario-variante4/30 rounded-lg m-2">
+                                        <div className="text-[10px] text-muted-foreground uppercase tracking-widest font-medium">Empty Stage</div>
+                                        <div className="text-[9px] text-muted-foreground/60">Drop cards here</div>
                                     </div>
                                 )}
                             </div>

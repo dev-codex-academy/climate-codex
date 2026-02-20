@@ -44,41 +44,41 @@ export const LeadCard = ({ lead, salesUsers = [], onDragStart, onClick }) => {
             onClick={() => onClick && onClick(lead)}
             draggable
             onDragStart={(e) => onDragStart(e, lead)}
-            className="cursor-pointer hover:rotate-1 transition-transform duration-200"
+            className="group/card cursor-pointer transition-all duration-300 active:scale-[0.98]"
         >
-            <Card className="hover:shadow-md transition-shadow dark:bg-codex-fondo-terciario-variante2 bg-white border-none shadow-sm mb-3">
-                <CardHeader className="p-3 pb-0">
-                    <CardTitle className="text-sm font-semibold truncate text-codex-texto-primary dark:text-codex-texto-dark-primary">
+            <Card className="hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)] dark:bg-codex-fondo-secondary bg-white border border-codex-bordes-primary-variante2/30 dark:border-codex-bordes-terciario-variante4/30 shadow-sm mb-0 transition-all group-hover/card:-translate-y-1">
+                <CardHeader className="p-4 pb-0">
+                    <CardTitle className="text-xs font-bold leading-tight line-clamp-2 text-codex-texto-secondary dark:text-white uppercase tracking-tight">
                         {lead.name}
                     </CardTitle>
                 </CardHeader>
-                <CardContent className="p-3 pt-2 space-y-2">
-                    {/* Amount & Prob */}
-
-
+                <CardContent className="p-4 pt-3 space-y-3">
                     {/* Metadata */}
-                    <div className="flex flex-col gap-1 text-[10px] text-codex-texto-secondary dark:text-codex-texto-dark-secondary">
+                    <div className="grid grid-cols-1 gap-2">
                         {/* Responsible */}
-                        <div className="flex items-center gap-1">
-                            <User className="w-3 h-3" />
-                            <span>
+                        <div className="flex items-center gap-2 px-2 py-1 rounded bg-codex-fondo-primary-variante1/50 dark:bg-codex-fondo-terciario-variante5/50 border border-codex-bordes-primary-variante2/20 dark:border-codex-bordes-terciario-variante4/20">
+                            <div className="h-4 w-4 rounded-full bg-codex-primary flex items-center justify-center text-[7px] font-black text-white shrink-0 shadow-sm">
+                                {getResponsibleName().charAt(0).toUpperCase()}
+                            </div>
+                            <span className="text-[9px] font-bold text-codex-texto-secondary dark:text-codex-texto-terciario-variante1 truncate">
                                 {getResponsibleName()}
                             </span>
                         </div>
 
-                        {/* Date - checking different possible field names */}
-                        <div className="flex items-center gap-1">
-                            <Calendar className="w-3 h-3" />
-                            <span>{lead.created_at?.split('T')[0] || lead.date || "No date"}</span>
-                        </div>
-
-                        {getPossibleClientName() && (
-                            <div className="flex items-center gap-1">
-                                <Building className="w-3 h-3" />
-                                <span>{getPossibleClientName()}</span>
+                        <div className="flex items-center justify-between text-[9px] text-muted-foreground font-medium px-1">
+                            {/* Date */}
+                            <div className="flex items-center gap-1.5 ">
+                                <Calendar className="w-2.5 h-2.5 opacity-70" />
+                                <span>{lead.created_at?.split('T')[0] || lead.date || "No date"}</span>
                             </div>
-                        )}
 
+                            {getPossibleClientName() && (
+                                <div className="flex items-center gap-1.5 max-w-[50%]">
+                                    <Building className="w-2.5 h-2.5 opacity-70" />
+                                    <span className="truncate">{getPossibleClientName()}</span>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </CardContent>
             </Card>
