@@ -60,7 +60,7 @@ export function NavUserFooter({
               cursor-pointer
               hover:bg-codex-botones-primary-variante1 hover:text-codex-texto-primary hover:border hover:border-codex-bordes-primary-variante2
               dark:hover:bg-codex-botones-terciario-variante5 dark:hover:text-codex-texto-terciario-variante1 dark:hover:border-codex-bordes-terciario
-             group-data-[collapsible=icon]:border-0! 
+             group-data-[collapsible=icon]:border-0! group-data-[collapsible=icon]:p-2! group-data-[collapsible=icon]:bg-codex-cards-primary-variante1! group-data-[collapsible=icon]:dark:bg-codex-cards-terciario-variante6!
               '
             >
               {currentTheme.icon}

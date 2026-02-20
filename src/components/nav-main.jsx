@@ -33,8 +33,8 @@ export function NavMain({
               <SidebarMenuButton asChild tooltip={item.title}>
                 <a href={item.url || "#"}>
                   {item.icon ? (
-                    <div className="flex items-center">
-                      <Icon className="size-4 text-codex-iconos-primary dark:text-codex-iconos-terciario-variante2" />
+                    <div className="flex items-center group-data-[collapsible=icon]:hover:bg-codex-bordes-primary-variante2 group-data-[collapsible=icon]:dark:hover:bg-codex-bordes-terciario-variante5 group-data-[collapsible=icon]:rounded-sm">
+                      <Icon className="size-5 text-codex-iconos-primary dark:text-codex-iconos-terciario-variante2" />
                     </div>
                   ) : null}
                   <span>{item.title}</span>

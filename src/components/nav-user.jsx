@@ -65,8 +65,8 @@ export function NavUser({
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-medium">{user.name}</span>
-                  <span className="truncate text-xs text-codex-texto-secondary-variante5 dark:text-codex-texto-terciario-variante2">{user.rol}</span>
-                  <span className="truncate text-xs text-gray-400 dark:text-codex-texto-secondary-variante2">{user.empresa}</span>
+                  <span className="truncate text-xs text-codex-texto-secondary-variante5 dark:text-codex-texto-terciario-variante2 line-clamp-1">{user.email}</span>
+                  <span className="truncate text-xs text-gray-400 dark:text-codex-texto-secondary-variante2">CodeX</span>
                 </div>
               </div>
 

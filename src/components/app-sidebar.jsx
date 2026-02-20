@@ -34,6 +34,7 @@ export function AppSidebar({
       rol: user?.groups?.[0] || '',
       avatar: '',
       id_rol: user?.groups?.[0] || '',
+      email: user?.email
     }
   }
 
