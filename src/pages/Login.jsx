@@ -91,7 +91,7 @@ export const Login = ({ className, ...props }) => {
         <div className="flex items-center justify-center py-12 px-8 bg-background">
           <div className="mx-auto grid w-full max-w-sm gap-6">
             <div className="grid gap-2 text-center">
-              <h1 className="text-3xl font-bold tracking-tight">Welcome Back Deploys</h1>
+              <h1 className="text-3xl font-bold tracking-tight">Welcome Back notifications</h1>
               <p className="text-muted-foreground text-sm">
                 Enter your credentials to access the <strong>Climate Codex</strong>.
               </p>
