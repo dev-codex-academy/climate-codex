@@ -11,7 +11,14 @@ import { Followup } from "../pages/Followup";
 import { LeadDetail } from "../pages/LeadDetail";
 import { ClientDetail } from "../pages/ClientDetail";
 import { ServiceDetail } from "../pages/ServiceDetail";
-import { TransferRequests } from "../pages/TransferRequests";
+import { Contact } from "../pages/Contact";
+import { ContactDetail } from "../pages/ContactDetail";
+import { Category } from "../pages/Category";
+import { CategoryDetail } from "../pages/CategoryDetail";
+import { Catalogueitem } from "../pages/Catalogueitem";
+import { CatalogueitemDetail } from "../pages/CatalogueitemDetail";
+import { Invoice } from "../pages/Invoice";
+import { InvoiceDetail } from "../pages/InvoiceDetail";
 import { WebhookList } from "../pages/Webhooks/WebhookList";
 import { WebhookDetail } from "../pages/Webhooks/WebhookDetail";
 import { ApiGuide } from "../pages/ApiGuide";
@@ -58,10 +65,17 @@ export const RouterApp = () => {
                 <Route path="attribute" element={<PermissionGuard requiredPermission="app.add_attribute"><Attributes /></PermissionGuard>} />
                 <Route path="client" element={<PermissionGuard requiredPermission="app.add_client"><Client /></PermissionGuard>} />
                 <Route path="client/:id" element={<PermissionGuard requiredPermission="app.add_client"><ClientDetail /></PermissionGuard>} />
+                <Route path="contact" element={<PermissionGuard requiredPermission="app.add_contact"><Contact /></PermissionGuard>} />
+                <Route path="contact/:id" element={<PermissionGuard requiredPermission="app.add_contact"><ContactDetail /></PermissionGuard>} />
                 <Route path="service" element={<PermissionGuard requiredPermission="app.add_service"><Service /></PermissionGuard>} />
                 <Route path="service/:id" element={<PermissionGuard requiredPermission="app.add_service"><ServiceDetail /></PermissionGuard>} />
+                <Route path="category" element={<PermissionGuard requiredPermission="app.add_category"><Category /></PermissionGuard>} />
+                <Route path="category/:id" element={<PermissionGuard requiredPermission="app.add_category"><CategoryDetail /></PermissionGuard>} />
+                <Route path="catalogueitem" element={<PermissionGuard requiredPermission="app.add_catalogueitem"><Catalogueitem /></PermissionGuard>} />
+                <Route path="catalogueitem/:id" element={<PermissionGuard requiredPermission="app.add_catalogueitem"><CatalogueitemDetail /></PermissionGuard>} />
+                <Route path="invoice" element={<PermissionGuard requiredPermission="app.add_invoice"><Invoice /></PermissionGuard>} />
+                <Route path="invoice/:id" element={<PermissionGuard requiredPermission="app.add_invoice"><InvoiceDetail /></PermissionGuard>} />
                 <Route path="followup" element={<PermissionGuard requiredPermission="app.add_followup"><Followup /></PermissionGuard>} />
-                <Route path="transferrequest" element={<PermissionGuard requiredPermission="app.add_transferrequest"><TransferRequests /></PermissionGuard>} />
                 <Route path="webhook" element={<PermissionGuard requiredPermission="app.add_webhook"><WebhookList /></PermissionGuard>} />
                 <Route path="webhook/:id" element={<PermissionGuard requiredPermission="app.add_webhook"><WebhookDetail /></PermissionGuard>} />
             </Route>

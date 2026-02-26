@@ -1,0 +1,464 @@
+import React, { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { createContact, updateContact, getContactById, getContactAttributes, updateContactTask, deleteContactNote } from "../services/contactService";
+import { getClients } from "../services/clientService";
+import { useAuth } from "../context/AuthContext";
+
+// UI Components
+import { Input } from "../components/ui/input";
+import { Label } from "../components/ui/label";
+import { Button } from "../components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
+import { Checkbox } from "../components/ui/checkbox";
+import { Textarea } from "../components/ui/textarea";
+import { ArrowLeft } from "lucide-react";
+import { Switch } from "../components/ui/switch";
+
+export const ContactDetail = () => {
+    const { id } = useParams();
+    const navigate = useNavigate();
+    const { user } = useAuth();
+    const isNew = id === 'new';
+
+    const [attributes, setAttributes] = useState([]);
+    const [clients, setClients] = useState([]);
+    const [dynamicData, setDynamicData] = useState({});
+
+    // Static fields
+    const [firstName, setFirstName] = useState("");
+    const [lastName, setLastName] = useState("");
+    const [email, setEmail] = useState("");
+    const [phone, setPhone] = useState("");
+    const [jobTitle, setJobTitle] = useState("");
+    const [isPrimary, setIsPrimary] = useState(false);
+    const [clientId, setClientId] = useState("");
+
+    // UI state
+    const [loading, setLoading] = useState(false);
+    const [fetching, setFetching] = useState(!isNew);
+    const [error, setError] = useState(null);
+
+    // Task & Note state
+    const [tasks, setTasks] = useState([]);
+    const [newTaskDate, setNewTaskDate] = useState(new Date().toISOString().split('T')[0]);
+    const [newTaskDesc, setNewTaskDesc] = useState("");
+    const [newTaskCompleted, setNewTaskCompleted] = useState(false);
+    const [notes, setNotes] = useState([]);
+    const [newNote, setNewNote] = useState("");
+
+    useEffect(() => {
+        const init = async () => {
+            setFetching(true);
+            try {
+                await Promise.all([fetchAttributes(), fetchClients()]);
+
+                if (!isNew) {
+                    await fetchContactData(id);
+                } else {
+                    setDynamicData({});
+                }
+            } catch (err) {
+                console.error("Initialization error", err);
+                setError("Failed to load page data.");
+            } finally {
+                setFetching(false);
+            }
+        };
+        init();
+    }, [id, isNew]);
+
+    const fetchAttributes = async () => {
+        try {
+            const data = await getContactAttributes();
+            const processedData = data.map(attr => {
+                let options = attr.options;
+                if (!options && attr.list_values) {
+                    try {
+                        options = typeof attr.list_values === 'string'
+                            ? JSON.parse(attr.list_values)
+                            : attr.list_values;
+                    } catch (e) {
+                        options = [];
+                    }
+                }
+                return { ...attr, options };
+            });
+            setAttributes(processedData);
+
+            const initialDynamic = {};
+            processedData.forEach(attr => {
+                initialDynamic[attr.name] = attr.type === 'boolean' ? false : "";
+            });
+            setDynamicData(initialDynamic);
+        } catch (err) {
+            console.error("Error fetching attributes", err);
+        }
+    };
+
+    const fetchClients = async () => {
+        try {
+            const data = await getClients();
+            setClients(data);
+        } catch (err) {
+            console.error("Error fetching clients", err);
+        }
+    };
+
+    const fetchContactData = async (contactId) => {
+        try {
+            const data = await getContactById(contactId);
+            populateForm(data);
+        } catch (err) {
+            console.error("Error fetching contact", err);
+            setError("Failed to load contact details.");
+        }
+    };
+
+    const populateForm = (data) => {
+        setFirstName(data.first_name || "");
+        setLastName(data.last_name || "");
+        setEmail(data.email || "");
+        setPhone(data.phone || "");
+        setJobTitle(data.job_title || "");
+        setIsPrimary(data.is_primary || false);
+        setClientId(data.client ? (typeof data.client === 'object' ? String(data.client.id) : String(data.client)) : "");
+
+        setDynamicData(prev => {
+            const updated = { ...prev };
+            Object.keys(updated).forEach(key => {
+                let val = data[key] !== undefined ? data[key] : (data.attributes?.[key]);
+                if (val === undefined || val === null) {
+                    const attrDef = attributes.find(a => a.name === key);
+                    val = (attrDef && attrDef.type === 'boolean') ? false : "";
+                }
+                updated[key] = val;
+            });
+            return updated;
+        });
+
+        setTasks(data.list_of_tasks || []);
+        setNotes(data.list_of_notes || []);
+    };
+
+    const handleDynamicChange = (name, value) => {
+        setDynamicData(prev => ({
+            ...prev,
+            [name]: value
+        }));
+    };
+
+    // --- Task Management ---
+    const addTask = async () => {
+        if (!newTaskDesc.trim()) return;
+        const newTask = {
+            date: newTaskDate,
+            task: newTaskDesc,
+            completed: newTaskCompleted
+        };
+        const updatedTasks = [...tasks, newTask];
+        setTasks(updatedTasks);
+        setNewTaskDesc("");
+        setNewTaskCompleted(false);
+
+        if (!isNew) {
+            try {
+                await updateContact(id, { list_of_tasks: updatedTasks });
+            } catch (err) {
+                console.error("Error saving task", err);
+            }
+        }
+    };
+
+    const removeTask = async (index) => {
+        const newTasks = tasks.filter((_, i) => i !== index);
+        setTasks(newTasks);
+        if (!isNew) {
+            await updateContact(id, { list_of_tasks: newTasks });
+        }
+    };
+
+    const toggleTask = async (index) => {
+        const newTasks = [...tasks];
+        newTasks[index].completed = !newTasks[index].completed;
+        setTasks(newTasks);
+        if (!isNew) {
+            await updateContact(id, { list_of_tasks: newTasks });
+        }
+    };
+
+    // --- Note Management ---
+    const addNote = async () => {
+        if (!newNote.trim()) return;
+
+        const newEntry = {
+            date: new Date().toISOString(),
+            note: newNote,
+        };
+
+        const updatedNotes = [...notes, newEntry];
+        setNotes(updatedNotes);
+        setNewNote("");
+
+        if (!isNew) {
+            try {
+                await updateContact(id, { list_of_notes: updatedNotes });
+            } catch (err) {
+                console.error("Error saving note", err);
+            }
+        }
+    };
+
+    const handleSubmit = async () => {
+        setLoading(true);
+        setError(null);
+        try {
+            const formatAttributes = (data, attrs) => {
+                const formatted = { ...data };
+                attrs.forEach(attr => {
+                    if (attr.type === 'number' && formatted[attr.name]) {
+                        formatted[attr.name] = Number(formatted[attr.name]);
+                    }
+                });
+                return formatted;
+            };
+
+            const formattedAttributes = formatAttributes(dynamicData, attributes);
+
+            const payload = {
+                first_name: firstName,
+                last_name: lastName,
+                email,
+                phone,
+                job_title: jobTitle,
+                is_primary: isPrimary,
+                client: clientId,
+                attributes: formattedAttributes
+            };
+
+            if (isNew) {
+                if (tasks.length) payload.list_of_tasks = tasks;
+                if (notes.length) payload.list_of_notes = notes;
+
+                await createContact(payload);
+                navigate(-1);
+            } else {
+                payload.list_of_tasks = tasks;
+                payload.list_of_notes = notes;
+                await updateContact(id, payload);
+                navigate(-1);
+            }
+
+        } catch (err) {
+            console.error("Error saving contact", err);
+            setError(`Failed to save contact. ${err.message || ""}`);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    if (fetching) return <div className="p-10 flex justify-center">Loading...</div>;
+
+    return (
+        <div className="min-h-screen bg-background flex flex-col">
+            <div className="sticky top-0 z-10 border-b px-6 py-4 flex items-center justify-between bg-card shrink-0">
+                <div className="flex items-center gap-4">
+                    <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
+                        <ArrowLeft className="h-5 w-5" />
+                    </Button>
+                    <div>
+                        <h1 className="text-xl font-semibold">
+                            {isNew ? "New Contact" : "Edit Contact"}
+                        </h1>
+                        <p className="text-sm text-muted-foreground">
+                            {isNew ? "Add a new contact" : `Managing details for ${firstName} ${lastName}`}
+                        </p>
+                    </div>
+                </div>
+                <div className="flex gap-2">
+                    <Button variant="outline" onClick={() => navigate(-1)}>Cancel</Button>
+                    <Button onClick={handleSubmit} disabled={loading}>
+                        {loading ? "Saving..." : "Save Contact"}
+                    </Button>
+                </div>
+            </div>
+
+            <div className="flex-1 p-6 max-w-6xl mx-auto w-full">
+                {error && (
+                    <div className="p-4 mb-6 text-sm text-red-500 bg-red-50 rounded-md border border-red-200">
+                        {error}
+                    </div>
+                )}
+
+                <div className="space-y-6">
+                    {/* Main Info */}
+                    <div className="bg-card p-6 rounded-lg border shadow-sm space-y-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="first_name">First Name</Label>
+                                <Input id="first_name" placeholder="John" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="last_name">Last Name</Label>
+                                <Input id="last_name" placeholder="Doe" value={lastName} onChange={(e) => setLastName(e.target.value)} />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="email">Email</Label>
+                                <Input id="email" type="email" placeholder="john@example.com" value={email} onChange={(e) => setEmail(e.target.value)} />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="phone">Phone</Label>
+                                <Input id="phone" placeholder="+1 555-0192" value={phone} onChange={(e) => setPhone(e.target.value)} />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="job_title">Job Title</Label>
+                                <Input id="job_title" placeholder="CTO" value={jobTitle} onChange={(e) => setJobTitle(e.target.value)} />
+                            </div>
+                            <div className="space-y-2 flex flex-col justify-end pb-2">
+                                <div className="flex items-center space-x-2">
+                                    <Switch id="is_primary" checked={isPrimary} onCheckedChange={setIsPrimary} />
+                                    <Label htmlFor="is_primary">Primary Contact for Client</Label>
+                                </div>
+                            </div>
+                            <div className="space-y-2 md:col-span-2">
+                                <Label htmlFor="client">Client</Label>
+                                <Select value={clientId} onValueChange={setClientId}>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select Client" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {clients.map(c => (
+                                            <SelectItem key={c.id} value={String(c.id)}>{c.name}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Dynamic Attributes */}
+                    {attributes.length > 0 && (
+                        <div className="bg-card p-6 rounded-lg border shadow-sm space-y-4">
+                            <h3 className="font-medium text-lg border-b pb-2">Additional Information</h3>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                {attributes.map((attr) => (
+                                    <div key={attr.name} className="space-y-2">
+                                        <Label htmlFor={attr.name}>{attr.label}</Label>
+                                        {attr.type === 'list' ? (
+                                            <Select
+                                                onValueChange={(val) => handleDynamicChange(attr.name, val)}
+                                                value={dynamicData[attr.name] || ""}
+                                            >
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder={`Select ${attr.label}`} />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {attr.options?.map((opt) => (
+                                                        <SelectItem key={opt.value || opt} value={opt.value || opt}>
+                                                            {opt.label || opt}
+                                                        </SelectItem>
+                                                    )) || <SelectItem value="no-options">No options available</SelectItem>}
+                                                </SelectContent>
+                                            </Select>
+                                        ) : attr.type === 'boolean' ? (
+                                            <div className="flex items-center space-x-2 h-10">
+                                                <Switch
+                                                    id={attr.name}
+                                                    checked={!!dynamicData[attr.name]}
+                                                    onCheckedChange={(checked) => handleDynamicChange(attr.name, checked)}
+                                                />
+                                                <Label htmlFor={attr.name} className="cursor-pointer font-normal text-muted-foreground">
+                                                    {dynamicData[attr.name] ? 'Yes' : 'No'}
+                                                </Label>
+                                            </div>
+                                        ) : (
+                                            <Input
+                                                id={attr.name}
+                                                type={attr.type === 'number' ? 'number' : attr.type === 'date' ? 'date' : 'text'}
+                                                placeholder={attr.label}
+                                                value={dynamicData[attr.name] || ""}
+                                                onChange={(e) => handleDynamicChange(attr.name, e.target.value)}
+                                            />
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Tasks & Notes Row */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {/* Tasks */}
+                        <div className="bg-card p-6 rounded-lg border shadow-sm space-y-4">
+                            <h3 className="font-medium text-lg border-b pb-2">Tasks</h3>
+                            <div className="bg-muted/30 p-3 rounded-md space-y-2">
+                                <div className="flex flex-col gap-2">
+                                    <div className="space-y-1">
+                                        <Label className="text-xs">Description</Label>
+                                        <Input
+                                            value={newTaskDesc}
+                                            onChange={(e) => setNewTaskDesc(e.target.value)}
+                                            placeholder="Task description..."
+                                        />
+                                    </div>
+                                    <div className="flex gap-2">
+                                        <div className="w-1/2 space-y-1">
+                                            <Label className="text-xs">Date</Label>
+                                            <Input type="date" value={newTaskDate} onChange={(e) => setNewTaskDate(e.target.value)} />
+                                        </div>
+                                        <div className="w-full flex items-center justify-end gap-2 pt-6">
+                                            <Checkbox id="new-completed" checked={newTaskCompleted} onCheckedChange={setNewTaskCompleted} />
+                                            <Label htmlFor="new-completed" className="text-sm">Done</Label>
+                                            <Button size="sm" onClick={addTask} disabled={!newTaskDesc}>Add</Button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="space-y-2 max-h-60 overflow-y-auto">
+                                {tasks.length === 0 ? <p className="text-sm text-muted-foreground italic">No tasks.</p> : tasks.map((task, idx) => (
+                                    <div key={idx} className="flex items-center justify-between p-3 bg-muted/20 border rounded-md">
+                                        <div className="flex items-center gap-3">
+                                            <Checkbox checked={task.completed} onCheckedChange={() => toggleTask(idx)} />
+                                            <div className={task.completed ? "line-through text-muted-foreground" : ""}>
+                                                <p className="text-sm font-medium">{task.task || task.description}</p>
+                                                <div className="flex gap-2 text-xs text-muted-foreground">
+                                                    <span>{task.date}</span>
+                                                    {task.user_name && <span>• {task.user_name}</span>}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <Button variant="ghost" size="sm" onClick={() => removeTask(idx)} className="h-6 w-6 p-0 text-red-500">&times;</Button>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Notes */}
+                        <div className="bg-card p-6 rounded-lg border shadow-sm space-y-4">
+                            <h3 className="font-medium text-lg border-b pb-2">Notes</h3>
+                            <div className="bg-muted/30 p-3 rounded-md space-y-2">
+                                <div className="space-y-2">
+                                    <Label className="text-xs">New Note</Label>
+                                    <Textarea value={newNote} onChange={(e) => setNewNote(e.target.value)} placeholder="Add a note..." className="min-h-[80px]" />
+                                    <div className="flex justify-end">
+                                        <Button size="sm" onClick={addNote} disabled={!newNote}>Add Note</Button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="space-y-3 max-h-60 overflow-y-auto">
+                                {notes.length === 0 ? <p className="text-sm text-muted-foreground italic">No notes.</p> : notes.slice().reverse().map((item, idx) => (
+                                    <div key={idx} className="p-3 bg-muted/20 border rounded-md space-y-1">
+                                        <p className="text-sm whitespace-pre-wrap">{item.note}</p>
+                                        <div className="flex justify-between items-center text-[10px] text-muted-foreground">
+                                            <span>{new Date(item.date).toLocaleString()}</span>
+                                            {item.user_name && <span>{item.user_name}</span>}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};

@@ -1,95 +1,96 @@
 import { useRef, useState } from "react";
 
-
 export const useMenu = () => {
-
     const [menu, setMenu] = useState([]);
     const menuRef = useRef([]);
 
     const MenuLoad = async () => {
-        // Get permissions from localStorage
         const storedPermissions = localStorage.getItem("user_permissions");
 
         if (storedPermissions) {
             try {
                 const permissions = JSON.parse(storedPermissions);
 
-                // Dictionary of known words to separate
-                const commonWords = [
-                    "Detail", "List", "History", "Report", "User", "Profile",
-                    "Settings", "Dashboard", "Company", "Role", "Log", "Board", "Lead", "Request"
+                // Views that no longer exist or are nested only — always hide
+                const hiddenViews = [
+                    "cohort", "enrollment", "enrollmentdetail",
+                    "attendance", "attendancedetail", "followup",
+                    "pricetier", "invoicelineitem", "invoicepayment"
                 ];
 
-                // Filter and format
+                // Dictionary of known words to separate PascalCase
+                const commonWords = [
+                    "Detail", "List", "History", "Report", "User", "Profile",
+                    "Settings", "Dashboard", "Company", "Role", "Log", "Board",
+                    "Lead", "Request", "Item", "Tier",
+                ];
+
+                // Icon mapping — every item gets a meaningful icon
                 const iconMap = {
-                    "Attendance": "CalendarCheck",
-                    "AttendanceDetail": "ListChecks",
-                    "Attribute": "Tag",
+                    "Attribute": "SlidersHorizontal",
+                    "Catalogueitem": "Package",
+                    "Category": "FolderTree",
                     "Client": "Building2",
-                    "Cohort": "School",
-                    "Enrollment": "UserPlus",
-                    "EnrollmentDetail": "FileText",
-                    "Followup": "MessageSquare",
+                    "Contact": "UserCircle",
+                    "Invoice": "Receipt",
+                    "Invoicelineitem": "FileSpreadsheet",
                     "Lead": "Magnet",
+                    "Payment": "CreditCard",
                     "Pipeline": "GitMerge",
-                    "Service": "GraduationCap",
-                    "TransferRequest": "ArrowLeftRight",
+                    "Pricetier": "BadgeDollarSign",
+                    "Service": "Briefcase",
                     "Webhook": "Webhook",
                 };
 
-                const formattedMenu = permissions
-                    .filter(perm => perm.startsWith("app.add_") && !perm.includes("enrollmentdetail") && !perm.includes("followup") && !perm.includes("attendancedetail") && !perm.includes("attendance"))
-                    .map(perm => {
-                        // Remove the 'app.add_' prefix
-                        let rawName = perm.replace("app.add_", "");
+                // Display-friendly labels
+                const labelMap = {
+                    "Catalogueitem": "Catalogue",
+                    "Contact": "Contacts",
+                    "Category": "Categories",
+                    "Invoice": "Invoices",
+                    "Client": "Clients"
+                };
 
-                        // Capitalize the first letter
+                const formattedMenu = permissions
+                    .filter(perm => {
+                        if (!perm.startsWith("app.add_")) return false;
+                        const raw = perm.replace("app.add_", "");
+                        return !hiddenViews.includes(raw);
+                    })
+                    .map(perm => {
+                        let rawName = perm.replace("app.add_", "");
                         let name = rawName.charAt(0).toUpperCase() + rawName.slice(1);
 
-                        // Attempt to separate concatenated words using the dictionary
-                        // e.g. "attendancedetail" -> "AttendanceDetail"
-                        // Verify if the end of the string matches a common word (case insensitive check, but we append the PascalCase version)
                         for (const word of commonWords) {
                             const lowerWord = word.toLowerCase();
                             if (name.toLowerCase().endsWith(lowerWord) && name.length > word.length) {
-                                // Found a match at the end
-                                // "attendancedetail" ends with "detail"
                                 const prefix = name.slice(0, -word.length);
-                                name = prefix + word; // "Attendance" + "Detail"
-                                break; // Assume only one main separation for now
+                                name = prefix + word;
+                                break;
                             }
                         }
 
-                        // Return the structure expected by NavMain
                         return {
-                            title: name,
-                            url: `/${name.toLowerCase()}`, // Basic inferred URL
-                            icon: iconMap[name] || "CircleEllipsis", // Mapped icon or default
-                            items: [] // No subitems for now
+                            title: labelMap[name] || name,
+                            url: `/${name.toLowerCase()}`,
+                            icon: iconMap[name] || "CircleDot",
+                            items: [],
                         };
                     });
 
-                // Grouping Logic
-                const crmItems = ["Lead", "Service", "Client"];
-                const adminItems = ["Webhook", "Pipeline", "Attribute"];
+                // Grouping — meaningful buckets, no "Others" catch-all
+                const crmItems = ["Lead", "Clients", "Contacts", "Service", "Pipeline"];
+                const billingItems = ["Invoices", "Catalogue", "Categories"];
+                const adminItems = ["Attribute", "Webhook"];
 
-                const groupedMenu = [
-                    {
-                        label: "CRM",
-                        items: formattedMenu.filter(item => crmItems.includes(item.title))
-                    },
-                    {
-                        label: "Admin",
-                        items: formattedMenu.filter(item => adminItems.includes(item.title))
-                    },
-                    {
-                        label: "Others",
-                        items: formattedMenu.filter(item => !crmItems.includes(item.title) && !adminItems.includes(item.title))
-                    }
-                ];
+                const groups = [
+                    { label: "CRM", items: formattedMenu.filter(i => crmItems.includes(i.title)) },
+                    { label: "Billing", items: formattedMenu.filter(i => billingItems.includes(i.title)) },
+                    { label: "Admin", items: formattedMenu.filter(i => adminItems.includes(i.title)) },
+                ].filter(g => g.items.length > 0);
 
-                menuRef.current = groupedMenu;
-                setMenu(groupedMenu);
+                menuRef.current = groups;
+                setMenu(groups);
             } catch (error) {
                 console.error("Error parsing user_permissions:", error);
                 menuRef.current = [];
@@ -102,10 +103,8 @@ export const useMenu = () => {
     };
 
     return {
-        //properties
         menu,
         menuRef,
-        //methods
         MenuLoad,
-    }
-}
+    };
+};

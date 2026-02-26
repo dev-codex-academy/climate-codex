@@ -28,7 +28,10 @@ const Modal = ({ isOpen, children, onClose }) => {
 };
 
 export const Attributes = () => {
-    const [entities] = useState(['client', 'followup', 'lead', 'lead_client_info', 'lead_service_info', 'service']);
+    const [entities] = useState([
+        'client', 'contact', 'lead', 'lead_client_info', 'lead_service_info', 'service',
+        'category', 'catalogue_item', 'invoice', 'followup'
+    ]);
     const [attributesData, setAttributesData] = useState({});
     const [loading, setLoading] = useState(true);
 
@@ -190,7 +193,7 @@ export const Attributes = () => {
                                             {entity === 'service' ? 'Service'
                                                 : entity === 'lead_client_info' ? 'Client Info'
                                                     : entity === 'lead_service_info' ? 'Service Info'
-                                                        : entity}
+                                                        : entity.replace('_', ' ')}
                                         </h2>
                                         <span className="text-[10px] text-muted-foreground font-medium mt-1">Entity Module</span>
                                     </div>

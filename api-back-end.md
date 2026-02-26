@@ -1,6 +1,6 @@
 # CRM API Documentation
 
-This API enables management of Clients, Services, Leads, Pipelines, and Enrollments within the CRM.
+This API enables management of Clients, Contacts, Services, Leads, Pipelines, Catalogue (Categories, Items, Pricing), Invoices, and Payments within the CRM.
 
 ## Authentication
 Token Authentication is required for all requests.
@@ -39,7 +39,7 @@ Returns current user permissions and group membership.
 
 ### List Attributes
 **GET** `/api/attributes/<entity_name>/`
-*(entity_name: client, service, lead, lead_client_info, lead_service_info, follow_up)*
+*(entity_name: client, service, lead, lead_client_info, lead_service_info, follow_up, contact, category, catalogue_item, price_tier, invoice, invoice_line_item, payment)*
 
 **Response:**
 ```json
@@ -536,146 +536,7 @@ To add a task, you append it to the list.
 
 ---
 
-## 7. Cohorts
-
-### List Cohorts
-**GET** `/api/cohorts/`
-
-### Create Cohort
-**POST** `/api/cohorts/`
-
-**Payload:**
-```json
-{
-    "name_cohort": "Summer 2025",
-    "start_date": "2025-06-01",
-    "end_date": "2025-12-01",
-    "instructor": 1
-}
-```
-
-### Retrieve Cohort
-**GET** `/api/cohorts/<uuid>/`
-
-### Update Cohort
-**PUT** `/api/cohorts/<uuid>/`
-
-**Payload:**
-```json
-{
-    "name_cohort": "Summer 2025 - EXTENDED",
-    "end_date": "2026-01-31"
-}
-```
-
-### Delete Cohort
-**DELETE** `/api/cohorts/<uuid>/`
-
-#### Cohort Fields Reference
-| Field Name | Type | Description |
-| :--- | :--- | :--- |
-| `id` | UUID | Unique identifier |
-| `name_cohort` | String | Name of the cohort |
-| `start_date` | Date | Start date (YYYY-MM-DD) |
-| `end_date` | Date | End date (YYYY-MM-DD) |
-| `instructor` | ForeignKey | User ID of the instructor |
-
-
-## 8. Enrollments
-Links a Cohort to an Instructor and a Pathway.
-
-### List Enrollments
-**GET** `/api/enrollments/`
-
-### Create Enrollment
-**POST** `/api/enrollments/`
-
-**Payload:**
-```json
-{
-    "cohort": "<cohort_uuid>",
-    "pathway_name": "Data Science",
-    "instructor": 1,
-    "teaching_assistants": [
-        {"id": 2, "name": "TA Bob"}
-    ]
-}
-```
-
-### Retrieve Enrollment
-**GET** `/api/enrollments/<uuid>/`
-
-### Delete Enrollment
-**DELETE** `/api/enrollments/<uuid>/`
-
-#### Enrollment Fields Reference
-| Field Name | Type | Description |
-| :--- | :--- | :--- |
-| `id` | UUID | Unique identifier |
-| `cohort` | ForeignKey | Cohort ID |
-| `instructor` | ForeignKey | Lead Instructor ID |
-| `pathway_name` | String | Name of the educational pathway |
-| `teaching_assistants` | JSONB | List of TAs `[{"id": 1, "name": "..."}]` |
-
----
-
-## 9. Enrollment Details
-Links a specific Student (Service) to an Enrollment.
-
-### List Details
-**GET** `/api/enrollment-details/`
-
-### Create Detail
-**POST** `/api/enrollment-details/`
-
-**Payload:**
-```json
-{
-    "enrollment": "<enrollment_uuid>",
-    "student": "<student_service_uuid>"
-}
-```
-
-### Delete Detail
-**DELETE** `/api/enrollment-details/<uuid>/`
-
----
-
-## 10. Transfer Requests
-
-### List Requests
-**GET** `/api/transfer-requests/`
-
-### Create Request
-**POST** `/api/transfer-requests/`
-
-**Payload:**
-```json
-{
-    "student": "<student_service_uuid>",
-    "cohort_request": "Winter 2026 Batch",
-    "possible_transfer_date": "2026-02-01"
-}
-```
-
-### Update Request
-**PUT/PATCH** `/api/transfer-requests/<uuid>/`
-
-### Delete Request
-**DELETE** `/api/transfer-requests/<uuid>/`
-
-#### Transfer Request Fields Reference
-| Field Name | Type | Description |
-| :--- | :--- | :--- |
-| `id` | UUID | Unique identifier |
-| `student` | ForeignKey | Service (Student) ID |
-| `student_name` | String | Name of the student (Output Only) |
-| `cohort_request` | String | Name of the requested cohort |
-| `possible_transfer_date` | Date | Requested transfer date (YYYY-MM-DD) |
-
----
-
-## 11. File Uploads
+## 7. File Uploads
 Files are stored in S3 and linked to entities.
 
 ### Upload Service (Student) Image
@@ -698,7 +559,7 @@ Files are stored in S3 and linked to entities.
 
 ---
 
-## 12. Users (Read-Only Lists)
+## 8. Users (Read-Only Lists)
 
 ### List Instructors
 **GET** `/api/instructors/`
@@ -717,8 +578,12 @@ Returns users in the 'Sales' group.
 Returns users in the 'Operations' group.
 
 
-## 13. Webhooks
-Webhooks allow you to configure HTTP callbacks triggered by events on Leads, Clients, Services, or FollowUps.
+## 9. Webhooks
+Webhooks allow you to configure HTTP callbacks triggered by events (CREATE, UPDATE, DELETE) on any model in the system.
+
+**Supported Models:** Lead, Client, Service, FollowUp, Contact, Category, CatalogueItem, PriceTier, Invoice, InvoiceLineItem, Payment
+
+> **Note:** All models have full signal support via Django's `post_save` signal. Webhooks fire automatically on create, update, and soft-delete for every supported model.
 
 ### List Webhooks
 **GET** `/api/webhooks/`
@@ -730,7 +595,7 @@ Webhooks allow you to configure HTTP callbacks triggered by events on Leads, Cli
 ```json
 {
     "name": "Notify External System",
-    "model": "Lead",            // Options: Lead, Client, Service, FollowUp
+    "model": "Lead",            // Options: Lead, Client, Service, FollowUp, Contact, Category, CatalogueItem, Invoice, InvoiceLineItem, Payment
     "event": "CREATE",          // Options: CREATE, UPDATE, DELETE (Default: UPDATE)
     "url": "https://api.external.com/hooks/{id}",
     "method": "POST",           // Options: POST, PUT, PATCH, DELETE, GET
@@ -776,3 +641,475 @@ You can use `{self.field_name}` placeholders in `url`, `headers`, and `payload` 
 
 ### Delete Webhook
 **DELETE** `/api/webhooks/<uuid>/`
+
+---
+
+## 10. Contacts
+Contacts represent individual people at a Client (company). A client can have many contacts.
+
+### List Contacts
+**GET** `/api/contacts/`
+*Query Params: ?client=<uuid>&is_primary=true&first_name=Maria*
+
+### Create Contact
+**POST** `/api/contacts/`
+
+**Payload:**
+```json
+{
+    "client": "<client_uuid>",
+    "first_name": "Maria",
+    "last_name": "Lopez",
+    "email": "m.lopez@example.com",
+    "phone": "+504 9999-1234",
+    "job_title": "CFO",
+    "is_primary": true,
+    "attributes": {
+        "linkedin_url": "https://linkedin.com/in/maria"
+    },
+    "list_of_tasks": [],
+    "list_of_notes": []
+}
+```
+
+### Retrieve Contact
+**GET** `/api/contacts/<uuid>/`
+
+### Update Contact
+**PATCH** `/api/contacts/<uuid>/`
+
+**Payload:**
+```json
+{
+    "job_title": "CEO",
+    "is_primary": true
+}
+```
+
+### Contact Atomic Updates
+
+#### Update Task Status
+**POST** `/api/contacts/<uuid>/update-task/`
+```json
+{
+    "task_id": "uuid-of-task",
+    "completed": true
+}
+```
+
+#### Delete Note
+**POST** `/api/contacts/<uuid>/delete-note/`
+```json
+{
+    "id": "uuid-of-note"
+}
+```
+
+### Delete Contact
+**DELETE** `/api/contacts/<uuid>/`
+
+#### Contact Fields Reference
+| Field Name | Type | Description |
+| :--- | :--- | :--- |
+| `id` | UUID | Unique identifier (Auto-generated) |
+| `client` | ForeignKey | UUID of the associated Client |
+| `first_name` | String | First name (Max 150 chars) |
+| `last_name` | String | Last name (Max 150 chars) |
+| `full_name` | String | Read-only computed field (first + last) |
+| `email` | Email | Optional email address |
+| `phone` | String | Optional phone number |
+| `job_title` | String | Optional job title |
+| `is_primary` | Boolean | Whether this is the primary contact for the client |
+| `attributes` | JSONB | Dynamic key-value attributes |
+| `list_of_tasks` | JSONB | List of tasks `{task, date, completed, date_created, user_id, user_name}` |
+| `list_of_notes` | JSONB | List of notes `{date, note, user_id, user_name}` |
+
+---
+
+## 11. Catalogue
+The catalogue module manages Categories, Catalogue Items (products/services/subscriptions), and Price Tiers.
+
+### 11.1 Categories
+Dynamic, user-defined categories with unlimited subcategory depth.
+
+#### List Categories
+**GET** `/api/categories/`
+*Query Params: ?name=Software&parent=<uuid>*
+
+#### Create Category
+**POST** `/api/categories/`
+
+**Payload:**
+```json
+{
+    "name": "Software",
+    "description": "Software products and licenses",
+    "parent": null,
+    "attributes": {}
+}
+```
+
+**Create Subcategory:**
+```json
+{
+    "name": "SaaS",
+    "description": "Cloud-based subscriptions",
+    "parent": "<parent_category_uuid>",
+    "attributes": {}
+}
+```
+
+#### Retrieve Category
+**GET** `/api/categories/<uuid>/`
+
+#### Update Category
+**PATCH** `/api/categories/<uuid>/`
+
+#### Delete Category
+**DELETE** `/api/categories/<uuid>/`
+
+#### Category Fields Reference
+| Field Name | Type | Description |
+| :--- | :--- | :--- |
+| `id` | UUID | Unique identifier |
+| `name` | String | Category name (Max 255 chars) |
+| `description` | Text | Optional description |
+| `parent` | ForeignKey | UUID of parent category (null = root category) |
+| `attributes` | JSONB | Dynamic key-value attributes |
+
+---
+
+### 11.2 Catalogue Items
+Reusable product, service, or subscription definitions with pricing.
+
+#### List Catalogue Items
+**GET** `/api/catalogue/`
+*Query Params: ?category=<uuid>&type=service&is_active=true&sku=WEB-DEV-001*
+
+#### Create Catalogue Item
+**POST** `/api/catalogue/`
+
+**Payload:**
+```json
+{
+    "category": "<category_uuid>",
+    "name": "Web Development",
+    "sku": "WEB-DEV-001",
+    "description": "Custom web development, hourly rate",
+    "type": "service",
+    "base_price": "100.00",
+    "currency": "USD",
+    "unit": "hour",
+    "tax_rate": "15.00",
+    "is_active": true,
+    "attributes": {}
+}
+```
+
+**Type Options:** `product`, `service`, `subscription`
+
+#### Retrieve Catalogue Item
+**GET** `/api/catalogue/<uuid>/`
+
+#### Update Catalogue Item
+**PATCH** `/api/catalogue/<uuid>/`
+
+#### Upload Catalogue Item Image
+**POST** `/api/catalogue/<uuid>/files/`
+*Content-Type: multipart/form-data*
+*Body: file=<binary_data>*
+
+**Response:**
+```json
+{
+    "url": "https://bucket.s3.amazonaws.com/catalogue/uuid/image.jpg",
+    "list_of_images": ["url1", "url2"]
+}
+```
+
+#### Delete Catalogue Item
+**DELETE** `/api/catalogue/<uuid>/`
+
+#### Catalogue Item Fields Reference
+| Field Name | Type | Description |
+| :--- | :--- | :--- |
+| `id` | UUID | Unique identifier |
+| `category` | ForeignKey | Optional UUID of parent Category |
+| `name` | String | Item name (Max 255 chars) |
+| `sku` | String | Optional unique SKU code |
+| `description` | Text | Optional description |
+| `type` | String | `product`, `service`, or `subscription` |
+| `base_price` | Decimal | Base price (12,2) |
+| `currency` | String | ISO currency code (default: USD) |
+| `unit` | String | Unit of measure (e.g. "hour", "seat", "month") |
+| `tax_rate` | Decimal | Tax percentage (e.g. 15.00 = 15%) |
+| `stripe_price_id` | String | Optional Stripe Price ID |
+| `is_active` | Boolean | Whether item is available |
+| `list_of_images` | JSONB | List of S3 image URLs |
+| `attributes` | JSONB | Dynamic key-value attributes |
+
+---
+
+### 11.3 Price Tiers (Nested under Catalogue Item)
+Volume or segment-based pricing overrides per catalogue item.
+
+#### List Price Tiers
+**GET** `/api/catalogue/<catalogue_item_uuid>/price-tiers/`
+
+#### Create Price Tier
+**POST** `/api/catalogue/<catalogue_item_uuid>/price-tiers/`
+
+**Payload:**
+```json
+{
+    "catalogue_item": "<catalogue_item_uuid>",
+    "name": "Enterprise (10+ units)",
+    "min_quantity": 10,
+    "price": "80.00",
+    "attributes": {}
+}
+```
+
+#### Retrieve Price Tier
+**GET** `/api/catalogue/<catalogue_item_uuid>/price-tiers/<uuid>/`
+
+#### Update Price Tier
+**PATCH** `/api/catalogue/<catalogue_item_uuid>/price-tiers/<uuid>/`
+
+#### Delete Price Tier
+**DELETE** `/api/catalogue/<catalogue_item_uuid>/price-tiers/<uuid>/`
+
+#### Price Tier Fields Reference
+| Field Name | Type | Description |
+| :--- | :--- | :--- |
+| `id` | UUID | Unique identifier |
+| `catalogue_item` | ForeignKey | UUID of parent Catalogue Item |
+| `name` | String | Tier name (e.g. "VIP", "Wholesale") |
+| `min_quantity` | Integer | Minimum quantity for this tier to apply |
+| `price` | Decimal | Override price at this tier |
+| `attributes` | JSONB | Dynamic key-value attributes |
+
+---
+
+## 12. Invoices & Payments
+Full invoice lifecycle with line items and payment tracking. Stripe integration fields are optional.
+
+### 12.1 Invoices
+
+#### List Invoices
+**GET** `/api/invoices/`
+*Query Params: ?client=<uuid>&status=draft&currency=USD&invoice_number=INV-20260226-A3F1*
+
+#### Create Invoice
+**POST** `/api/invoices/`
+
+**Payload:**
+```json
+{
+    "client": "<client_uuid>",
+    "contact": "<contact_uuid>",
+    "status": "draft",
+    "issue_date": "2026-02-26",
+    "due_date": "2026-03-26",
+    "currency": "USD",
+    "subtotal": "0.00",
+    "tax_amount": "0.00",
+    "discount": "0.00",
+    "total": "0.00",
+    "notes": "30-day payment terms.",
+    "attributes": {}
+}
+```
+
+> **Note:** `invoice_number` is **auto-generated** in the format `INV-YYYYMMDD-XXXX` (e.g. `INV-20260226-A3F1`). It is read-only.
+
+#### Retrieve Invoice
+**GET** `/api/invoices/<uuid>/`
+
+#### Update Invoice
+**PATCH** `/api/invoices/<uuid>/`
+```json
+{
+    "status": "sent"
+}
+```
+
+#### Recalculate Invoice Totals
+**POST** `/api/invoices/<uuid>/recalculate/`
+
+Recalculates `subtotal`, `tax_amount`, and `total` from all active line items. Call this after adding, updating, or removing line items.
+
+**Response:** Returns the updated invoice object with recalculated totals.
+
+#### Invoice Atomic Updates
+
+##### Update Task Status
+**POST** `/api/invoices/<uuid>/update-task/`
+```json
+{
+    "task_id": "uuid-of-task",
+    "completed": true
+}
+```
+
+##### Delete Note
+**POST** `/api/invoices/<uuid>/delete-note/`
+```json
+{
+    "id": "uuid-of-note"
+}
+```
+
+#### Delete Invoice
+**DELETE** `/api/invoices/<uuid>/`
+
+#### Invoice Fields Reference
+| Field Name | Type | Description |
+| :--- | :--- | :--- |
+| `id` | UUID | Unique identifier |
+| `client` | ForeignKey | UUID of the Client |
+| `contact` | ForeignKey | Optional UUID of the Contact |
+| `invoice_number` | String | Auto-generated, read-only (e.g. `INV-20260226-A3F1`) |
+| `status` | String | `draft`, `sent`, `paid`, `overdue`, `void`, `refunded` |
+| `issue_date` | Date | Invoice issue date |
+| `due_date` | Date | Payment due date |
+| `currency` | String | ISO currency code (default: USD) |
+| `subtotal` | Decimal | Sum of line item subtotals |
+| `tax_amount` | Decimal | Total tax amount |
+| `discount` | Decimal | Discount to apply |
+| `total` | Decimal | Final total (subtotal + tax - discount) |
+| `amount_paid` | Decimal | Total paid so far (auto-updated from Payments) |
+| `balance_due` | Decimal | Read-only: total - amount_paid |
+| `notes` | Text | Optional notes |
+| `stripe_invoice_id` | String | Optional Stripe Invoice ID |
+| `stripe_payment_intent_id` | String | Optional Stripe Payment Intent ID |
+| `stripe_hosted_url` | URL | Optional Stripe hosted payment page URL |
+| `stripe_pdf_url` | URL | Optional Stripe PDF download URL |
+| `attributes` | JSONB | Dynamic key-value attributes |
+| `list_of_tasks` | JSONB | List of tasks |
+| `list_of_notes` | JSONB | List of notes |
+
+---
+
+### 12.2 Invoice Line Items (Nested under Invoice)
+Each line represents a product or service on the invoice. Can reference a Catalogue Item or be free-form.
+
+#### List Line Items
+**GET** `/api/invoices/<invoice_uuid>/line-items/`
+
+#### Create Line Item (from Catalogue)
+**POST** `/api/invoices/<invoice_uuid>/line-items/`
+
+**Payload:**
+```json
+{
+    "invoice": "<invoice_uuid>",
+    "catalogue_item": "<catalogue_item_uuid>",
+    "description": "Web Development — 20 hours",
+    "quantity": "20.00",
+    "unit_price": "100.00",
+    "tax_rate": "15.00",
+    "attributes": {}
+}
+```
+
+#### Create Free-Form Line Item (no catalogue)
+**POST** `/api/invoices/<invoice_uuid>/line-items/`
+
+**Payload:**
+```json
+{
+    "invoice": "<invoice_uuid>",
+    "description": "Setup & Configuration Fee",
+    "quantity": "1.00",
+    "unit_price": "250.00",
+    "tax_rate": "0.00",
+    "attributes": {}
+}
+```
+
+> **Note:** `subtotal` is **auto-calculated** on save as `quantity × unit_price`. It is read-only.
+
+#### Retrieve Line Item
+**GET** `/api/invoices/<invoice_uuid>/line-items/<uuid>/`
+
+#### Update Line Item
+**PATCH** `/api/invoices/<invoice_uuid>/line-items/<uuid>/`
+
+#### Delete Line Item
+**DELETE** `/api/invoices/<invoice_uuid>/line-items/<uuid>/`
+
+#### Line Item Fields Reference
+| Field Name | Type | Description |
+| :--- | :--- | :--- |
+| `id` | UUID | Unique identifier |
+| `invoice` | ForeignKey | UUID of parent Invoice |
+| `catalogue_item` | ForeignKey | Optional UUID of Catalogue Item |
+| `description` | String | Line description (Max 500 chars) |
+| `quantity` | Decimal | Quantity (10,2) |
+| `unit_price` | Decimal | Price per unit (12,2) |
+| `tax_rate` | Decimal | Tax rate as percentage (e.g. 15.00) |
+| `subtotal` | Decimal | Auto-calculated: quantity × unit_price (read-only) |
+| `attributes` | JSONB | Dynamic key-value attributes |
+
+---
+
+### 12.3 Payments (Nested under Invoice)
+Records payment events. An invoice can have multiple partial payments. When total payments cover the invoice total, the status auto-updates to `paid`.
+
+#### List Payments
+**GET** `/api/invoices/<invoice_uuid>/payments/`
+
+#### Create Payment
+**POST** `/api/invoices/<invoice_uuid>/payments/`
+
+**Bank Transfer / Manual Payment:**
+```json
+{
+    "invoice": "<invoice_uuid>",
+    "amount": "2300.00",
+    "method": "bank_transfer",
+    "paid_at": "2026-03-01T10:00:00Z",
+    "reference": "WIRE-2026-001",
+    "notes": "Wire transfer confirmed.",
+    "attributes": {}
+}
+```
+
+**Stripe Payment:**
+```json
+{
+    "invoice": "<invoice_uuid>",
+    "amount": "2300.00",
+    "method": "stripe",
+    "paid_at": "2026-03-01T10:00:00Z",
+    "stripe_charge_id": "ch_XXXXYYYYZZZZ",
+    "attributes": {}
+}
+```
+
+**Method Options:** `stripe`, `bank_transfer`, `cash`, `check`, `other`
+
+> **Auto-update:** When a payment is created, the system automatically updates `invoice.amount_paid` and sets the invoice status to `paid` when the total is fully covered.
+
+#### Retrieve Payment
+**GET** `/api/invoices/<invoice_uuid>/payments/<uuid>/`
+
+#### Update Payment
+**PATCH** `/api/invoices/<invoice_uuid>/payments/<uuid>/`
+
+#### Delete Payment
+**DELETE** `/api/invoices/<invoice_uuid>/payments/<uuid>/`
+
+#### Payment Fields Reference
+| Field Name | Type | Description |
+| :--- | :--- | :--- |
+| `id` | UUID | Unique identifier |
+| `invoice` | ForeignKey | UUID of parent Invoice |
+| `amount` | Decimal | Payment amount (14,2) |
+| `method` | String | `stripe`, `bank_transfer`, `cash`, `check`, `other` |
+| `paid_at` | DateTime | When the payment was made |
+| `stripe_charge_id` | String | Optional Stripe Charge ID |
+| `reference` | String | Optional manual reference (wire transfer ref, check number) |
+| `notes` | Text | Optional notes |
+| `attributes` | JSONB | Dynamic key-value attributes |
