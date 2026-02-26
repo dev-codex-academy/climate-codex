@@ -8,8 +8,6 @@ import {
 } from "@/components/ui/sidebar"
 import { Outlet } from "react-router-dom"
 
-import { ClimateChatBot } from "@/components/ClimateChatBot";
-
 function AdminLayoutContent() {
     const { setOpen, open, isMobile } = useSidebar()
 
@@ -33,8 +31,6 @@ function AdminLayoutContent() {
                     <Outlet />
                 </div>
             </SidebarInset>
-
-            <ClimateChatBot />
         </>
     )
 }

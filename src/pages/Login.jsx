@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ShieldCheck, BarChart3, Users, GraduationCap, Briefcase, Zap } from "lucide-react";
+import { ShieldCheck, BarChart3, Users, Briefcase, Zap } from "lucide-react";
 import { useLogin } from "@/hooks/useLogin";
 import { Modal } from "@/components/Modal";
 import { Form } from "@/components/Form";
@@ -93,7 +93,7 @@ export const Login = ({ className, ...props }) => {
             <div className="grid gap-2 text-center">
               <h1 className="text-3xl font-bold tracking-tight">Welcome Back notifications</h1>
               <p className="text-muted-foreground text-sm">
-                Enter your credentials to access the <strong>Climate Codex</strong>.
+                Enter your credentials to access your <strong>CRM Dashboard</strong>.
               </p>
             </div>
 
@@ -160,7 +160,7 @@ export const Login = ({ className, ...props }) => {
             </form>
 
             <div className="text-center text-xs text-muted-foreground mt-4 space-x-4">
-              <span>© {new Date().getFullYear()} CodeX Academy</span>
+              <span>© {new Date().getFullYear()} Codex CRM</span>
               <span className="text-slate-300">|</span>
               <a href="/faq" className="hover:text-primary transition-colors">FAQ</a>
               <span className="text-slate-300">|</span>
@@ -177,10 +177,10 @@ export const Login = ({ className, ...props }) => {
           <div className="relative z-10 max-w-lg mx-auto space-y-12">
             <div className="space-y-4">
               <h2 className="text-4xl font-extrabold tracking-tight">
-                Orchestrate your Academy
+                Your CRM, simplified.
               </h2>
               <p className="text-lg text-slate-300 leading-relaxed">
-                A unified platform to manage Sales, Education, and Operations seamlessly.
+                A unified platform to manage Clients, Leads, and Operations seamlessly.
               </p>
             </div>
 
@@ -197,11 +197,11 @@ export const Login = ({ className, ...props }) => {
 
               <div className="flex gap-4">
                 <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-blue-500/10 border border-blue-500/20">
-                  <GraduationCap className="h-6 w-6 text-blue-400" />
+                  <Users className="h-6 w-6 text-blue-400" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-white mb-1">Student Success</h3>
-                  <p className="text-sm text-slate-400">Track student progress, attendance, and performance across all cohorts.</p>
+                  <h3 className="font-semibold text-white mb-1">Client Management</h3>
+                  <p className="text-sm text-slate-400">Track every client interaction, service record, and follow-up in one place.</p>
                 </div>
               </div>
 
@@ -218,7 +218,7 @@ export const Login = ({ className, ...props }) => {
 
             <div className="pt-8 border-t border-slate-700/50">
               <blockquote className="text-slate-300 italic text-sm">
-                "Technology that takes your educational business to the next level."
+                "Technology that takes your business to the next level."
               </blockquote>
             </div>
           </div>

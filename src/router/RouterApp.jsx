@@ -7,9 +7,7 @@ import { Attributes } from "../pages/Attributes";
 import { Client } from "../pages/Client";
 import { Service } from "../pages/Service";
 import { Followup } from "../pages/Followup";
-import { Cohort } from "../pages/Cohort";
-import { Enrollment } from "../pages/Enrollment";
-import { EnrollmentDetail } from "../pages/EnrollmentDetail";
+
 import { LeadDetail } from "../pages/LeadDetail";
 import { ClientDetail } from "../pages/ClientDetail";
 import { ServiceDetail } from "../pages/ServiceDetail";
@@ -63,9 +61,6 @@ export const RouterApp = () => {
                 <Route path="service" element={<PermissionGuard requiredPermission="app.add_service"><Service /></PermissionGuard>} />
                 <Route path="service/:id" element={<PermissionGuard requiredPermission="app.add_service"><ServiceDetail /></PermissionGuard>} />
                 <Route path="followup" element={<PermissionGuard requiredPermission="app.add_followup"><Followup /></PermissionGuard>} />
-                <Route path="cohort" element={<PermissionGuard requiredPermission="app.add_cohort"><Cohort /></PermissionGuard>} />
-                <Route path="enrollment" element={<PermissionGuard requiredPermission="app.add_enrollment"><Enrollment /></PermissionGuard>} />
-                <Route path="enrollment/:id" element={<PermissionGuard requiredPermission="app.add_enrollment"><EnrollmentDetail /></PermissionGuard>} />
                 <Route path="transferrequest" element={<PermissionGuard requiredPermission="app.add_transferrequest"><TransferRequests /></PermissionGuard>} />
                 <Route path="webhook" element={<PermissionGuard requiredPermission="app.add_webhook"><WebhookList /></PermissionGuard>} />
                 <Route path="webhook/:id" element={<PermissionGuard requiredPermission="app.add_webhook"><WebhookDetail /></PermissionGuard>} />
