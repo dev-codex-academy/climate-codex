@@ -30,7 +30,7 @@ const Modal = ({ isOpen, children, onClose }) => {
 export const Attributes = () => {
     const [entities] = useState([
         'client', 'contact', 'lead', 'lead_client_info', 'lead_service_info', 'service',
-        'category', 'catalogue_item', 'invoice', 'followup'
+        'category', 'catalogue_item', 'invoice', 'followup', 'inventory'
     ]);
     const [attributesData, setAttributesData] = useState({});
     const [loading, setLoading] = useState(true);

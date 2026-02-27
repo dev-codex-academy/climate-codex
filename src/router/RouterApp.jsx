@@ -19,6 +19,8 @@ import { Catalogueitem } from "../pages/Catalogueitem";
 import { CatalogueitemDetail } from "../pages/CatalogueitemDetail";
 import { Invoice } from "../pages/Invoice";
 import { InvoiceDetail } from "../pages/InvoiceDetail";
+import { Inventory } from "../pages/Inventory";
+import { InventoryDetail } from "../pages/InventoryDetail";
 import { WebhookList } from "../pages/Webhooks/WebhookList";
 import { WebhookDetail } from "../pages/Webhooks/WebhookDetail";
 import { ApiGuide } from "../pages/ApiGuide";
@@ -71,10 +73,12 @@ export const RouterApp = () => {
                 <Route path="service/:id" element={<PermissionGuard requiredPermission="app.add_service"><ServiceDetail /></PermissionGuard>} />
                 <Route path="category" element={<PermissionGuard requiredPermission="app.add_category"><Category /></PermissionGuard>} />
                 <Route path="category/:id" element={<PermissionGuard requiredPermission="app.add_category"><CategoryDetail /></PermissionGuard>} />
-                <Route path="catalogueitem" element={<PermissionGuard requiredPermission="app.add_catalogueitem"><Catalogueitem /></PermissionGuard>} />
-                <Route path="catalogueitem/:id" element={<PermissionGuard requiredPermission="app.add_catalogueitem"><CatalogueitemDetail /></PermissionGuard>} />
+                <Route path="catalogue" element={<PermissionGuard requiredPermission="app.add_catalogueitem"><Catalogueitem /></PermissionGuard>} />
+                <Route path="catalogue/:id" element={<PermissionGuard requiredPermission="app.add_catalogueitem"><CatalogueitemDetail /></PermissionGuard>} />
                 <Route path="invoice" element={<PermissionGuard requiredPermission="app.add_invoice"><Invoice /></PermissionGuard>} />
                 <Route path="invoice/:id" element={<PermissionGuard requiredPermission="app.add_invoice"><InvoiceDetail /></PermissionGuard>} />
+                <Route path="inventory" element={<PermissionGuard requiredPermission="app.add_inventory"><Inventory /></PermissionGuard>} />
+                <Route path="inventory/:id" element={<PermissionGuard requiredPermission="app.add_inventory"><InventoryDetail /></PermissionGuard>} />
                 <Route path="followup" element={<PermissionGuard requiredPermission="app.add_followup"><Followup /></PermissionGuard>} />
                 <Route path="webhook" element={<PermissionGuard requiredPermission="app.add_webhook"><WebhookList /></PermissionGuard>} />
                 <Route path="webhook/:id" element={<PermissionGuard requiredPermission="app.add_webhook"><WebhookDetail /></PermissionGuard>} />

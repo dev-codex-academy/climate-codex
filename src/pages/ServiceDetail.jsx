@@ -119,7 +119,7 @@ export const ServiceDetail = () => {
             populateForm(data);
         } catch (err) {
             console.error("Error fetching service", err);
-            setError("Failed to load student details.");
+            setError("Failed to load service details.");
         }
     };
 
@@ -283,7 +283,7 @@ export const ServiceDetail = () => {
             }
         } catch (err) {
             console.error("Error saving service", err);
-            setError(`Failed to save student. ${err.message || ""}`);
+            setError(`Failed to save service. ${err.message || ""}`);
         } finally {
             setLoading(false);
         }
@@ -300,17 +300,17 @@ export const ServiceDetail = () => {
                     </Button>
                     <div>
                         <h1 className="text-xl font-semibold">
-                            {isNew ? "New Student" : "Edit Student"}
+                            {isNew ? "New Service" : "Edit Service"}
                         </h1>
                         <p className="text-sm text-muted-foreground">
-                            {isNew ? "Add a new student" : `Managing details for ${name}`}
+                            {isNew ? "Add a new service" : `Managing details for ${name}`}
                         </p>
                     </div>
                 </div>
                 <div className="flex gap-2">
                     <Button variant="outline" onClick={() => navigate(-1)}>Cancel</Button>
                     <Button onClick={handleSubmit} disabled={loading || uploading}>
-                        {loading ? "Saving..." : "Save Student"}
+                        {loading ? "Saving..." : "Save Service"}
                     </Button>
                 </div>
             </div>
@@ -327,7 +327,7 @@ export const ServiceDetail = () => {
                     <div className="bg-card p-6 rounded-lg border shadow-sm space-y-4">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <Label htmlFor="name">Student Name</Label>
+                                <Label htmlFor="name">Service Name</Label>
                                 <Input
                                     id="name"
                                     placeholder="e.g. John Doe"

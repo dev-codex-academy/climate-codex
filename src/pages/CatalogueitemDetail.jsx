@@ -6,6 +6,7 @@ import {
     getPriceTiers, createPriceTier, deletePriceTier
 } from "../services/catalogueService";
 import { getCategories } from "../services/categoryService";
+import { getInventoryItems } from "../services/inventoryService";
 import { Table } from "../components/Table";
 import Swal from "sweetalert2";
 
@@ -38,6 +39,8 @@ export const CatalogueitemDetail = () => {
     const [taxRate, setTaxRate] = useState("0.00");
     const [isActive, setIsActive] = useState(true);
     const [categoryId, setCategoryId] = useState("");
+    const [inventoryId, setInventoryId] = useState("");
+    const [inventoryItems, setInventoryItems] = useState([]);
 
     // Files
     const [images, setImages] = useState([]);
@@ -59,7 +62,7 @@ export const CatalogueitemDetail = () => {
         const init = async () => {
             setFetching(true);
             try {
-                await Promise.all([fetchAttributes(), fetchCategories()]);
+                await Promise.all([fetchAttributes(), fetchCategories(), fetchInventory()]);
 
                 if (!isNew) {
                     await fetchItemData(id);
@@ -114,6 +117,15 @@ export const CatalogueitemDetail = () => {
         }
     };
 
+    const fetchInventory = async () => {
+        try {
+            const data = await getInventoryItems();
+            setInventoryItems(data);
+        } catch (err) {
+            console.error("Error fetching inventory", err);
+        }
+    };
+
     const fetchItemData = async (itemId) => {
         try {
             const data = await getCatalogueItemById(itemId);
@@ -144,6 +156,7 @@ export const CatalogueitemDetail = () => {
         setTaxRate(data.tax_rate || "0.00");
         setIsActive(data.is_active !== undefined ? data.is_active : true);
         setCategoryId(data.category ? (typeof data.category === 'object' ? String(data.category.id) : String(data.category)) : "none");
+        setInventoryId(data.inventory ? (typeof data.inventory === 'object' ? String(data.inventory.id) : String(data.inventory)) : "none");
 
         setImages(data.list_of_images || []);
 
@@ -275,6 +288,7 @@ export const CatalogueitemDetail = () => {
                 tax_rate: taxRate,
                 is_active: isActive,
                 category: categoryId === "none" ? null : categoryId,
+                inventory: inventoryId === "none" ? null : inventoryId,
                 attributes: formattedAttributes
             };
 
@@ -365,6 +379,18 @@ export const CatalogueitemDetail = () => {
                                         <SelectItem value="none">-- Uncategorized --</SelectItem>
                                         {categories.map(c => (
                                             <SelectItem key={c.id} value={String(c.id)}>{c.name}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="inventory">Linked Inventory</Label>
+                                <Select value={inventoryId} onValueChange={setInventoryId}>
+                                    <SelectTrigger><SelectValue placeholder="Link to Inventory..." /></SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="none">-- No Inventory Link --</SelectItem>
+                                        {inventoryItems.map(inv => (
+                                            <SelectItem key={inv.id} value={String(inv.id)}>{inv.sku}</SelectItem>
                                         ))}
                                     </SelectContent>
                                 </Select>

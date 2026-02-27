@@ -102,14 +102,14 @@ export const Service = () => {
                 fetchData();
                 Swal.fire(
                     'Deleted!',
-                    'Student has been deleted.',
+                    'Service has been deleted.',
                     'success'
                 );
             } catch (error) {
-                console.error("Error deleting student", error);
+                console.error("Error deleting service", error);
                 Swal.fire(
                     'Error!',
-                    'There was an error deleting the student.',
+                    'There was an error deleting the service.',
                     'error'
                 );
             }
@@ -117,7 +117,7 @@ export const Service = () => {
     };
 
     const handleViewFollowup = (service) => {
-        navigate(`/followup?service_id=${service.id}&student_name=${encodeURIComponent(service.name)}`);
+        navigate(`/followup?service_id=${service.id}&service_name=${encodeURIComponent(service.name)}`);
     };
 
     return (
@@ -139,7 +139,7 @@ export const Service = () => {
                     <Search className="mr-2 h-4 w-4" /> Search
                 </Button>
                 <Button onClick={() => navigate("/service/new", { state: { clientId: selectedClient } })}>
-                    <Plus className="mr-2 h-4 w-4" /> Add Student
+                    <Plus className="mr-2 h-4 w-4" /> Add Service
                 </Button>
             </div>
 

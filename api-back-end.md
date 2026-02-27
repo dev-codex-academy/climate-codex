@@ -39,7 +39,7 @@ Returns current user permissions and group membership.
 
 ### List Attributes
 **GET** `/api/attributes/<entity_name>/`
-*(entity_name: client, service, lead, lead_client_info, lead_service_info, follow_up, contact, category, catalogue_item, price_tier, invoice, invoice_line_item, payment)*
+*(entity_name: client, service, lead, lead_client_info, lead_service_info, follow_up, contact, category, catalogue_item, invoice, invoice_line_item, payment, inventory)*
 
 **Response:**
 ```json
@@ -581,7 +581,7 @@ Returns users in the 'Operations' group.
 ## 9. Webhooks
 Webhooks allow you to configure HTTP callbacks triggered by events (CREATE, UPDATE, DELETE) on any model in the system.
 
-**Supported Models:** Lead, Client, Service, FollowUp, Contact, Category, CatalogueItem, PriceTier, Invoice, InvoiceLineItem, Payment
+**Supported Models:** Lead, Client, Service, FollowUp, Contact, Category, CatalogueItem, Inventory, Invoice, InvoiceLineItem, Payment
 
 > **Note:** All models have full signal support via Django's `post_save` signal. Webhooks fire automatically on create, update, and soft-delete for every supported model.
 
@@ -595,7 +595,7 @@ Webhooks allow you to configure HTTP callbacks triggered by events (CREATE, UPDA
 ```json
 {
     "name": "Notify External System",
-    "model": "Lead",            // Options: Lead, Client, Service, FollowUp, Contact, Category, CatalogueItem, Invoice, InvoiceLineItem, Payment
+    "model": "Lead",            // Options: Lead, Client, Service, FollowUp, Contact, Category, CatalogueItem, Inventory, Invoice, InvoiceLineItem, Payment
     "event": "CREATE",          // Options: CREATE, UPDATE, DELETE (Default: UPDATE)
     "url": "https://api.external.com/hooks/{id}",
     "method": "POST",           // Options: POST, PUT, PATCH, DELETE, GET
@@ -795,7 +795,7 @@ Reusable product, service, or subscription definitions with pricing.
 {
     "category": "<category_uuid>",
     "name": "Web Development",
-    "sku": "WEB-DEV-001",
+    "inventory": "<inventory_uuid>",
     "description": "Custom web development, hourly rate",
     "type": "service",
     "base_price": "100.00",
@@ -837,7 +837,7 @@ Reusable product, service, or subscription definitions with pricing.
 | `id` | UUID | Unique identifier |
 | `category` | ForeignKey | Optional UUID of parent Category |
 | `name` | String | Item name (Max 255 chars) |
-| `sku` | String | Optional unique SKU code |
+| `inventory` | OneToOneField | Optional UUID of Inventory record |
 | `description` | Text | Optional description |
 | `type` | String | `product`, `service`, or `subscription` |
 | `base_price` | Decimal | Base price (12,2) |
@@ -849,45 +849,49 @@ Reusable product, service, or subscription definitions with pricing.
 | `list_of_images` | JSONB | List of S3 image URLs |
 | `attributes` | JSONB | Dynamic key-value attributes |
 
----
 
-### 11.3 Price Tiers (Nested under Catalogue Item)
-Volume or segment-based pricing overrides per catalogue item.
 
-#### List Price Tiers
-**GET** `/api/catalogue/<catalogue_item_uuid>/price-tiers/`
+### 11.3 Inventory
+Tracks physical stock for Catalogue Items. Services usually do not require Inventory.
 
-#### Create Price Tier
-**POST** `/api/catalogue/<catalogue_item_uuid>/price-tiers/`
+#### List Inventory
+**GET** `/api/inventory/`
+*Query Params: ?sku=TEST-SKU-123*
+
+#### Create Inventory
+**POST** `/api/inventory/`
 
 **Payload:**
 ```json
 {
-    "catalogue_item": "<catalogue_item_uuid>",
-    "name": "Enterprise (10+ units)",
-    "min_quantity": 10,
-    "price": "80.00",
-    "attributes": {}
+    "sku": "PHYSICAL-PROD-001",
+    "quantity_on_hand": "50.00",
+    "reorder_level": "10.00",
+    "location": "Aisle 4, Bin B",
+    "attributes": {
+        "color": "red",
+        "size": "L"
+    }
 }
 ```
 
-#### Retrieve Price Tier
-**GET** `/api/catalogue/<catalogue_item_uuid>/price-tiers/<uuid>/`
+#### Retrieve Inventory
+**GET** `/api/inventory/<uuid>/`
 
-#### Update Price Tier
-**PATCH** `/api/catalogue/<catalogue_item_uuid>/price-tiers/<uuid>/`
+#### Update Inventory
+**PATCH** `/api/inventory/<uuid>/`
 
-#### Delete Price Tier
-**DELETE** `/api/catalogue/<catalogue_item_uuid>/price-tiers/<uuid>/`
+#### Delete Inventory
+**DELETE** `/api/inventory/<uuid>/`
 
-#### Price Tier Fields Reference
+#### Inventory Fields Reference
 | Field Name | Type | Description |
 | :--- | :--- | :--- |
 | `id` | UUID | Unique identifier |
-| `catalogue_item` | ForeignKey | UUID of parent Catalogue Item |
-| `name` | String | Tier name (e.g. "VIP", "Wholesale") |
-| `min_quantity` | Integer | Minimum quantity for this tier to apply |
-| `price` | Decimal | Override price at this tier |
+| `sku` | String | Unique Stock Keeping Unit |
+| `quantity_on_hand` | Decimal | Current stock amount (12,2) |
+| `reorder_level` | Decimal | Level at which to reorder stock (12,2) |
+| `location` | String | Optional physical location (Aisle, Bin, etc.) |
 | `attributes` | JSONB | Dynamic key-value attributes |
 
 ---

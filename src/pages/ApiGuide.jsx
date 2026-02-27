@@ -142,7 +142,7 @@ export const ApiGuide = () => {
                                                 Create a new lead.
                                             </p>
                                             <CopyBlock text={`{
-  "name": "New Student Lead",
+  "name": "New Service Lead",
   "stage": "Prospecting",
   "lost_reason": "Price (Required if stage is Lost)", 
   "attributes": { "source": "Web" },
@@ -238,7 +238,7 @@ export const ApiGuide = () => {
 
                                 {activeTab === 'services' && (
                                     <div className="space-y-4 animate-in fade-in-50 duration-300">
-                                        <h3 className="text-lg font-semibold">Services (Students)</h3>
+                                        <h3 className="text-lg font-semibold">Services</h3>
                                         <div className="p-4 border rounded-md bg-white dark:bg-slate-950">
                                             <div className="flex items-center justify-between mb-2">
                                                 <Badge variant="outline">GET</Badge>
@@ -256,7 +256,7 @@ export const ApiGuide = () => {
                                                 <code className="text-sm font-mono text-blue-600 dark:text-blue-400">/api/services/</code>
                                             </div>
                                             <p className="text-sm text-muted-foreground mb-4">
-                                                Create a service (Student).
+                                                Create a service.
                                             </p>
                                             <CopyBlock text={`{
   "name": "Jane Doe",
@@ -334,7 +334,7 @@ export const ApiGuide = () => {
                                 {activeTab === 'followups' && (
                                     <div className="space-y-4 animate-in fade-in-50 duration-300">
                                         <h3 className="text-lg font-semibold">Follow Ups</h3>
-                                        <p className="text-sm text-muted-foreground">Interactions logged against a specific Service (Student).</p>
+                                        <p className="text-sm text-muted-foreground">Interactions logged against a specific Service.</p>
 
                                         <div className="p-4 border rounded-md bg-white dark:bg-slate-950">
                                             <div className="flex items-center justify-between mb-2">

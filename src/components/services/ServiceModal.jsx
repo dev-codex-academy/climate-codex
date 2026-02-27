@@ -213,7 +213,7 @@ export const ServiceModal = ({ isOpen, onClose, onServiceSaved, serviceToEdit = 
             onClose();
         } catch (err) {
             console.error("Error saving service", err);
-            setError(`Failed to save student. ${err.message || ""}`);
+            setError(`Failed to save service. ${err.message || ""}`);
         } finally {
             setLoading(false);
         }
@@ -223,7 +223,7 @@ export const ServiceModal = ({ isOpen, onClose, onServiceSaved, serviceToEdit = 
         <Modal
             isOpen={isOpen}
             onClose={onClose}
-            title={serviceToEdit ? "Edit Student" : "New Student"}
+            title={serviceToEdit ? "Edit Service" : "New Service"}
             showFooter={false}
             widthClass="sm:w-[700px]"
         >
@@ -236,7 +236,7 @@ export const ServiceModal = ({ isOpen, onClose, onServiceSaved, serviceToEdit = 
 
                 <div className="grid grid-cols-1 gap-4">
                     <div className="space-y-2">
-                        <Label htmlFor="name">Student Name</Label>
+                        <Label htmlFor="name">Service Name</Label>
                         <Input
                             id="name"
                             placeholder="e.g. John Doe"
@@ -449,7 +449,7 @@ export const ServiceModal = ({ isOpen, onClose, onServiceSaved, serviceToEdit = 
                         Cancel
                     </Button>
                     <Button onClick={handleSubmit} disabled={loading || uploading}>
-                        {loading ? "Saving..." : serviceToEdit ? "Update Student" : "Create Student"}
+                        {loading ? "Saving..." : serviceToEdit ? "Update Service" : "Create Service"}
                     </Button>
                 </div>
             </div>

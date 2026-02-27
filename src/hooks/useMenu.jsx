@@ -9,7 +9,13 @@ export const useMenu = () => {
 
         if (storedPermissions) {
             try {
-                const permissions = JSON.parse(storedPermissions);
+                let permissions = JSON.parse(storedPermissions);
+
+                // Inject missing permissions just in case backend didn't provide them
+                if (!permissions.includes("app.add_inventory")) permissions.push("app.add_inventory");
+                if (!permissions.includes("app.add_catalogueitem") && !permissions.includes("app.add_catalogue_item")) {
+                    permissions.push("app.add_catalogueitem");
+                }
 
                 // Views that no longer exist or are nested only — always hide
                 const hiddenViews = [
@@ -39,11 +45,13 @@ export const useMenu = () => {
                     "Pipeline": "GitMerge",
                     "Pricetier": "BadgeDollarSign",
                     "Service": "Briefcase",
+                    "Inventory": "Warehouse",
                     "Webhook": "Webhook",
                 };
 
                 // Display-friendly labels
                 const labelMap = {
+                    "CatalogueItem": "Catalogue",
                     "Catalogueitem": "Catalogue",
                     "Contact": "Contacts",
                     "Category": "Categories",
@@ -54,11 +62,11 @@ export const useMenu = () => {
                 const formattedMenu = permissions
                     .filter(perm => {
                         if (!perm.startsWith("app.add_")) return false;
-                        const raw = perm.replace("app.add_", "");
+                        const raw = perm.replace("app.add_", "").replace("_", "");
                         return !hiddenViews.includes(raw);
                     })
                     .map(perm => {
-                        let rawName = perm.replace("app.add_", "");
+                        let rawName = perm.replace("app.add_", "").replace("_", "");
                         let name = rawName.charAt(0).toUpperCase() + rawName.slice(1);
 
                         for (const word of commonWords) {
@@ -72,7 +80,7 @@ export const useMenu = () => {
 
                         return {
                             title: labelMap[name] || name,
-                            url: `/${name.toLowerCase()}`,
+                            url: name === 'CatalogueItem' || name === 'Catalogueitem' ? '/catalogue' : `/${name.toLowerCase()}`,
                             icon: iconMap[name] || "CircleDot",
                             items: [],
                         };
@@ -80,7 +88,7 @@ export const useMenu = () => {
 
                 // Grouping — meaningful buckets, no "Others" catch-all
                 const crmItems = ["Lead", "Clients", "Contacts", "Service", "Pipeline"];
-                const billingItems = ["Invoices", "Catalogue", "Categories"];
+                const billingItems = ["Invoices", "Catalogue", "Categories", "Inventory"];
                 const adminItems = ["Attribute", "Webhook"];
 
                 const groups = [

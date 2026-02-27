@@ -10,7 +10,7 @@ import Swal from "sweetalert2";
 export const Followup = () => {
     const [searchParams] = useSearchParams();
     const serviceId = searchParams.get("service_id");
-    const studentName = searchParams.get("student_name") || "Student";
+    const serviceName = searchParams.get("service_name") || "Service";
     const navigate = useNavigate();
 
     const [followups, setFollowups] = useState([]);
@@ -119,8 +119,8 @@ export const Followup = () => {
     if (!serviceId) {
         return (
             <div className="p-4">
-                <p>No Student Selected. Please navigate from the Student list.</p>
-                <Button onClick={() => navigate("/service")}>Go to Students</Button>
+                <p>No Service Selected. Please navigate from the Service list.</p>
+                <Button onClick={() => navigate("/service")}>Go to Services</Button>
             </div>
         );
     }
@@ -130,13 +130,13 @@ export const Followup = () => {
             <div className="flex justify-between items-center mb-2">
                 <div>
                     <Button variant="ghost" className="mb-2 pl-0 hover:bg-transparent hover:text-primary" onClick={() => navigate("/service")}>
-                        <ArrowLeft className="mr-2 h-4 w-4" /> Back to Students
+                        <ArrowLeft className="mr-2 h-4 w-4" /> Back to Services
                     </Button>
                     <h1 className="text-2xl font-bold tracking-tight text-codex-texto-primary dark:text-codex-texto-dark-primary">
                         Follow Ups
                     </h1>
                     <p className="text-sm text-muted-foreground">
-                        History for: <span className="font-semibold text-foreground">{studentName}</span>
+                        History for: <span className="font-semibold text-foreground">{serviceName}</span>
                     </p>
                 </div>
                 <div className="flex gap-2">

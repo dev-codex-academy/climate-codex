@@ -2,41 +2,29 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Table } from "../components/Table";
 import { Button } from "../components/ui/button";
-import { Plus, Download } from "lucide-react";
-import { getCatalogueItems, deleteCatalogueItem, getCatalogueItemAttributes } from "../services/catalogueService";
-import * as XLSX from "xlsx";
-import { saveAs } from "file-saver";
+import { Plus } from "lucide-react";
+import { getInventoryItems, deleteInventoryItem, getInventoryItemAttributes } from "../services/inventoryService";
 import Swal from "sweetalert2";
-import { Badge } from "../components/ui/badge";
 
-export const Catalogueitem = () => {
+export const Inventory = () => {
     const [items, setItems] = useState([]);
     const [loading, setLoading] = useState(true);
     const [attributes, setAttributes] = useState([]);
     const navigate = useNavigate();
 
     const staticColumns = [
-        { key: "name", label: "Name" },
         { key: "sku", label: "SKU" },
         {
-            key: "type",
-            label: "Type",
-            render: (value) => <span className="capitalize">{value}</span>
+            key: "quantity_on_hand",
+            label: "Quantity",
+            render: (value) => Number(value).toFixed(2)
         },
         {
-            key: "base_price",
-            label: "Base Price",
-            render: (value, row) => `${row.currency || 'USD'} ${Number(value).toFixed(2)}`
+            key: "reorder_level",
+            label: "Reorder Lvl",
+            render: (value) => Number(value).toFixed(2)
         },
-        {
-            key: "is_active",
-            label: "Status",
-            render: (value) => (
-                <Badge variant={value ? "default" : "secondary"}>
-                    {value ? "Active" : "Inactive"}
-                </Badge>
-            )
-        },
+        { key: "location", label: "Location" }
     ];
 
     const [columns, setColumns] = useState(staticColumns);
@@ -49,8 +37,8 @@ export const Catalogueitem = () => {
         setLoading(true);
         try {
             const [itemsData, attributesData] = await Promise.all([
-                getCatalogueItems(),
-                getCatalogueItemAttributes()
+                getInventoryItems(),
+                getInventoryItemAttributes()
             ]);
 
             const processedItems = itemsData.map(item => ({
@@ -76,7 +64,7 @@ export const Catalogueitem = () => {
     };
 
     const handleEdit = (item) => {
-        navigate(`/catalogue/${item.id}`);
+        navigate(`/inventory/${item.id}`);
     };
 
     const handleDelete = async (item) => {
@@ -92,11 +80,11 @@ export const Catalogueitem = () => {
 
         if (result.isConfirmed) {
             try {
-                await deleteCatalogueItem(item.id);
+                await deleteInventoryItem(item.id);
                 fetchData();
                 Swal.fire(
                     'Deleted!',
-                    'Catalogue item has been deleted.',
+                    'Inventory item has been deleted.',
                     'success'
                 );
             } catch (error) {
@@ -110,32 +98,20 @@ export const Catalogueitem = () => {
         }
     };
 
-    const handleExportExcel = () => {
-        const worksheet = XLSX.utils.json_to_sheet(items);
-        const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "Catalogue");
-        const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
-        const data = new Blob([excelBuffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8" });
-        saveAs(data, "catalogue_report.xlsx");
-    };
-
     return (
         <div className="h-full flex flex-col p-2 w-full">
             <div className="flex justify-between items-center mb-2">
                 <div>
                     <h1 className="text-2xl font-bold tracking-tight text-codex-texto-primary dark:text-codex-texto-dark-primary">
-                        Catalogue
+                        Inventory
                     </h1>
                     <p className="text-sm text-muted-foreground">
-                        Manage your products, services, and subscriptions.
+                        Manage physical stock and locations.
                     </p>
                 </div>
                 <div className="flex gap-2">
-                    <Button variant="outline" onClick={handleExportExcel}>
-                        <Download className="mr-2 h-4 w-4" /> Export Excel
-                    </Button>
-                    <Button onClick={() => navigate("/catalogue/new")}>
-                        <Plus className="mr-2 h-4 w-4" /> Add Item
+                    <Button onClick={() => navigate("/inventory/new")}>
+                        <Plus className="mr-2 h-4 w-4" /> Add Inventory
                     </Button>
                 </div>
             </div>
