@@ -16,6 +16,7 @@ export const Contact = () => {
 
     const staticColumns = [
         { key: "full_name", label: "Name" },
+        { key: "client_name", label: "Client" },
         { key: "email", label: "Email" },
         { key: "phone", label: "Phone" },
         { key: "job_title", label: "Job Title" },

@@ -716,6 +716,7 @@ Contacts represent individual people at a Client (company). A client can have ma
 | `first_name` | String | First name (Max 150 chars) |
 | `last_name` | String | Last name (Max 150 chars) |
 | `full_name` | String | Read-only computed field (first + last) |
+| `client_name` | String | Read-only computed field (associated client's name) |
 | `email` | Email | Optional email address |
 | `phone` | String | Optional phone number |
 | `job_title` | String | Optional job title |
