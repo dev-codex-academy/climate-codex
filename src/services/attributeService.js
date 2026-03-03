@@ -49,3 +49,21 @@ export const deleteAttribute = async (entity, id) => {
         throw error;
     }
 };
+
+export const updateAttribute = async (id, data) => {
+    try {
+        const response = await fetch(`${API_URL}/attributes/${id}/`, {
+            method: 'PATCH',
+            headers: getHeaders(),
+            body: JSON.stringify(data),
+        });
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.detail || `Failed to update attribute`);
+        }
+        return await response.json();
+    } catch (error) {
+        console.error("Error updating attribute:", error);
+        throw error;
+    }
+};

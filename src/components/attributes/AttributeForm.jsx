@@ -3,8 +3,26 @@ import { useForm } from 'react-hook-form';
 import { Button } from '../ui/button';
 import { X } from 'lucide-react';
 
-export const AttributeForm = ({ entity, onSubmit, onCancel, isLoading }) => {
-    const { register, handleSubmit, watch, formState: { errors } } = useForm();
+export const AttributeForm = ({ entity, onSubmit, onCancel, isLoading, initialData = null }) => {
+    const isEdit = !!initialData;
+
+    // Parse initialData list_values to string if needed
+    const getDefaultValues = () => {
+        if (!initialData) return {};
+        return {
+            ...initialData,
+            list_values: Array.isArray(initialData.list_values) ? initialData.list_values.join(', ') : initialData.list_values
+        };
+    };
+
+    const { register, handleSubmit, watch, formState: { errors }, reset } = useForm({
+        defaultValues: getDefaultValues()
+    });
+
+    React.useEffect(() => {
+        reset(getDefaultValues());
+    }, [initialData, reset]);
+
     const selectedType = watch("type");
 
     const handleFormSubmit = (data) => {
@@ -26,7 +44,7 @@ export const AttributeForm = ({ entity, onSubmit, onCancel, isLoading }) => {
     return (
         <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
             <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-semibold">Add Attribute for {entity}</h3>
+                <h3 className="text-lg font-semibold">{isEdit ? 'Edit Attribute' : `Add Attribute for ${entity}`}</h3>
                 <button type="button" onClick={onCancel} className="text-muted-foreground hover:text-foreground">
                     <X size={20} />
                 </button>
@@ -36,11 +54,12 @@ export const AttributeForm = ({ entity, onSubmit, onCancel, isLoading }) => {
                 <label className="block text-sm font-medium mb-1">Name (Key)</label>
                 <input
                     {...register("name", { required: "Name is required" })}
-                    className="w-full p-2 rounded-md border border-border bg-background text-foreground"
+                    className="w-full p-2 rounded-md border border-border bg-background text-foreground disabled:opacity-50 disabled:cursor-not-allowed"
                     placeholder="e.g. industry_sector"
+                    disabled={isEdit}
                 />
                 {errors.name && <span className="text-red-500 text-xs">{errors.name.message}</span>}
-                <p className="text-xs text-muted-foreground mt-1">Internal identifier (unique, no spaces).</p>
+                <p className="text-xs text-muted-foreground mt-1">Internal identifier (unique, no spaces). Cannot be changed after creation.</p>
             </div>
 
             <div>
@@ -57,7 +76,8 @@ export const AttributeForm = ({ entity, onSubmit, onCancel, isLoading }) => {
                 <label className="block text-sm font-medium mb-1">Type</label>
                 <select
                     {...register("type", { required: "Type is required" })}
-                    className="w-full p-2 rounded-md border border-border bg-background text-foreground"
+                    className="w-full p-2 rounded-md border border-border bg-background text-foreground disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled={isEdit}
                 >
                     <option value="text">Text</option>
                     <option value="number">Number</option>

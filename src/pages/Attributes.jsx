@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { getAttributes, createAttribute, deleteAttribute } from '../services/attributeService';
+import { getAttributes, createAttribute, updateAttribute, deleteAttribute } from '../services/attributeService';
 import { AttributeForm } from '../components/attributes/AttributeForm';
 import { Button } from '../components/ui/button';
 import { Plus, Trash, Edit, ChevronLeft, ChevronRight } from 'lucide-react';
@@ -38,6 +38,7 @@ export const Attributes = () => {
     // Modal State
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [currentEntity, setCurrentEntity] = useState(null);
+    const [editingAttribute, setEditingAttribute] = useState(null);
     const [formLoading, setFormLoading] = useState(false);
 
     useEffect(() => {
@@ -62,22 +63,34 @@ export const Attributes = () => {
 
     const handleAddClick = (entity) => {
         setCurrentEntity(entity);
+        setEditingAttribute(null);
         setIsModalOpen(true);
     };
 
-    const handleCreate = async (data) => {
+    const handleEditClick = (entity, attribute) => {
+        setCurrentEntity(entity);
+        setEditingAttribute(attribute);
+        setIsModalOpen(true);
+    };
+
+    const handleCreateOrUpdate = async (data) => {
         setFormLoading(true);
         try {
-            await createAttribute(currentEntity, data);
+            if (editingAttribute) {
+                await updateAttribute(editingAttribute.id, data);
+            } else {
+                await createAttribute(currentEntity, data);
+            }
 
             // Refresh specifics
             const updatedList = await getAttributes(currentEntity);
             setAttributesData(prev => ({ ...prev, [currentEntity]: updatedList }));
 
             setIsModalOpen(false);
+            setEditingAttribute(null);
             Swal.fire({
                 icon: 'success',
-                title: 'Attribute Created',
+                title: editingAttribute ? 'Attribute Updated' : 'Attribute Created',
                 toast: true,
                 position: 'top-end',
                 showConfirmButton: false,
@@ -229,6 +242,13 @@ export const Attributes = () => {
                                                 </div>
                                                 <div className="flex gap-1 opacity-0 group-hover/item:opacity-100 transition-opacity">
                                                     <button
+                                                        onClick={() => handleEditClick(entity, attr)}
+                                                        className="p-2 text-codex-primary hover:bg-codex-primary/10 rounded-lg transition-all hover:scale-110 active:scale-90"
+                                                        title="Edit Attribute"
+                                                    >
+                                                        <Edit size={15} />
+                                                    </button>
+                                                    <button
                                                         onClick={() => handleDelete(entity, attr.id)}
                                                         className="p-2 text-destructive hover:bg-destructive/10 rounded-lg transition-all hover:scale-110 active:scale-90"
                                                         title="Delete Attribute"
@@ -248,13 +268,14 @@ export const Attributes = () => {
 
             <Modal
                 isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
+                onClose={() => { setIsModalOpen(false); setEditingAttribute(null); }}
             >
                 <AttributeForm
                     entity={currentEntity}
-                    onSubmit={handleCreate}
-                    onCancel={() => setIsModalOpen(false)}
+                    onSubmit={handleCreateOrUpdate}
+                    onCancel={() => { setIsModalOpen(false); setEditingAttribute(null); }}
                     isLoading={formLoading}
+                    initialData={editingAttribute}
                 />
             </Modal>
         </div>
