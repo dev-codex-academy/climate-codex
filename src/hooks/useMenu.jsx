@@ -13,6 +13,8 @@ export const useMenu = () => {
 
                 // Inject missing permissions just in case backend didn't provide them
                 if (!permissions.includes("app.add_inventory")) permissions.push("app.add_inventory");
+                if (!permissions.includes("app.add_asset")) permissions.push("app.add_asset");
+                if (!permissions.includes("app.add_assetassignment")) permissions.push("app.add_assetassignment");
                 if (!permissions.includes("app.add_catalogueitem") && !permissions.includes("app.add_catalogue_item")) {
                     permissions.push("app.add_catalogueitem");
                 }
@@ -46,6 +48,8 @@ export const useMenu = () => {
                     "Pricetier": "BadgeDollarSign",
                     "Service": "Briefcase",
                     "Inventory": "Warehouse",
+                    "Asset": "Laptop",
+                    "Assetassignment": "ClipboardList",
                     "Webhook": "Webhook",
                 };
 
@@ -56,7 +60,9 @@ export const useMenu = () => {
                     "Contact": "Contacts",
                     "Category": "Categories",
                     "Invoice": "Invoices",
-                    "Client": "Clients"
+                    "Client": "Clients",
+                    "Asset": "Assets",
+                    "Assetassignment": "Asset Assignments",
                 };
 
                 const formattedMenu = permissions
@@ -89,11 +95,13 @@ export const useMenu = () => {
                 // Grouping — meaningful buckets, no "Others" catch-all
                 const crmItems = ["Lead", "Clients", "Contacts", "Service", "Pipeline"];
                 const billingItems = ["Invoices", "Catalogue", "Categories", "Inventory"];
+                const assetItems = ["Assets", "Asset Assignments"];
                 const adminItems = ["Attribute", "Webhook"];
 
                 const groups = [
                     { label: "CRM", items: formattedMenu.filter(i => crmItems.includes(i.title)) },
-                    { label: "Billing", items: formattedMenu.filter(i => billingItems.includes(i.title)) },
+                    { label: "Billing / Inventory", items: formattedMenu.filter(i => billingItems.includes(i.title)) },
+                    { label: "Assets", items: formattedMenu.filter(i => assetItems.includes(i.title)) },
                     { label: "Admin", items: formattedMenu.filter(i => adminItems.includes(i.title)) },
                 ].filter(g => g.items.length > 0);
 

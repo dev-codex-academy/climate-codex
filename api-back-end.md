@@ -39,7 +39,7 @@ Returns current user permissions and group membership.
 
 ### List Attributes
 **GET** `/api/attributes/<entity_name>/`
-*(entity_name: client, service, lead, lead_client_info, lead_service_info, follow_up, contact, category, catalogue_item, invoice, invoice_line_item, payment, inventory)*
+*(entity_name: client, service, lead, lead_client_info, lead_service_info, follow_up, contact, category, catalogue_item, invoice, invoice_line_item, payment, inventory, asset, asset_assignment)*
 
 **Response:**
 ```json
@@ -581,7 +581,7 @@ Returns users in the 'Operations' group.
 ## 9. Webhooks
 Webhooks allow you to configure HTTP callbacks triggered by events (CREATE, UPDATE, DELETE) on any model in the system.
 
-**Supported Models:** Lead, Client, Service, FollowUp, Contact, Category, CatalogueItem, Inventory, Invoice, InvoiceLineItem, Payment
+**Supported Models:** Lead, Client, Service, FollowUp, Contact, Category, CatalogueItem, Inventory, Invoice, InvoiceLineItem, Payment, Asset, AssetAssignment
 
 > **Note:** All models have full signal support via Django's `post_save` signal. Webhooks fire automatically on create, update, and soft-delete for every supported model.
 
@@ -1117,4 +1117,108 @@ Records payment events. An invoice can have multiple partial payments. When tota
 | `stripe_charge_id` | String | Optional Stripe Charge ID |
 | `reference` | String | Optional manual reference (wire transfer ref, check number) |
 | `notes` | Text | Optional notes |
+| `attributes` | JSONB | Dynamic key-value attributes |
+
+---
+
+## 13. Assets
+Tracks physical company assets and their assignments/loans to individuals.
+
+### 13.1 Assets
+
+#### List Assets
+**GET** `/api/assets/`
+
+#### Create Asset
+**POST** `/api/assets/`
+
+**Payload:**
+```json
+{
+    "name": "MacBook Pro",
+    "description": "2023 16-inch model",
+    "bought_date": "2023-01-15",
+    "price": "2000.00",
+    "quantity": 10,
+    "attributes": {}
+}
+```
+
+#### Retrieve Asset
+**GET** `/api/assets/<uuid>/`
+
+#### Update Asset
+**PATCH** `/api/assets/<uuid>/`
+
+#### Delete Asset
+**DELETE** `/api/assets/<uuid>/`
+
+#### Asset Fields Reference
+| Field Name | Type | Description |
+| :--- | :--- | :--- |
+| `id` | UUID | Unique identifier |
+| `name` | String | Name of the asset |
+| `description` | Text | Optional detailed description |
+| `bought_date` | Date | Optional date of purchase |
+| `price` | Decimal | Asset price (12,2) |
+| `quantity` | Integer | Total amount currently in stock |
+| `attributes` | JSONB | Dynamic key-value attributes |
+
+---
+
+### 13.2 Asset Assignments
+Records the lending and return of assets to specific personnel. Creating an assignment automatically deducts the `lending_amount` from the linked Asset's `quantity`. Returning an asset (filling `return_date`) automatically restores the quantity.
+
+#### List Asset Assignments
+**GET** `/api/asset-assignments/`
+
+#### Create Asset Assignment
+**POST** `/api/asset-assignments/`
+
+**Payload:**
+```json
+{
+    "asset": "<asset_uuid>",
+    "borrow_date": "2023-06-01",
+    "lending_amount": 1,
+    "name": "John Doe",
+    "email": "john@example.com",
+    "phone": "+123456789",
+    "address": "123 Main St",
+    "state": "California",
+    "country": "USA",
+    "attributes": {}
+}
+```
+
+#### Retrieve Asset Assignment
+**GET** `/api/asset-assignments/<uuid>/`
+
+#### Register Return (Update Asset Assignment)
+**PATCH** `/api/asset-assignments/<uuid>/`
+
+**Payload:**
+```json
+{
+    "return_date": "2023-06-15"
+}
+```
+
+#### Delete Asset Assignment
+**DELETE** `/api/asset-assignments/<uuid>/`
+
+#### Asset Assignment Fields Reference
+| Field Name | Type | Description |
+| :--- | :--- | :--- |
+| `id` | UUID | Unique identifier |
+| `asset` | ForeignKey | UUID of the parent Asset |
+| `borrow_date` | Date | Date the asset was borrowed |
+| `return_date` | Date | Optional date the asset was returned |
+| `lending_amount` | Integer | Quantity of the asset lent (default: 1) |
+| `name` | String | Name of the borrower |
+| `email` | String | Email of the borrower |
+| `phone` | String | Phone of the borrower |
+| `address` | String | Physical address line |
+| `state` | String | State/Province |
+| `country` | String | Country |
 | `attributes` | JSONB | Dynamic key-value attributes |

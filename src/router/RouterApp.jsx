@@ -21,6 +21,10 @@ import { Invoice } from "../pages/Invoice";
 import { InvoiceDetail } from "../pages/InvoiceDetail";
 import { Inventory } from "../pages/Inventory";
 import { InventoryDetail } from "../pages/InventoryDetail";
+import { Asset } from "../pages/Asset";
+import { AssetDetail } from "../pages/AssetDetail";
+import { AssetAssignment } from "../pages/AssetAssignment";
+import { AssetAssignmentDetail } from "../pages/AssetAssignmentDetail";
 import { WebhookList } from "../pages/Webhooks/WebhookList";
 import { WebhookDetail } from "../pages/Webhooks/WebhookDetail";
 import { ApiGuide } from "../pages/ApiGuide";
@@ -79,6 +83,10 @@ export const RouterApp = () => {
                 <Route path="invoice/:id" element={<PermissionGuard requiredPermission="app.add_invoice"><InvoiceDetail /></PermissionGuard>} />
                 <Route path="inventory" element={<PermissionGuard requiredPermission="app.add_inventory"><Inventory /></PermissionGuard>} />
                 <Route path="inventory/:id" element={<PermissionGuard requiredPermission="app.add_inventory"><InventoryDetail /></PermissionGuard>} />
+                <Route path="asset" element={<PermissionGuard requiredPermission="app.add_asset"><Asset /></PermissionGuard>} />
+                <Route path="asset/:id" element={<PermissionGuard requiredPermission="app.add_asset"><AssetDetail /></PermissionGuard>} />
+                <Route path="assetassignment" element={<PermissionGuard requiredPermission="app.add_assetassignment"><AssetAssignment /></PermissionGuard>} />
+                <Route path="assetassignment/:id" element={<PermissionGuard requiredPermission="app.add_assetassignment"><AssetAssignmentDetail /></PermissionGuard>} />
                 <Route path="followup" element={<PermissionGuard requiredPermission="app.add_followup"><Followup /></PermissionGuard>} />
                 <Route path="webhook" element={<PermissionGuard requiredPermission="app.add_webhook"><WebhookList /></PermissionGuard>} />
                 <Route path="webhook/:id" element={<PermissionGuard requiredPermission="app.add_webhook"><WebhookDetail /></PermissionGuard>} />

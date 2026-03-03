@@ -105,7 +105,7 @@ export const ApiGuide = () => {
                         <div className="flex flex-col md:flex-row gap-6">
                             {/* Sidebar Tabs */}
                             <div className="w-full md:w-1/4 space-y-1">
-                                {['leads', 'clients', 'contacts', 'services', 'pipelines', 'followups', 'catalogue', 'invoices', 'attributes'].map((tab) => (
+                                {['leads', 'clients', 'contacts', 'services', 'pipelines', 'followups', 'catalogue', 'invoices', 'assets', 'attributes'].map((tab) => (
                                     <Button
                                         key={tab}
                                         variant={activeTab === tab ? "secondary" : "ghost"}
@@ -676,6 +676,59 @@ export const ApiGuide = () => {
                                 )}
 
 
+                                {activeTab === 'assets' && (
+                                    <div className="space-y-4 animate-in fade-in-50 duration-300">
+                                        <h3 className="text-lg font-semibold flex items-center gap-2">Assets</h3>
+                                        <p className="text-sm text-muted-foreground">Manage physical company assets and personnel assignments.</p>
+
+                                        <div className="p-4 border rounded-md bg-white dark:bg-slate-950">
+                                            <div className="flex items-center justify-between mb-2">
+                                                <Badge variant="outline">GET</Badge>
+                                                <code className="text-sm font-mono text-blue-600 dark:text-blue-400">/api/assets/</code>
+                                            </div>
+                                            <p className="text-sm text-muted-foreground mb-4">List all physical assets.</p>
+                                        </div>
+
+                                        <div className="p-4 border rounded-md bg-white dark:bg-slate-950">
+                                            <div className="flex items-center justify-between mb-2">
+                                                <Badge>POST</Badge>
+                                                <code className="text-sm font-mono text-blue-600 dark:text-blue-400">/api/assets/</code>
+                                            </div>
+                                            <p className="text-sm text-muted-foreground mb-4">Create a new asset.</p>
+                                            <CopyBlock text={`{
+  "name": "MacBook Pro",
+  "description": "2023 16-inch model",
+  "bought_date": "2023-01-15",
+  "price": "2000.00",
+  "quantity": 10
+}`} />
+                                        </div>
+
+                                        <div className="p-4 border rounded-md bg-white dark:bg-slate-950">
+                                            <div className="flex items-center justify-between mb-2">
+                                                <Badge variant="outline">GET</Badge>
+                                                <code className="text-sm font-mono text-blue-600 dark:text-blue-400">/api/asset-assignments/</code>
+                                            </div>
+                                            <p className="text-sm text-muted-foreground mb-4">List all asset lending assignments.</p>
+                                        </div>
+
+                                        <div className="p-4 border rounded-md bg-white dark:bg-slate-950">
+                                            <div className="flex items-center justify-between mb-2">
+                                                <Badge>POST</Badge>
+                                                <code className="text-sm font-mono text-blue-600 dark:text-blue-400">/api/asset-assignments/</code>
+                                            </div>
+                                            <p className="text-sm text-muted-foreground mb-4">Lend an asset to personnel.</p>
+                                            <CopyBlock text={`{
+  "asset": "asset-uuid",
+  "borrow_date": "2023-06-01",
+  "name": "John Doe",
+  "email": "john@example.com",
+  "lending_amount": 1
+}`} />
+                                        </div>
+                                    </div>
+                                )}
+
 
                                 {activeTab === 'attributes' && (
                                     <div className="space-y-4 animate-in fade-in-50 duration-300">
@@ -688,7 +741,7 @@ export const ApiGuide = () => {
                                             <p className="text-sm text-muted-foreground mb-4">
                                                 Get schema/attributes for an entity.
                                                 <br />
-                                                Entity options: <code>client</code>, <code>contact</code>, <code>service</code>, <code>lead</code>, <code>follow_up</code>, <code>category</code>, <code>catalogue_item</code>, <code>invoice</code>, <code>payment</code>.
+                                                Entity options: <code>client</code>, <code>contact</code>, <code>service</code>, <code>lead</code>, <code>follow_up</code>, <code>category</code>, <code>catalogue_item</code>, <code>invoice</code>, <code>payment</code>, <code>asset</code>, <code>asset_assignment</code>.
                                             </p>
                                             <CopyBlock text={`curl -X GET https://dev.codexcrm.click/api/attributes/lead/ \\
 -H "Authorization: Token YOUR_TOKEN"`} />
