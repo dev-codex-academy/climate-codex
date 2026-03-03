@@ -105,7 +105,7 @@ export const ApiGuide = () => {
                         <div className="flex flex-col md:flex-row gap-6">
                             {/* Sidebar Tabs */}
                             <div className="w-full md:w-1/4 space-y-1">
-                                {['leads', 'clients', 'services', 'pipelines', 'followups', 'webhooks', 'attributes'].map((tab) => (
+                                {['leads', 'clients', 'contacts', 'services', 'pipelines', 'followups', 'catalogue', 'invoices', 'attributes'].map((tab) => (
                                     <Button
                                         key={tab}
                                         variant={activeTab === tab ? "secondary" : "ghost"}
@@ -140,6 +140,8 @@ export const ApiGuide = () => {
                                             </div>
                                             <p className="text-sm text-muted-foreground mb-4">
                                                 Create a new lead.
+                                                <br /><br />
+                                                <strong>Note:</strong> Leads use three distinct attribute groups to group fields better: <code>attributes</code> (for the lead itself), <code>client_attributes</code> (for future client info), and <code>service_attributes</code> (for desired services).
                                             </p>
                                             <CopyBlock text={`{
   "name": "New Service Lead",
@@ -232,6 +234,65 @@ export const ApiGuide = () => {
                                             <p className="text-sm text-muted-foreground mb-4">
                                                 Delete a client.
                                             </p>
+                                            <CopyBlock text={`curl -X DELETE https://dev.codexcrm.click/api/clients/{uuid}/ \\
+-H "Authorization: Token YOUR_TOKEN"`} />
+                                        </div>
+                                    </div>
+                                )}
+
+                                {activeTab === 'contacts' && (
+                                    <div className="space-y-4 animate-in fade-in-50 duration-300">
+                                        <h3 className="text-lg font-semibold">Contacts</h3>
+                                        <div className="p-4 border rounded-md bg-white dark:bg-slate-950">
+                                            <div className="flex items-center justify-between mb-2">
+                                                <Badge variant="outline">GET</Badge>
+                                                <code className="text-sm font-mono text-blue-600 dark:text-blue-400">/api/contacts/</code>
+                                            </div>
+                                            <p className="text-sm text-muted-foreground mb-4">
+                                                List all contacts. Supports filtering by client or name.
+                                            </p>
+                                            <CopyBlock text={`curl -X GET "https://dev.codexcrm.click/api/contacts/?client={client_uuid}" \\
+-H "Authorization: Token YOUR_TOKEN"`} />
+                                        </div>
+                                        <div className="p-4 border rounded-md bg-white dark:bg-slate-950">
+                                            <div className="flex items-center justify-between mb-2">
+                                                <Badge>POST</Badge>
+                                                <code className="text-sm font-mono text-blue-600 dark:text-blue-400">/api/contacts/</code>
+                                            </div>
+                                            <p className="text-sm text-muted-foreground mb-4">
+                                                Create a new contact.
+                                            </p>
+                                            <CopyBlock text={`{
+  "client": "client-uuid",
+  "first_name": "Maria",
+  "last_name": "Lopez",
+  "email": "m.lopez@example.com",
+  "is_primary": true
+}`} />
+                                        </div>
+                                        <div className="p-4 border rounded-md bg-white dark:bg-slate-950">
+                                            <div className="flex items-center justify-between mb-2">
+                                                <Badge variant="outline">PATCH</Badge>
+                                                <code className="text-sm font-mono text-blue-600 dark:text-blue-400">/api/contacts/{'{uuid}'}/</code>
+                                            </div>
+                                            <p className="text-sm text-muted-foreground mb-4">
+                                                Update a contact.
+                                            </p>
+                                            <CopyBlock text={`{
+  "job_title": "CEO",
+  "is_primary": true
+}`} />
+                                        </div>
+                                        <div className="p-4 border rounded-md bg-white dark:bg-slate-950">
+                                            <div className="flex items-center justify-between mb-2">
+                                                <Badge variant="destructive">DELETE</Badge>
+                                                <code className="text-sm font-mono text-blue-600 dark:text-blue-400">/api/contacts/{'{uuid}'}/</code>
+                                            </div>
+                                            <p className="text-sm text-muted-foreground mb-4">
+                                                Delete a contact.
+                                            </p>
+                                            <CopyBlock text={`curl -X DELETE https://dev.codexcrm.click/api/contacts/{uuid}/ \\
+-H "Authorization: Token YOUR_TOKEN"`} />
                                         </div>
                                     </div>
                                 )}
@@ -289,6 +350,8 @@ export const ApiGuide = () => {
                                             <p className="text-sm text-muted-foreground mb-4">
                                                 Delete a service.
                                             </p>
+                                            <CopyBlock text={`curl -X DELETE https://dev.codexcrm.click/api/services/{uuid}/ \\
+-H "Authorization: Token YOUR_TOKEN"`} />
                                         </div>
                                     </div>
                                 )}
@@ -328,6 +391,31 @@ export const ApiGuide = () => {
     ]
 }`} />
                                         </div>
+
+                                        <div className="p-4 border rounded-md bg-white dark:bg-slate-950">
+                                            <div className="flex items-center justify-between mb-2">
+                                                <Badge variant="outline">PUT</Badge>
+                                                <code className="text-sm font-mono text-blue-600 dark:text-blue-400">/api/pipelines/{'{uuid}'}/</code>
+                                            </div>
+                                            <p className="text-sm text-muted-foreground mb-4">Update a pipeline.</p>
+                                            <CopyBlock text={`{
+    "name": "B2B Sales V2",
+    "stages": [
+        {"name": "Qualification", "color": "#6c6f73", "order": 1},
+        {"name": "Closed", "color": "#28a745", "order": 2}
+    ]
+}`} />
+                                        </div>
+
+                                        <div className="p-4 border rounded-md bg-white dark:bg-slate-950">
+                                            <div className="flex items-center justify-between mb-2">
+                                                <Badge variant="destructive">DELETE</Badge>
+                                                <code className="text-sm font-mono text-blue-600 dark:text-blue-400">/api/pipelines/{'{uuid}'}/</code>
+                                            </div>
+                                            <p className="text-sm text-muted-foreground mb-4">Delete a pipeline.</p>
+                                            <CopyBlock text={`curl -X DELETE https://dev.codexcrm.click/api/pipelines/{uuid}/ \\
+-H "Authorization: Token YOUR_TOKEN"`} />
+                                        </div>
                                     </div>
                                 )}
 
@@ -355,37 +443,239 @@ export const ApiGuide = () => {
     "attributes": { "channel": "email" }
 }`} />
                                         </div>
+
+                                        <div className="p-4 border rounded-md bg-white dark:bg-slate-950">
+                                            <div className="flex items-center justify-between mb-2">
+                                                <Badge variant="outline">PUT</Badge>
+                                                <code className="text-sm font-mono text-blue-600 dark:text-blue-400">/services/{'{service_id}'}/follow-ups/{'{uuid}'}/</code>
+                                            </div>
+                                            <p className="text-sm text-muted-foreground mb-4">Update a follow-up interaction.</p>
+                                            <CopyBlock text={`{
+    "comment": "Sent updated brochure and pricing.",
+    "follow_up_date": "2025-01-16T10:00:00Z"
+}`} />
+                                        </div>
+
+                                        <div className="p-4 border rounded-md bg-white dark:bg-slate-950">
+                                            <div className="flex items-center justify-between mb-2">
+                                                <Badge variant="destructive">DELETE</Badge>
+                                                <code className="text-sm font-mono text-blue-600 dark:text-blue-400">/services/{'{service_id}'}/follow-ups/{'{uuid}'}/</code>
+                                            </div>
+                                            <p className="text-sm text-muted-foreground mb-4">Delete a follow-up.</p>
+                                            <CopyBlock text={`curl -X DELETE https://dev.codexcrm.click/services/{service_id}/follow-ups/{uuid}/ \\
+-H "Authorization: Token YOUR_TOKEN"`} />
+                                        </div>
                                     </div>
                                 )}
 
-                                {activeTab === 'webhooks' && (
+                                {activeTab === 'catalogue' && (
                                     <div className="space-y-4 animate-in fade-in-50 duration-300">
-                                        <h3 className="text-lg font-semibold flex items-center gap-2"><Webhook className="h-5 w-5" /> Webhooks</h3>
-                                        <p className="text-sm text-muted-foreground">Receive real-time notifications for system events.</p>
+                                        <h3 className="text-lg font-semibold">Catalogue & Categories</h3>
+                                        <p className="text-sm text-muted-foreground">Manage products, services, subscriptions, and their categories.</p>
+
+                                        <div className="p-4 border rounded-md bg-white dark:bg-slate-950">
+                                            <div className="flex items-center justify-between mb-2">
+                                                <Badge variant="outline">GET</Badge>
+                                                <code className="text-sm font-mono text-blue-600 dark:text-blue-400">/api/categories/</code>
+                                            </div>
+                                            <p className="text-sm text-muted-foreground mb-4">List product and service categories.</p>
+                                        </div>
 
                                         <div className="p-4 border rounded-md bg-white dark:bg-slate-950">
                                             <div className="flex items-center justify-between mb-2">
                                                 <Badge>POST</Badge>
-                                                <code className="text-sm font-mono text-blue-600 dark:text-blue-400">/api/webhooks/</code>
+                                                <code className="text-sm font-mono text-blue-600 dark:text-blue-400">/api/categories/</code>
                                             </div>
-                                            <p className="text-sm text-muted-foreground mb-4">Register a new webhook.</p>
+                                            <p className="text-sm text-muted-foreground mb-4">Create a new category.</p>
                                             <CopyBlock text={`{
-    "name": "Lead Sync",
-    "model": "Lead",
-    "url": "https://external.app/hook/{id}",
-    "method": "POST",
-    "is_active": true,
-    "conditions": [
-        { "field": "stage", "operator": "=", "value": "Closed" }
-    ],
-    "condition_logic": "AND"
+  "name": "Software",
+  "description": "Software products",
+  "parent": null
 }`} />
-                                            <div className="mt-4 p-3 bg-slate-100 dark:bg-slate-800 rounded text-xs">
-                                                <strong>Template Substitution:</strong> You can use placeholders like <code>{`{id}`}</code> or <code>{`{name}`}</code> in the URL and Headers.
+                                        </div>
+
+                                        <div className="p-4 border rounded-md bg-white dark:bg-slate-950">
+                                            <div className="flex items-center justify-between mb-2">
+                                                <Badge variant="outline">GET</Badge>
+                                                <code className="text-sm font-mono text-blue-600 dark:text-blue-400">/api/catalogue/</code>
+                                            </div>
+                                            <p className="text-sm text-muted-foreground mb-4">List catalogue items. Supports filtering by category or type.</p>
+                                        </div>
+
+                                        <div className="p-4 border rounded-md bg-white dark:bg-slate-950">
+                                            <div className="flex items-center justify-between mb-2">
+                                                <Badge>POST</Badge>
+                                                <code className="text-sm font-mono text-blue-600 dark:text-blue-400">/api/catalogue/</code>
+                                            </div>
+                                            <p className="text-sm text-muted-foreground mb-4">Create a new catalogue item.</p>
+                                            <CopyBlock text={`{
+  "category": "category-uuid",
+  "name": "Web Development",
+  "type": "service",
+  "base_price": "100.00",
+  "currency": "USD",
+  "unit": "hour",
+  "is_active": true
+}`} />
+                                        </div>
+
+                                        <div className="p-4 border rounded-md bg-white dark:bg-slate-950">
+                                            <div className="flex items-center justify-between mb-2">
+                                                <Badge variant="outline">PATCH</Badge>
+                                                <code className="text-sm font-mono text-blue-600 dark:text-blue-400">/api/catalogue/{'{uuid}'}/</code>
+                                            </div>
+                                            <p className="text-sm text-muted-foreground mb-4">Update a catalogue item.</p>
+                                            <CopyBlock text={`{
+  "base_price": "120.00"
+}`} />
+                                        </div>
+
+                                        <div className="p-4 border rounded-md bg-white dark:bg-slate-950">
+                                            <div className="flex items-center justify-between mb-2">
+                                                <Badge variant="destructive">DELETE</Badge>
+                                                <code className="text-sm font-mono text-blue-600 dark:text-blue-400">/api/catalogue/{'{uuid}'}/</code>
+                                            </div>
+                                            <p className="text-sm text-muted-foreground mb-4">Delete a catalogue item.</p>
+                                            <CopyBlock text={`curl -X DELETE https://dev.codexcrm.click/api/catalogue/{uuid}/ \\
+-H "Authorization: Token YOUR_TOKEN"`} />
+                                        </div>
+
+                                        <div className="p-4 border rounded-md bg-white dark:bg-slate-950">
+                                            <div className="flex items-center justify-between mb-2">
+                                                <Badge variant="outline">GET</Badge>
+                                                <code className="text-sm font-mono text-blue-600 dark:text-blue-400">/api/inventory/</code>
+                                            </div>
+                                            <p className="text-sm text-muted-foreground mb-4">List inventory for physical products.</p>
+                                        </div>
+
+                                        <h4 className="text-md font-semibold mt-6 mb-2">Base Fields Guide</h4>
+                                        <div className="space-y-4">
+                                            <div className="p-4 border rounded-md bg-slate-50 dark:bg-slate-900 border-l-4 border-l-blue-400">
+                                                <h5 className="text-sm font-semibold mb-2">Category Fields</h5>
+                                                <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
+                                                    <li><code className="text-slate-800 dark:text-slate-200">name</code>: The name of the category.</li>
+                                                    <li><code className="text-slate-800 dark:text-slate-200">description</code>: Details about the category's purpose.</li>
+                                                    <li><code className="text-slate-800 dark:text-slate-200">parent</code>: UUID of a parent category, used to create subcategories.</li>
+                                                </ul>
+                                            </div>
+                                            <div className="p-4 border rounded-md bg-slate-50 dark:bg-slate-900 border-l-4 border-l-purple-400">
+                                                <h5 className="text-sm font-semibold mb-2">Catalogue Item Fields</h5>
+                                                <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
+                                                    <li><code className="text-slate-800 dark:text-slate-200">name</code>: The name of the product or service.</li>
+                                                    <li><code className="text-slate-800 dark:text-slate-200">type</code>: The type of item (product, service, or subscription).</li>
+                                                    <li><code className="text-slate-800 dark:text-slate-200">base_price</code> & <code className="text-slate-800 dark:text-slate-200">currency</code>: The standard price and currency.</li>
+                                                    <li><code className="text-slate-800 dark:text-slate-200">unit</code>: The unit of measure (e.g., hour, seat, month).</li>
+                                                    <li><code className="text-slate-800 dark:text-slate-200">tax_rate</code>: The default tax percentage for this item.</li>
+                                                    <li><code className="text-slate-800 dark:text-slate-200">inventory</code>: Optional UUID linking to physical stock records.</li>
+                                                </ul>
+                                            </div>
+                                            <div className="p-4 border rounded-md bg-slate-50 dark:bg-slate-900 border-l-4 border-l-amber-400">
+                                                <h5 className="text-sm font-semibold mb-2">Inventory Fields</h5>
+                                                <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
+                                                    <li><code className="text-slate-800 dark:text-slate-200">sku</code>: Unique Stock Keeping Unit for tracking physical items.</li>
+                                                    <li><code className="text-slate-800 dark:text-slate-200">quantity_on_hand</code>: The current available stock.</li>
+                                                    <li><code className="text-slate-800 dark:text-slate-200">reorder_level</code>: The stock threshold that triggers a restock warning.</li>
+                                                    <li><code className="text-slate-800 dark:text-slate-200">location</code>: The physical location of the stock (e.g., Aisle 4).</li>
+                                                </ul>
                                             </div>
                                         </div>
                                     </div>
                                 )}
+
+                                {activeTab === 'invoices' && (
+                                    <div className="space-y-4 animate-in fade-in-50 duration-300">
+                                        <h3 className="text-lg font-semibold">Invoices & Payments</h3>
+                                        <p className="text-sm text-muted-foreground">Billing, invoicing, and payment tracking.</p>
+
+                                        <div className="p-4 border rounded-md bg-white dark:bg-slate-950">
+                                            <div className="flex items-center justify-between mb-2">
+                                                <Badge variant="outline">GET</Badge>
+                                                <code className="text-sm font-mono text-blue-600 dark:text-blue-400">/api/invoices/</code>
+                                            </div>
+                                            <p className="text-sm text-muted-foreground mb-4">List invoices.</p>
+                                        </div>
+
+                                        <div className="p-4 border rounded-md bg-white dark:bg-slate-950">
+                                            <div className="flex items-center justify-between mb-2">
+                                                <Badge>POST</Badge>
+                                                <code className="text-sm font-mono text-blue-600 dark:text-blue-400">/api/invoices/</code>
+                                            </div>
+                                            <p className="text-sm text-muted-foreground mb-4">Create a draft invoice.</p>
+                                            <CopyBlock text={`{
+  "client": "client-uuid",
+  "status": "draft",
+  "issue_date": "2026-02-26",
+  "due_date": "2026-03-26",
+  "currency": "USD"
+}`} />
+                                        </div>
+
+                                        <div className="p-4 border rounded-md bg-white dark:bg-slate-950">
+                                            <div className="flex items-center justify-between mb-2">
+                                                <Badge variant="outline">PATCH</Badge>
+                                                <code className="text-sm font-mono text-blue-600 dark:text-blue-400">/api/invoices/{'{uuid}'}/</code>
+                                            </div>
+                                            <p className="text-sm text-muted-foreground mb-4">Update an invoice status.</p>
+                                            <CopyBlock text={`{
+  "status": "sent"
+}`} />
+                                        </div>
+
+                                        <div className="p-4 border rounded-md bg-white dark:bg-slate-950">
+                                            <div className="flex items-center justify-between mb-2">
+                                                <Badge>POST</Badge>
+                                                <code className="text-sm font-mono text-blue-600 dark:text-blue-400">/api/invoices/{'{invoice_uuid}'}/line-items/</code>
+                                            </div>
+                                            <p className="text-sm text-muted-foreground mb-4">Add a line item to an invoice.</p>
+                                            <CopyBlock text={`{
+  "catalogue_item": "item-uuid",
+  "description": "Web Development - 20 hours",
+  "quantity": "20.00",
+  "unit_price": "100.00",
+  "tax_rate": "15.00"
+}`} />
+                                        </div>
+
+                                        <div className="p-4 border rounded-md bg-white dark:bg-slate-950">
+                                            <div className="flex items-center justify-between mb-2">
+                                                <Badge>POST</Badge>
+                                                <code className="text-sm font-mono text-blue-600 dark:text-blue-400">/api/invoices/{'{invoice_uuid}'}/payments/</code>
+                                            </div>
+                                            <p className="text-sm text-muted-foreground mb-4">Record a payment for an invoice.</p>
+                                            <CopyBlock text={`{
+  "amount": "2300.00",
+  "method": "bank_transfer",
+  "paid_at": "2026-03-01T10:00:00Z",
+  "reference": "WIRE-2026-001"
+}`} />
+                                        </div>
+
+                                        <h4 className="text-md font-semibold mt-6 mb-2">Base Fields Guide</h4>
+                                        <div className="space-y-4">
+                                            <div className="p-4 border rounded-md bg-slate-50 dark:bg-slate-900 border-l-4 border-l-emerald-400">
+                                                <h5 className="text-sm font-semibold mb-2">Invoice Fields</h5>
+                                                <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
+                                                    <li><code className="text-slate-800 dark:text-slate-200">client</code> & <code className="text-slate-800 dark:text-slate-200">contact</code>: The entities responsible for the invoice.</li>
+                                                    <li><code className="text-slate-800 dark:text-slate-200">status</code>: The current state (draft, sent, paid, overdue, void).</li>
+                                                    <li><code className="text-slate-800 dark:text-slate-200">issue_date</code> & <code className="text-slate-800 dark:text-slate-200">due_date</code>: Billing timelines.</li>
+                                                    <li><code className="text-slate-800 dark:text-slate-200">subtotal</code>, <code className="text-slate-800 dark:text-slate-200">tax_amount</code>, <code className="text-slate-800 dark:text-slate-200">discount</code>, <code className="text-slate-800 dark:text-slate-200">total</code>: Auto-calculated financial summaries.</li>
+                                                    <li><code className="text-slate-800 dark:text-slate-200">amount_paid</code>: Total amount covered by registered payments.</li>
+                                                </ul>
+                                            </div>
+                                            <div className="p-4 border rounded-md bg-slate-50 dark:bg-slate-900 border-l-4 border-l-indigo-400">
+                                                <h5 className="text-sm font-semibold mb-2">Invoice Line Item Fields</h5>
+                                                <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
+                                                    <li><code className="text-slate-800 dark:text-slate-200">catalogue_item</code>: Optional reference to a predefined product/service.</li>
+                                                    <li><code className="text-slate-800 dark:text-slate-200">description</code>: Specific details of what is being charged.</li>
+                                                    <li><code className="text-slate-800 dark:text-slate-200">quantity</code> & <code className="text-slate-800 dark:text-slate-200">unit_price</code>: Used to calculate the line subtotal.</li>
+                                                    <li><code className="text-slate-800 dark:text-slate-200">tax_rate</code>: Tax percentage applicable to this specific line.</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
+
 
                                 {activeTab === 'attributes' && (
                                     <div className="space-y-4 animate-in fade-in-50 duration-300">
@@ -398,7 +688,7 @@ export const ApiGuide = () => {
                                             <p className="text-sm text-muted-foreground mb-4">
                                                 Get schema/attributes for an entity.
                                                 <br />
-                                                Entity options: <code>client</code>, <code>service</code>, <code>lead</code>, <code>follow_up</code>, <code>lead_client_info</code>, <code>lead_service_info</code>.
+                                                Entity options: <code>client</code>, <code>contact</code>, <code>service</code>, <code>lead</code>, <code>follow_up</code>, <code>category</code>, <code>catalogue_item</code>, <code>invoice</code>, <code>payment</code>.
                                             </p>
                                             <CopyBlock text={`curl -X GET https://dev.codexcrm.click/api/attributes/lead/ \\
 -H "Authorization: Token YOUR_TOKEN"`} />
