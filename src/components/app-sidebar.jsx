@@ -1,6 +1,8 @@
 "use client"
 
 import { React, useEffect } from "react"
+import { Link, useLocation } from "react-router-dom"
+import { LayoutDashboard } from "lucide-react"
 
 import { NavMain } from "@/components/nav-main"
 import { NavUser } from "@/components/nav-user"
@@ -12,6 +14,9 @@ import {
   SidebarGroupContent,
   SidebarGroupLabel,
   SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
   SidebarRail,
 } from "@/components/ui/sidebar"
 import { useMenu } from "@/hooks/useMenu"
@@ -26,6 +31,8 @@ export function AppSidebar({
 
   const { MenuLoad, menu, menuRef } = useMenu();
   const { user } = useAuth();
+  const location = useLocation();
+  const isDashboardActive = location.pathname === "/";
 
   const data = {
     user: {
@@ -50,6 +57,23 @@ export function AppSidebar({
       <hr className="dark:border-codex-bordes-terciario-variante4 border-codex-bordes-primary-variante2" />
 
       <SidebarContent>
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild tooltip="Dashboard" isActive={isDashboardActive}>
+                  <Link to="/">
+                    <div className="flex items-center group-data-[collapsible=icon]:hover:bg-codex-bordes-primary-variante2 group-data-[collapsible=icon]:dark:hover:bg-codex-bordes-terciario-variante5 group-data-[collapsible=icon]:rounded-sm">
+                      <LayoutDashboard className="size-5 text-codex-iconos-primary dark:text-codex-iconos-terciario-variante2" />
+                    </div>
+                    <span>Dashboard</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
         {menu.map((group) => (
           <SidebarGroup key={group.label}>
             <SidebarGroupLabel>{group.label}</SidebarGroupLabel>

@@ -29,6 +29,7 @@ import { WebhookList } from "../pages/Webhooks/WebhookList";
 import { WebhookDetail } from "../pages/Webhooks/WebhookDetail";
 import { ApiGuide } from "../pages/ApiGuide";
 import { Faq } from "../pages/Faq";
+import { Dashboard } from "../pages/Dashboard";
 import AdminLayout from "@/layout/AdminLayout"
 import { useAuth } from "@/context/AuthContext"
 import { PermissionGuard } from "../components/PermissionGuard"
@@ -64,6 +65,7 @@ export const RouterApp = () => {
             {/* private routes */}
 
             <Route path="/" element={<LoginValidate><AdminLayout /></LoginValidate>}>
+                <Route index element={<Dashboard />} />
                 {/*  <Route path="rol" element={<Rol />} /> */}
                 <Route path="lead" element={<PermissionGuard requiredPermission="app.add_lead"><Lead /></PermissionGuard>} />
                 <Route path="lead/:id" element={<PermissionGuard requiredPermission="app.add_lead"><LeadDetail /></PermissionGuard>} />

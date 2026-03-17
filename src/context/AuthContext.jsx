@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { API_URL, getHeaders } from "../services/api";
 
 const AuthContext = createContext();
@@ -6,6 +6,7 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const loggingOut = useRef(false);
 
   const sessionValidate = async () => {
     const token = localStorage.getItem("auth_token");
@@ -39,9 +40,16 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Al iniciar, validar token si existe
+  // Validate token on app load
   useEffect(() => {
     sessionValidate();
+  }, []);
+
+  // Auto-logout when any API call returns 401 (token expired on the server)
+  useEffect(() => {
+    const handleTokenExpired = () => logout();
+    window.addEventListener("auth:token-expired", handleTokenExpired);
+    return () => window.removeEventListener("auth:token-expired", handleTokenExpired);
   }, []);
 
   const login = (token, userData) => {
@@ -53,11 +61,25 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const logout = () => {
+  const logout = async () => {
+    if (loggingOut.current) return;
+    loggingOut.current = true;
+
+    // Invalidate the token on the server before clearing local state
+    try {
+      await fetch(`${API_URL}/logout/`, {
+        method: "POST",
+        headers: getHeaders(),
+      });
+    } catch {
+      // Network error — proceed with local logout regardless
+    }
+
     localStorage.removeItem("auth_token");
     localStorage.removeItem("user_permissions");
     localStorage.removeItem("user_data");
     setUser(null);
+    loggingOut.current = false;
     window.location.href = "/login";
   };
 

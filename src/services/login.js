@@ -6,9 +6,6 @@ const url = `${API_URL}/${endPoint}`
 
 
 export const postToken = async (user) => {
-
-    console.log(user);
-
     const response = await fetch(url, {
         method: 'POST',
         headers: {
