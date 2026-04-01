@@ -3,9 +3,8 @@ import { createChat } from "@n8n/chat";
 import "@n8n/chat/style.css";
 
 
-export const BOT_URL = "prod"
-    ? import.meta.env.VITE_API_BOT_PROD
-    : import.meta.env.VITE_API_BOT_DEV;
+export const BOT_URL = import.meta.env.VITE_API_BOT;
+
 
 export const ClimateChatBot = () => {
     useEffect(() => {
@@ -19,11 +18,11 @@ export const ClimateChatBot = () => {
             showWelcomeScreen: false,
             defaultLanguage: "es",
             initialMessages: [
-                "Hello! I'm ClimatesBot, your virtual CRM assistant. How can I help you today?",
+                "Hello! I'm Chett AI, your virtual CRM assistant. How can I help you today?",
             ],
             i18n: {
                 es: {
-                    title: "ClimatesBot – CRM Assistant",
+                    title: "Chett AI – CRM Assistant",
                     subtitle:
                         "Access information, manage clients, and resolve system questions quickly and easily.",
                     footer: "Codex CRM • Smart Support",
