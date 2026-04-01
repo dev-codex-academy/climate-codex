@@ -53,7 +53,7 @@ export const getLeadAttributes = async () => {
 }
 
 export const getLeadClientAttributes = async () => {
-    const res = await fetch(`${API_URL}/attributes/lead_client_info/`, {
+    const res = await fetch(`${API_URL}/attributes/client/`, {
         method: "GET",
         headers: getHeaders(),
     });
@@ -63,7 +63,7 @@ export const getLeadClientAttributes = async () => {
 };
 
 export const getLeadServiceAttributes = async () => {
-    const res = await fetch(`${API_URL}/attributes/lead_service_info/`, {
+    const res = await fetch(`${API_URL}/attributes/service/`, {
         method: "GET",
         headers: getHeaders(),
     });

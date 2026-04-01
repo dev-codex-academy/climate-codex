@@ -105,7 +105,7 @@ export const ApiGuide = () => {
                         <div className="flex flex-col md:flex-row gap-6">
                             {/* Sidebar Tabs */}
                             <div className="w-full md:w-1/4 space-y-1">
-                                {['leads', 'clients', 'contacts', 'services', 'pipelines', 'followups', 'catalogue', 'invoices', 'assets', 'attributes'].map((tab) => (
+                                {['leads', 'clients', 'contacts', 'services', 'pipelines', 'followups', 'catalogue', 'invoices', 'assets', 'attributes', 'webhooks', 'files'].map((tab) => (
                                     <Button
                                         key={tab}
                                         variant={activeTab === tab ? "secondary" : "ghost"}
@@ -141,16 +141,31 @@ export const ApiGuide = () => {
                                             <p className="text-sm text-muted-foreground mb-4">
                                                 Create a new lead.
                                                 <br /><br />
-                                                <strong>Note:</strong> Leads use three distinct attribute groups to group fields better: <code>attributes</code> (for the lead itself), <code>client_attributes</code> (for future client info), and <code>service_attributes</code> (for desired services).
+                                                <strong>Note:</strong> Leads use <code>attributes</code> for their own custom fields, <code>client_attributes</code> for the future generated Client data, and an <code>items</code> array that directly links to the unified <code>catalogue_item</code> records to generate services and invoices dynamically upon closing the deal.
                                             </p>
                                             <CopyBlock text={`{
   "name": "New Service Lead",
   "stage": "Prospecting",
+  "responsible": 1,
   "lost_reason": "Price (Required if stage is Lost)", 
   "attributes": { "source": "Web" },
   "client_attributes": { "age": 25, "location": "NY" },
-  "service_attributes": [
-    { "name": "Course A", "cost": 100, "quantity": 1 }
+  "items": [
+    {
+      "catalogue_item": "UUID-OF-CATALOGUE-ITEM",
+      "quantity": 1,
+      "custom_price": 5000,
+      "attributes": {
+        "dynamic_field": "value"
+      }
+    }
+  ],
+  "list_of_tasks": [
+    {
+      "task": "Initial call",
+      "date": "2025-01-20",
+      "completed": false
+    }
   ]
 }`} />
                                         </div>
@@ -745,6 +760,100 @@ export const ApiGuide = () => {
                                             </p>
                                             <CopyBlock text={`curl -X GET https://dev.codexcrm.click/api/attributes/lead/ \\
 -H "Authorization: Token YOUR_TOKEN"`} />
+                                        </div>
+                                    </div>
+                                )}
+
+                                {activeTab === 'webhooks' && (
+                                    <div className="space-y-4 animate-in fade-in-50 duration-300">
+                                        <h3 className="text-lg font-semibold flex items-center gap-2"><Webhook className="h-5 w-5" /> Webhooks</h3>
+                                        <p className="text-sm text-muted-foreground">Automate HTTP callbacks triggered by events (CREATE, UPDATE, DELETE) on any model.</p>
+
+                                        <div className="p-4 border rounded-md bg-white dark:bg-slate-950">
+                                            <div className="flex items-center justify-between mb-2">
+                                                <Badge variant="outline">GET</Badge>
+                                                <code className="text-sm font-mono text-blue-600 dark:text-blue-400">/api/webhooks/</code>
+                                            </div>
+                                            <p className="text-sm text-muted-foreground mb-4">List all registered webhooks.</p>
+                                        </div>
+
+                                        <div className="p-4 border rounded-md bg-white dark:bg-slate-950">
+                                            <div className="flex items-center justify-between mb-2">
+                                                <Badge>POST</Badge>
+                                                <code className="text-sm font-mono text-blue-600 dark:text-blue-400">/api/webhooks/</code>
+                                            </div>
+                                            <p className="text-sm text-muted-foreground mb-4">
+                                                Create a new Webhook.
+                                                <br /><br />
+                                                Provides variable interpolation via <code>{'{self.field_name}'}</code> syntax in URLs, headers, and custom payloads.
+                                            </p>
+                                            <CopyBlock text={`{
+  "name": "Notify External System",
+  "model": "Lead",
+  "event": "CREATE",
+  "url": "https://api.external.com/hooks/{self.id}",
+  "method": "POST",
+  "is_active": true,
+  "conditions": [
+    { "field": "stage", "operator": "=", "value": "Moodle" }
+  ],
+  "payload": {
+    "email": "{self.attributes.email}"
+  }
+}`} />
+                                        </div>
+
+                                        <div className="p-4 border rounded-md bg-white dark:bg-slate-950">
+                                            <div className="flex items-center justify-between mb-2">
+                                                <Badge variant="outline">PUT</Badge>
+                                                <code className="text-sm font-mono text-blue-600 dark:text-blue-400">/api/webhooks/{'{uuid}'}/</code>
+                                            </div>
+                                            <p className="text-sm text-muted-foreground mb-4">Update an existing webhook configuration.</p>
+                                        </div>
+                                        
+                                        <div className="p-4 border rounded-md bg-white dark:bg-slate-950">
+                                            <div className="flex items-center justify-between mb-2">
+                                                <Badge variant="destructive">DELETE</Badge>
+                                                <code className="text-sm font-mono text-blue-600 dark:text-blue-400">/api/webhooks/{'{uuid}'}/</code>
+                                            </div>
+                                            <p className="text-sm text-muted-foreground mb-4">Delete a webhook.</p>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {activeTab === 'files' && (
+                                    <div className="space-y-4 animate-in fade-in-50 duration-300">
+                                        <h3 className="text-lg font-semibold flex items-center gap-2"><Layout className="h-5 w-5" /> File Uploads</h3>
+                                        <p className="text-sm text-muted-foreground">Upload and link attachments to system records like Clients or Services via S3.</p>
+
+                                        <div className="p-4 border rounded-md bg-white dark:bg-slate-950">
+                                            <div className="flex items-center justify-between mb-2">
+                                                <Badge>POST</Badge>
+                                                <code className="text-sm font-mono text-blue-600 dark:text-blue-400">/api/clients/{'{uuid}'}/files/</code>
+                                            </div>
+                                            <p className="text-sm text-muted-foreground mb-4">
+                                                Upload an image/file and attach it to a Client.
+                                            </p>
+                                            <CopyBlock text={`curl -X POST https://dev.codexcrm.click/api/clients/{uuid}/files/ \\
+  -H "Authorization: Token YOUR_TOKEN" \\
+  -H "Content-Type: multipart/form-data" \\
+  -F "file=@/path/to/local/image.jpg"`} />
+                                        </div>
+
+                                        <div className="p-4 border rounded-md bg-white dark:bg-slate-950">
+                                            <div className="flex items-center justify-between mb-2">
+                                                <Badge>POST</Badge>
+                                                <code className="text-sm font-mono text-blue-600 dark:text-blue-400">/api/services/{'{uuid}'}/files/</code>
+                                            </div>
+                                            <p className="text-sm text-muted-foreground mb-4">
+                                                Upload an image/file and attach it to a Service. The API will respond with the generated S3 public URL.
+                                            </p>
+                                            <CopyBlock text={`{
+  "url": "https://bucket.s3.amazonaws.com/services/uuid/image.jpg",
+  "list_of_images": [
+    "https://bucket.s3.amazonaws.com/services/uuid/image.jpg"
+  ]
+}`} />
                                         </div>
                                     </div>
                                 )}

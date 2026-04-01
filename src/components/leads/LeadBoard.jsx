@@ -5,6 +5,10 @@ import { getLeads, updateLead } from "../../services/leadService";
 import { getSales } from "../../services/salesService";
 import { Link } from "react-router-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { Modal } from "../Modal";
+import { Label } from "../ui/label";
+import { Textarea } from "../ui/textarea";
+import { Button } from "../ui/button";
 
 export const LeadBoard = ({ refreshTrigger, selectedPipelineId, setSelectedPipelineId, onLeadClick }) => {
     const [pipelines, setPipelines] = useState([]);
@@ -13,6 +17,10 @@ export const LeadBoard = ({ refreshTrigger, selectedPipelineId, setSelectedPipel
     const [salesUsers, setSalesUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const scrollContainerRef = useRef(null);
+
+    const [lostModalOpen, setLostModalOpen] = useState(false);
+    const [lostReason, setLostReason] = useState("");
+    const [pendingLostLeadId, setPendingLostLeadId] = useState(null);
 
     const scrollLeft = () => {
         if (scrollContainerRef.current) {
@@ -96,6 +104,17 @@ export const LeadBoard = ({ refreshTrigger, selectedPipelineId, setSelectedPipel
         e.preventDefault();
         const leadId = e.dataTransfer.getData("leadId");
 
+        if (targetStageName.toLowerCase() === "lost") {
+            setPendingLostLeadId(leadId);
+            setLostReason("");
+            setLostModalOpen(true);
+            return;
+        }
+
+        performStageUpdate(leadId, targetStageName);
+    };
+
+    const performStageUpdate = async (leadId, targetStageName, additionalPayload = {}) => {
         // Optimistic update
         const originalLeads = [...leads];
         const updatedLeads = leads.map(l => {
@@ -107,11 +126,18 @@ export const LeadBoard = ({ refreshTrigger, selectedPipelineId, setSelectedPipel
         setLeads(updatedLeads);
 
         try {
-            await updateLead(leadId, { stage: targetStageName });
+            await updateLead(leadId, { stage: targetStageName, ...additionalPayload });
         } catch (error) {
             console.error("Failed to update stage", error);
             setLeads(originalLeads);
         }
+    };
+
+    const handleLostSubmit = () => {
+        if (!lostReason.trim()) return;
+        performStageUpdate(pendingLostLeadId, "Lost", { lost_reason: lostReason });
+        setLostModalOpen(false);
+        setPendingLostLeadId(null);
     };
 
     if (loading) {
@@ -243,6 +269,31 @@ export const LeadBoard = ({ refreshTrigger, selectedPipelineId, setSelectedPipel
                     );
                 })}
             </div>
+
+            {/* Modal for Lost Reason */}
+            <Modal
+                isOpen={lostModalOpen}
+                onClose={() => { setLostModalOpen(false); setPendingLostLeadId(null); }}
+                title="Reason for Losing Opportunity"
+                showFooter={false}
+            >
+                <div className="space-y-4">
+                    <div className="space-y-2">
+                        <Label htmlFor="lost_reason">Please provide a reason to mark this opportunity as lost.</Label>
+                        <Textarea
+                            id="lost_reason"
+                            value={lostReason}
+                            onChange={(e) => setLostReason(e.target.value)}
+                            placeholder="e.g., Budget constraints, chose competitor..."
+                            className="min-h-[100px]"
+                        />
+                    </div>
+                    <div className="flex justify-end gap-2 pt-4 border-t">
+                        <Button variant="outline" onClick={() => { setLostModalOpen(false); setPendingLostLeadId(null); }}>Cancel</Button>
+                        <Button onClick={handleLostSubmit} disabled={!lostReason.trim()}>Confirm</Button>
+                    </div>
+                </div>
+            </Modal>
         </div>
     );
 };

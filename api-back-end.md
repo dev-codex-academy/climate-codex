@@ -39,7 +39,9 @@ Returns current user permissions and group membership.
 
 ### List Attributes
 **GET** `/api/attributes/<entity_name>/`
-*(entity_name: client, service, lead, lead_client_info, lead_service_info, follow_up, contact, category, catalogue_item, invoice, invoice_line_item, payment, inventory, asset, asset_assignment)*
+*(entity_name: client, service, lead, lead_client_info, follow_up, contact, category, catalogue_item, invoice, invoice_line_item, payment, inventory, asset, asset_assignment)*
+
+> **Note on Lead Items**: The `items` array under a Lead automatically validates its `attributes` using the **`service`** entity schema. This ensures data consistency between pre-sales (Leads) and operations (Services).
 
 **Response:**
 ```json
@@ -378,11 +380,14 @@ Similar to Clients and Leads, Services support task and note management.
         "age": 25,
         "location": "New York"
     },
-    "service_attributes": [
+    "items": [
         {
-            "name": "Full Stack Course",
-            "cost": 5000,
-            "quantity": 1
+            "catalogue_item": "UUID-OF-CATALOGUE-ITEM",
+            "quantity": 1,
+            "custom_price": 5000,
+            "attributes": {
+                "dynamic_field": "value"
+            }
         }
     ],
     "list_of_tasks": [
@@ -457,6 +462,14 @@ To add a task, you append it to the list.
 }
 ```
 
+### ⚡ Lead Won Automation (Services & Invoices)
+When a Lead's `stage` is updated to **"Won"**, the system triggers an automatic generation of operational and billing records based on the `items` attached to the Lead:
+
+- **If the catalogue item is `product`**: The system will generate **only an Invoice**. Products are considered physical constraints or one-time sales that do not require an active "Service" to be tracked.
+- **If the catalogue item is `service` or `subscription`**: The system will generate an **Invoice** (for the initial charge) AND an active **Service** record. This new `Service` will automatically map and inherit all the dynamic `attributes` that were configured in the `LeadItem` (e.g., permits, issuing agencies, etc.), making it operational immediately.
+
+*Note: If the Lead has multiple items (e.g., 1 product and 1 subscription), they will all be bundled into a **single Master Invoice**, generating only the necessary Service records for the subscription items.*
+
 ### Lead Atomic Updates
 
 #### Update Task Status
@@ -492,7 +505,8 @@ To add a task, you append it to the list.
 | `lost_reason` | String | Required when stage is 'Lost'. Reason for losing the deal. |
 | `attributes` | JSONB | Dynamic attributes |
 | `client_attributes` | JSONB | Attributes for potential new client (validates against `lead_client_info`) |
-| `service_attributes` | JSONB | List of services `{id, name, cost, quantity}` (items validate against `lead_service_info`) |
+| `items` | Array of Objects | **(NEW)** List of `LeadItem` objects. Each takes `{catalogue_item (UUID), quantity, custom_price, attributes (JSONB)}` |
+| `service_attributes` | JSONB | *(DEPRECATED)* Legacy array of services. Please migrate to the `items` structure. |
 | `list_of_tasks` | JSONB | List of tasks `{task, date, completed, date_created, user_id (Output Only), user_name (Output Only)}` |
 | `list_of_notes` | JSONB | List of notes `{date, note, user_id (Output Only), user_name (Output Only)}` |
 

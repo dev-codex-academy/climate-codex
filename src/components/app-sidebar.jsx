@@ -66,7 +66,7 @@ export function AppSidebar({
                     <div className="flex items-center group-data-[collapsible=icon]:hover:bg-codex-bordes-primary-variante2 group-data-[collapsible=icon]:dark:hover:bg-codex-bordes-terciario-variante5 group-data-[collapsible=icon]:rounded-sm">
                       <LayoutDashboard className="size-5 text-codex-iconos-primary dark:text-codex-iconos-terciario-variante2" />
                     </div>
-                    <span>Dashboard</span>
+                    <span className="dark:text-white">Dashboard</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>

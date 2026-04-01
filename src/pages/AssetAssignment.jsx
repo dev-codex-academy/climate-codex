@@ -13,7 +13,7 @@ export const AssetAssignment = () => {
     const navigate = useNavigate();
 
     const staticColumns = [
-        { key: "asset_details", label: "Asset", render: (_, row) => row.asset_name || row.asset },
+        { key: "asset_name", label: "Asset" },
         { key: "name", label: "Borrower" },
         { key: "borrow_date", label: "Borrow Date" },
         { key: "return_date", label: "Return Date", render: (value) => value || <span className="text-yellow-600 font-medium">Active</span> },
@@ -36,7 +36,7 @@ export const AssetAssignment = () => {
 
             const processedItems = itemsData.map(item => ({
                 ...item,
-                asset_name: item.asset_details?.name || "Unknown Asset",
+                asset_name: item.asset_details?.name || item.asset_name || "Unknown Asset",
                 ...(item.attributes || {})
             }));
             setItems(processedItems);

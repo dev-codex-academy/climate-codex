@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
-import { getLeadAttributes, getLeadClientAttributes, getLeadServiceAttributes, createLead, updateLead, uploadLeadImage, getLead } from "../services/leadService";
+import { getLeadAttributes, getLeadClientAttributes, createLead, updateLead, uploadLeadImage, getLead } from "../services/leadService";
+import { getCatalogueItems } from "../services/catalogueService";
 import { getSales } from "../services/salesService";
 import { getClients } from "../services/clientService";
 import { useAuth } from "../context/AuthContext";
@@ -28,11 +29,11 @@ export const LeadDetail = () => {
 
     const [attributes, setAttributes] = useState([]);
     const [clientAttributes, setClientAttributes] = useState([]);
-    const [serviceAttributes, setServiceAttributes] = useState([]);
+    const [catalogueOptions, setCatalogueOptions] = useState([]);
     const [salesUsers, setSalesUsers] = useState([]);
     const [formData, setFormData] = useState({});
     const [clientInfoData, setClientInfoData] = useState({});
-    const [serviceInfoList, setServiceInfoList] = useState([]);
+    const [itemsList, setItemsList] = useState([]);
     const [loading, setLoading] = useState(false);
     const [fetching, setFetching] = useState(!isNew);
     const [error, setError] = useState(null);
@@ -81,7 +82,7 @@ export const LeadDetail = () => {
                 console.error("Initialization error", err);
                 setError("Failed to load page data.");
                 setClientInfoData({});
-                setServiceInfoList([]);
+                setItemsList([]);
             } finally {
                 setFetching(false);
             }
@@ -132,7 +133,14 @@ export const LeadDetail = () => {
         });
 
         setClientInfoData(leadData.client_attributes || leadData.client_info || {});
-        setServiceInfoList(leadData.service_attributes || leadData.service_info || []);
+        
+        const existingItems = leadData.items || [];
+        const formattedItems = existingItems.map(item => ({
+            catalogue_item: item.catalogue_item?.id || item.catalogue_item || "",
+            quantity: item.quantity || 1,
+            custom_price: item.custom_price || ""
+        }));
+        setItemsList(formattedItems);
 
         setImages(leadData.list_of_images || []);
         setTasks(leadData.list_of_tasks || []);
@@ -162,10 +170,10 @@ export const LeadDetail = () => {
 
     const fetchAttributes = async () => {
         try {
-            const [leadAttrs, clientAttrs, serviceAttrs] = await Promise.all([
+            const [leadAttrs, clientAttrs, catalogueRes] = await Promise.all([
                 getLeadAttributes(),
                 getLeadClientAttributes(),
-                getLeadServiceAttributes()
+                getCatalogueItems({ is_active: true })
             ]);
 
             // Helper to process options
@@ -181,11 +189,23 @@ export const LeadDetail = () => {
 
             const processedLeadAttrs = processAttrs(leadAttrs);
             const processedClientAttrs = processAttrs(clientAttrs);
-            const processedServiceAttrs = processAttrs(serviceAttrs);
 
             setAttributes(processedLeadAttrs);
             setClientAttributes(processedClientAttrs);
-            setServiceAttributes(processedServiceAttrs);
+
+            const catalog = Array.isArray(catalogueRes) ? catalogueRes : (catalogueRes.results || []);
+            
+            // Sort catalog by type, then by name
+            catalog.sort((a, b) => {
+                const typeA = a.type || '';
+                const typeB = b.type || '';
+                if (typeA !== typeB) return typeA.localeCompare(typeB);
+                const nameA = a.name || '';
+                const nameB = b.name || '';
+                return nameA.localeCompare(nameB);
+            });
+
+            setCatalogueOptions(catalog);
 
             // Initialize form data keys
             const initialData = {};
@@ -226,23 +246,19 @@ export const LeadDetail = () => {
         }));
     };
 
-    // Service list management
-    const addService = () => {
-        const newService = {};
-        serviceAttributes.forEach(attr => {
-            newService[attr.name] = "";
-        });
-        setServiceInfoList([...serviceInfoList, newService]);
+    // Items list management
+    const addItem = () => {
+        setItemsList([...itemsList, { catalogue_item: "", quantity: 1, custom_price: "" }]);
     };
 
-    const removeService = (index) => {
-        setServiceInfoList(serviceInfoList.filter((_, i) => i !== index));
+    const removeItem = (index) => {
+        setItemsList(itemsList.filter((_, i) => i !== index));
     };
 
-    const handleServiceAttributeChange = (index, name, value) => {
-        const updatedList = [...serviceInfoList];
-        updatedList[index] = { ...updatedList[index], [name]: value };
-        setServiceInfoList(updatedList);
+    const handleItemChange = (index, field, value) => {
+        const updatedList = [...itemsList];
+        updatedList[index] = { ...updatedList[index], [field]: value };
+        setItemsList(updatedList);
     };
 
     // --- File Management ---
@@ -350,13 +366,21 @@ export const LeadDetail = () => {
 
             const formattedAttributes = formatAttributes(formData, attributes);
             const formattedClientAttributes = formatAttributes(clientInfoData, clientAttributes);
-            const formattedServiceAttributes = serviceInfoList.map(service => formatAttributes(service, serviceAttributes));
+
+            const finalItems = itemsList
+                .filter(item => item.catalogue_item)
+                .map(item => ({
+                    catalogue_item: item.catalogue_item,
+                    quantity: Number(item.quantity) || 1,
+                    custom_price: item.custom_price ? Number(item.custom_price) : null,
+                    attributes: {}
+                }));
 
             const payload = {
                 name,
                 attributes: formattedAttributes,
                 client_attributes: formattedClientAttributes,
-                service_attributes: formattedServiceAttributes,
+                items: finalItems,
                 responsible: selectedResponsible,
                 possible_client: (possibleClient === "new_client" || !possibleClient) ? null : possibleClient,
                 moodle_course_id: moodleCourseId || ""
@@ -596,78 +620,84 @@ export const LeadDetail = () => {
                         </div>
                     )}
 
-                    {/* Service Info */}
-                    {serviceAttributes.length > 0 && (
-                        <div className="bg-card p-6 rounded-lg border shadow-sm space-y-4">
-                            <div className="flex items-center justify-between border-b pb-2">
-                                <h3 className="font-medium text-lg">Services of Interest</h3>
-                                <Button size="sm" type="button" onClick={addService} variant="outline">
-                                    + Add Service
-                                </Button>
-                            </div>
-
-                            {serviceInfoList.length === 0 ? (
-                                <p className="text-sm text-muted-foreground italic">No services added.</p>
-                            ) : (
-                                <div className="border rounded-md">
-                                    <Table>
-                                        <TableHeader>
-                                            <TableRow>
-                                                {serviceAttributes.map((attr) => (
-                                                    <TableHead key={attr.name}>{attr.label}</TableHead>
-                                                ))}
-                                                <TableHead className="w-[50px]"></TableHead>
-                                            </TableRow>
-                                        </TableHeader>
-                                        <TableBody>
-                                            {serviceInfoList.map((service, index) => (
-                                                <TableRow key={index}>
-                                                    {serviceAttributes.map((attr) => (
-                                                        <TableCell key={`${index}-${attr.name}`} className="p-2">
-                                                            {attr.type === 'list' ? (
-                                                                <Select
-                                                                    onValueChange={(val) => handleServiceAttributeChange(index, attr.name, val)}
-                                                                    value={service[attr.name]}
-                                                                >
-                                                                    <SelectTrigger className="h-8 w-full min-w-[120px]">
-                                                                        <SelectValue placeholder="Select" />
-                                                                    </SelectTrigger>
-                                                                    <SelectContent>
-                                                                        {attr.options?.map((opt) => (
-                                                                            <SelectItem key={opt.value || opt} value={opt.value || opt}>
-                                                                                {opt.label || opt}
-                                                                            </SelectItem>
-                                                                        )) || <SelectItem value="no-options">No options</SelectItem>}
-                                                                    </SelectContent>
-                                                                </Select>
-                                                            ) : (
-                                                                <Input
-                                                                    type={attr.type === 'number' ? 'number' : attr.type === 'date' ? 'date' : 'text'}
-                                                                    value={service[attr.name] || ""}
-                                                                    onChange={(e) => handleServiceAttributeChange(index, attr.name, e.target.value)}
-                                                                    className="h-8 min-w-[100px]"
-                                                                />
-                                                            )}
-                                                        </TableCell>
-                                                    ))}
-                                                    <TableCell className="p-2 text-right">
-                                                        <Button
-                                                            size="sm"
-                                                            variant="ghost"
-                                                            className="h-8 w-8 p-0 text-red-500 hover:text-red-700"
-                                                            onClick={() => removeService(index)}
-                                                        >
-                                                            &times;
-                                                        </Button>
-                                                    </TableCell>
-                                                </TableRow>
-                                            ))}
-                                        </TableBody>
-                                    </Table>
-                                </div>
-                            )}
+                    {/* Items Info */}
+                    <div className="bg-card p-6 rounded-lg border shadow-sm space-y-4">
+                        <div className="flex items-center justify-between border-b pb-2">
+                            <h3 className="font-medium text-lg">Products & Services</h3>
+                            <Button size="sm" type="button" onClick={addItem} variant="outline">
+                                + Add Item
+                            </Button>
                         </div>
-                    )}
+
+                        {itemsList.length === 0 ? (
+                            <p className="text-sm text-muted-foreground italic">No items added.</p>
+                        ) : (
+                            <div className="border rounded-md">
+                                <Table>
+                                    <TableHeader>
+                                        <TableRow>
+                                            <TableHead>Item</TableHead>
+                                            <TableHead className="w-[120px]">Quantity</TableHead>
+                                            <TableHead className="w-[150px]">Custom Price</TableHead>
+                                            <TableHead className="w-[50px]"></TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {itemsList.map((item, index) => (
+                                            <TableRow key={index}>
+                                                <TableCell className="p-2">
+                                                    <Select
+                                                        value={String(item.catalogue_item)}
+                                                        onValueChange={(val) => handleItemChange(index, "catalogue_item", val)}
+                                                    >
+                                                        <SelectTrigger className="h-8 w-full min-w-[200px]">
+                                                            <SelectValue placeholder="Select from Catalogue" />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            {catalogueOptions.map((opt) => (
+                                                                <SelectItem key={opt.id} value={String(opt.id)}>
+                                                                    {opt.name} ({opt.type})
+                                                                </SelectItem>
+                                                            ))}
+                                                        </SelectContent>
+                                                    </Select>
+                                                </TableCell>
+                                                <TableCell className="p-2">
+                                                    <Input
+                                                        type="number"
+                                                        min="1"
+                                                        value={item.quantity}
+                                                        onChange={(e) => handleItemChange(index, "quantity", e.target.value)}
+                                                        className="h-8"
+                                                    />
+                                                </TableCell>
+                                                <TableCell className="p-2">
+                                                    <Input
+                                                        type="number"
+                                                        step="0.01"
+                                                        placeholder="Default"
+                                                        value={item.custom_price || ""}
+                                                        onChange={(e) => handleItemChange(index, "custom_price", e.target.value)}
+                                                        className="h-8"
+                                                    />
+                                                </TableCell>
+                                                <TableCell className="p-2 text-right">
+                                                    <Button
+                                                        size="sm"
+                                                        variant="ghost"
+                                                        className="h-8 w-8 p-0 text-red-500 hover:text-red-700"
+                                                        onClick={() => removeItem(index)}
+                                                    >
+                                                        &times;
+                                                    </Button>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </div>
+                        )}
+                    </div>
 
                     {/* Tasks & Notes Row */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
