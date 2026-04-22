@@ -159,12 +159,8 @@ export const Login = ({ className, ...props }) => {
               </Button>
             </form>
 
-            <div className="text-center text-xs text-muted-foreground mt-4 space-x-4">
+            <div className="text-center text-xs text-muted-foreground mt-4">
               <span>© {new Date().getFullYear()} Codex CRM</span>
-              <span className="text-slate-300">|</span>
-              <a href="/faq" className="hover:text-primary transition-colors">FAQ</a>
-              <span className="text-slate-300">|</span>
-              <a href="/api" className="hover:text-primary transition-colors">API Docs</a>
             </div>
           </div>
         </div>

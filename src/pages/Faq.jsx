@@ -160,7 +160,7 @@ export const Faq = () => {
                             <AccordionItem value="item-6">
                                 <AccordionTrigger>How do I test the API?</AccordionTrigger>
                                 <AccordionContent>
-                                    Please refer to our <a href="/api" className="text-blue-600 underline font-medium">API Documentation</a> for detailed guides on how to authenticate and make requests to our API endpoints.
+                                    Please refer to our <a href="/apidocs" className="text-blue-600 underline font-medium">API Documentation</a> for detailed guides on how to authenticate and make requests to our API endpoints.
                                 </AccordionContent>
                             </AccordionItem>
                         </Accordion>

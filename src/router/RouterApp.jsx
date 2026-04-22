@@ -94,9 +94,9 @@ export const RouterApp = () => {
                 <Route path="webhook/:id" element={<PermissionGuard requiredPermission="app.add_webhook"><WebhookDetail /></PermissionGuard>} />
             </Route>
 
-            {/* Public Documentation Routes */}
-            <Route path="/api" element={<ApiGuide />} />
-            <Route path="/faq" element={<Faq />} />
+            {/* Protected Documentation Routes */}
+            <Route path="/apidocs" element={<LoginValidate><ApiGuide /></LoginValidate>} />
+            <Route path="/faq" element={<LoginValidate><Faq /></LoginValidate>} />
 
             {/* default routes */}
             <Route path="*" element={<NotFound />} />
