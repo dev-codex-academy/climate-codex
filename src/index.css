@@ -1,9 +1,43 @@
 @import "tailwindcss";
-
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600;1,700&family=Source+Sans+3:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap");
 
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  /* --------- Brand Manual Tokens -------------- */
+
+  /* Surfaces */
+  --color-brand-linen: #FBF7EF;
+  --color-brand-oat: #F2EBDD;
+
+  /* Structure */
+  --color-brand-pebble: #D8D2C4;
+
+  /* Active States */
+  --color-brand-citron: #B8C76A;
+  --color-brand-citron-dark: #8f9a3e;
+
+  /* Primary CTA */
+  --color-brand-apricot: #F29B6B;
+  --color-brand-apricot-dark: #d97c4a;
+
+  /* Soft Callouts */
+  --color-brand-peach-wash: #FFDCC8;
+
+  /* Secondary CTA / Nav */
+  --color-brand-olive: #5E6A43;
+  --color-brand-olive-light: #7a8a56;
+  --color-brand-olive-pale: #e8edde;
+
+  /* Text */
+  --color-brand-ink: #2E2A26;
+  --color-brand-ink-muted: #6b6560;
+
+  /* Font families */
+  --font-heading: "Cormorant Garamond", Georgia, serif;
+  --font-body: "Source Sans 3", Arial, sans-serif;
+  --font-accent: "Libre Baskerville", Georgia, serif;
+
   /* --------- Colors Codex -------------- */
 
   --color-codex-primary: #4F8071;
@@ -225,10 +259,13 @@
 
 
 
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
+  /* Brand Manual Border Radius */
+  --radius-sm: 0.125rem;   /* 2px  — General UI */
+  --radius-md: 0.25rem;    /* 4px  — Buttons */
+  --radius-lg: 0.5rem;     /* 8px  — Cards */
+  --radius-xl: 1rem;       /* 16px — Modals */
+  --radius-2xl: 1.5rem;    /* 24px — Feature Blocks */
+  --radius-full: 0.75rem;  /* 12px — Pill shapes */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -268,93 +305,83 @@
 }
 
 ::-webkit-scrollbar {
-  width: 4px;
+  width: 5px;
+  height: 5px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: #ccc;
-  border-radius: 4px;
+  background-color: var(--codex-primary, #4F8071);
+  border-radius: 999px;
+  opacity: 0.5;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #3d6459;
 }
 
 ::-webkit-scrollbar-track {
-  background-color: #f1f1f1;
+  background-color: transparent;
 }
 
 :root {
-  --radius: 0.625rem;
+  --radius: 0.125rem; /* 2px — Brand Manual default */
 
-  /* Base (light) */
-  --background: oklch(0.982 0.002 248.6);
-  /* White #F8F9FA */
-  --foreground: oklch(0.293 0.000 263.3);
-  /* Dark Gray #2C2C2C */
+  /* ---- Brand Manual Light Theme ---- */
 
-  /* Superficies */
-  --card: var(--background);
-  --card-foreground: var(--foreground);
-  --popover: var(--background);
-  --popover-foreground: var(--foreground);
+  /* Surfaces */
+  --background: #FBF7EF;   /* Linen — main page background */
+  --foreground: #2E2A26;   /* Hearth Ink — all text */
 
-  /* Marketing Colors */
-  --primary: oklch(0.58 0.08 165);
-  /* Converted/Approx for #4F8071 Green */
-  /* Green Primary #4F8071 */
-  --primary-foreground: oklch(0.982 0.002 248.6);
+  --card: #F2EBDD;         /* Oat — cards, sidebars */
+  --card-foreground: #2E2A26;
+  --popover: #F2EBDD;
+  --popover-foreground: #2E2A26;
 
-  /* Apoyos/estados */
-  --secondary: oklch(0.629 0.061 171.4);
-  /* Green #629584 */
-  --secondary-foreground: oklch(0.293 0.000 263.3);
+  /* Primary CTA — Apricot */
+  --primary: #F29B6B;
+  --primary-foreground: #FBF7EF;
 
-  --accent: oklch(0.65 0.06 165);
-  /* Green (tint of primary) */
-  --accent-foreground: oklch(0.293 0.000 263.3);
+  /* Secondary CTA — Olive Branch */
+  --secondary: #5E6A43;
+  --secondary-foreground: #FBF7EF;
 
-  --muted: oklch(0.945 0.004 250);
-  /* Neutral light for soft backgrounds */
-  --muted-foreground: oklch(0.472 0.015 257);
+  /* Active states — Citron */
+  --accent: #B8C76A;
+  --accent-foreground: #2E2A26;
 
-  --destructive: #5c3131;
-  /* Red/Alert - User Requested */
+  /* Soft callouts — Peach Wash */
+  --muted: #FFDCC8;
+  --muted-foreground: #6b6560;
 
-  /* Borders/inputs/focus ring */
-  --border: oklch(0.915 0.005 250);
-  --input: oklch(0.915 0.005 250);
-  --ring: oklch(0.58 0.08 165);
-  /* Green ring */
+  /* Destructive */
+  --destructive: #c0392b;
 
-  /* Chart Colors (blues + green support) */
-  --chart-1: oklch(0.58 0.08 165);
-  /* Green Primary */
-  --chart-2: oklch(0.629 0.061 171.4);
-  /* Green */
-  --chart-3: oklch(0.216 0.028 245.2);
-  /* Dark Blue */
-  --chart-4: oklch(0.75 0.09 165);
-  /* Green Light */
-  --chart-5: oklch(0.840 0.030 251.4);
-  /* Blue Very Light */
+  /* Structure — Pebble */
+  --border: #D8D2C4;
+  --input: #D8D2C4;
+  --ring: #F29B6B; /* Apricot focus ring */
 
+  /* Charts — brand palette */
+  --chart-1: #F29B6B;   /* Apricot */
+  --chart-2: #B8C76A;   /* Citron */
+  --chart-3: #5E6A43;   /* Olive Branch */
+  --chart-4: #FFDCC8;   /* Peach Wash */
+  --chart-5: #D8D2C4;   /* Pebble */
 
-  /* Chart Colors codex Tech HN */
-  --chartcodex-1: oklch(0.60 0.08 165);
-  /* Green Primary */
-  --chartcodex-2: oklch(0.643 0.042 176.4);
-  /* Green */
-  --chartcodex-3: oklch(0.516 0.016 245.5);
-  /* Black */
-  --chartcodex-4: oklch(0.985 0.003 88.8);
-  /* White */
+  --chartcodex-1: #F29B6B;
+  --chartcodex-2: #B8C76A;
+  --chartcodex-3: #5E6A43;
+  --chartcodex-4: #2E2A26;
+  --chartcodex-5: #FFDCC8;
 
   /* Sidebar */
-  /*--sidebar: oklch(0.975 0.002 248.6);*/
-  --sidebar-foreground: var(--foreground);
-  --sidebar-primary: var(--primary);
-  --sidebar-primary-foreground: var(--primary-foreground);
-  --sidebar-accent: var(--accent);
-  --sidebar-accent-foreground: var(--accent-foreground);
-  --sidebar-border: var(--border);
-  --sidebar-ring: var(--ring);
+  --sidebar-foreground: #2E2A26;
+  --sidebar-primary: #5E6A43;
+  --sidebar-primary-foreground: #FBF7EF;
+  --sidebar-accent: #e8edde;
+  --sidebar-accent-foreground: #2E2A26;
+  --sidebar-border: #D8D2C4;
+  --sidebar-ring: #F29B6B;
 }
 
 .dark {
@@ -415,6 +442,40 @@
 
   body {
     @apply bg-background text-foreground;
+    font-family: "Source Sans 3", Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Type Scale — Brand Manual */
+  h1 {
+    font-family: "Cormorant Garamond", Georgia, serif;
+    font-size: 3rem;       /* 48px */
+    font-style: italic;
+    font-weight: 600;
+    line-height: 1.1;
+    letter-spacing: -0.015em;
+  }
+  h2 {
+    font-family: "Cormorant Garamond", Georgia, serif;
+    font-size: 2.25rem;    /* 36px */
+    font-style: italic;
+    font-weight: 600;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+  }
+  h3, h4, h5, h6 {
+    font-family: "Source Sans 3", Arial, sans-serif;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+
+  label, caption, .label {
+    font-size: 0.75rem;    /* 12px */
+    line-height: 1.4;
+    letter-spacing: 0.08em;
   }
 }
 
@@ -427,4 +488,21 @@ body,
 body {
   overflow-y: auto;
   overflow-x: hidden;
+}
+
+/* Page transition */
+#root > * {
+  animation: fadeIn 0.18s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0);   }
+}
+
+/* Focus visible — more refined ring */
+:focus-visible {
+  outline: 2px solid var(--color-codex-primary);
+  outline-offset: 2px;
+  border-radius: 4px;
 }
