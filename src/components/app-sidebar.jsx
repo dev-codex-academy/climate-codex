@@ -47,10 +47,9 @@ export function AppSidebar({ ...props }) {
     <Sidebar collapsible="icon" {...props}>
 
       {/* Brand mark — expanded */}
-      <SidebarHeader className="pb-0" style={{ backgroundColor: "#F2EBDD" }}>
+      <SidebarHeader className="pb-0 bg-card">
         <div
-          className="flex items-center gap-2.5 px-3 py-2.5 group-data-[collapsible=icon]:hidden"
-          style={{ borderBottom: "1px solid #D8D2C4" }}
+          className="flex items-center gap-2.5 px-3 py-2.5 group-data-[collapsible=icon]:hidden border-b border-border"
         >
           <div
             className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg"
@@ -63,26 +62,17 @@ export function AppSidebar({ ...props }) {
             </svg>
           </div>
           <div className="leading-none">
-            <p
-              className="text-sm font-bold tracking-tight"
-              style={{ color: "#2E2A26", fontFamily: '"Source Sans 3", Arial, sans-serif' }}
-            >
+            <p className="text-sm font-bold tracking-tight text-foreground" style={{ fontFamily: '"Source Sans 3", Arial, sans-serif' }}>
               Codex CRM
             </p>
-            <p
-              className="text-[10px] font-medium uppercase tracking-widest mt-0.5"
-              style={{ color: "#9b948e" }}
-            >
+            <p className="text-[10px] font-medium uppercase tracking-widest mt-0.5 text-muted-foreground">
               by Codex Technologies
             </p>
           </div>
         </div>
 
         {/* Icon-only logo */}
-        <div
-          className="hidden group-data-[collapsible=icon]:flex justify-center py-2.5"
-          style={{ borderBottom: "1px solid #D8D2C4" }}
-        >
+        <div className="hidden group-data-[collapsible=icon]:flex justify-center py-2.5 border-b border-border">
           <div
             className="flex h-8 w-8 items-center justify-center rounded-lg"
             style={{ backgroundColor: "#5E6A43" }}
@@ -95,14 +85,14 @@ export function AppSidebar({ ...props }) {
           </div>
         </div>
 
-        <div className="px-2 pb-1 pt-1">
+        <div className="px-2 pb-1 pt-1 group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:justify-center">
           <NavUser user={data.user} />
         </div>
       </SidebarHeader>
 
-      <div style={{ height: "1px", backgroundColor: "#D8D2C4" }} />
+      <div className="h-px bg-border" />
 
-      <SidebarContent style={{ backgroundColor: "#F2EBDD" }}>
+      <SidebarContent className="bg-card">
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
@@ -112,15 +102,14 @@ export function AppSidebar({ ...props }) {
                   tooltip="Dashboard"
                   isActive={isDashboardActive}
                   style={isDashboardActive ? {
-                    backgroundColor: "#e8edde",
+                    backgroundColor: "var(--sidebar-accent)",
                     borderLeft: "3px solid #5E6A43",
-                    color: "#2E2A26",
                     borderRadius: "0 4px 4px 0",
                   } : {}}
                 >
                   <Link to="/" style={{ fontFamily: '"Source Sans 3", Arial, sans-serif' }}>
-                    <LayoutDashboard className="size-5" style={{ color: isDashboardActive ? "#5E6A43" : "#6b6560" }} />
-                    <span className="font-medium" style={{ color: "#2E2A26" }}>Dashboard</span>
+                    <LayoutDashboard className="size-5" style={{ color: isDashboardActive ? "#5E6A43" : undefined }} />
+                    <span className="font-medium text-foreground">Dashboard</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -131,8 +120,8 @@ export function AppSidebar({ ...props }) {
         {menu.map((group) => (
           <SidebarGroup key={group.label}>
             <SidebarGroupLabel
-              className="text-[10px] uppercase tracking-widest font-semibold"
-              style={{ color: "#9b948e", fontFamily: '"Source Sans 3", Arial, sans-serif' }}
+              className="text-[10px] uppercase tracking-widest font-semibold text-muted-foreground"
+              style={{ fontFamily: '"Source Sans 3", Arial, sans-serif' }}
             >
               {group.label}
             </SidebarGroupLabel>
@@ -143,8 +132,8 @@ export function AppSidebar({ ...props }) {
         ))}
       </SidebarContent>
 
-      <div style={{ height: "1px", backgroundColor: "#D8D2C4" }} />
-      <SidebarFooter style={{ backgroundColor: "#F2EBDD" }}>
+      <div className="h-px bg-border" />
+      <SidebarFooter className="bg-card">
         <NavUserFooter user={data.user} />
       </SidebarFooter>
       <SidebarRail />

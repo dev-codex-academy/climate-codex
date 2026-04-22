@@ -124,7 +124,10 @@ export const Service = () => {
         <div className="h-full flex flex-col p-2 w-full">
             <div className="flex items-center gap-2 mb-2 ml-2">
                 <Select value={selectedClient} onValueChange={setSelectedClient}>
-                    <SelectTrigger className="w-[200px]">
+                    <SelectTrigger
+                        className="w-[200px]"
+                        style={{ backgroundColor: "#fff", border: "1px solid #D8D2C4", color: "#2E2A26", fontFamily: '"Source Sans 3", Arial, sans-serif', fontSize: "14px" }}
+                    >
                         <SelectValue placeholder="Select Client" />
                     </SelectTrigger>
                     <SelectContent>
@@ -135,15 +138,28 @@ export const Service = () => {
                         ))}
                     </SelectContent>
                 </Select>
-                <Button onClick={handleSearch} disabled={!selectedClient || loading}>
-                    <Search className="mr-2 h-4 w-4" /> Search
-                </Button>
-                <Button onClick={() => navigate("/service/new", { state: { clientId: selectedClient } })}>
-                    <Plus className="mr-2 h-4 w-4" /> Add Service
-                </Button>
+                <button
+                    onClick={handleSearch}
+                    disabled={!selectedClient || loading}
+                    className="flex items-center gap-2 h-9 px-4 rounded-lg text-sm font-semibold transition-colors cursor-pointer"
+                    style={{ backgroundColor: "#5E6A43", color: "#FBF7EF", opacity: (!selectedClient || loading) ? 0.5 : 1 }}
+                    onMouseEnter={e => (!selectedClient && !loading) && (e.currentTarget.style.backgroundColor = "#4a5535")}
+                    onMouseLeave={e => (e.currentTarget.style.backgroundColor = "#5E6A43")}
+                >
+                    <Search className="h-4 w-4" /> Search
+                </button>
+                <button
+                    onClick={() => navigate("/service/new", { state: { clientId: selectedClient } })}
+                    className="flex items-center gap-2 h-9 px-4 rounded-lg text-sm font-semibold transition-colors cursor-pointer"
+                    style={{ backgroundColor: "#5E6A43", color: "#FBF7EF" }}
+                    onMouseEnter={e => e.currentTarget.style.backgroundColor = "#4a5535"}
+                    onMouseLeave={e => e.currentTarget.style.backgroundColor = "#5E6A43"}
+                >
+                    <Plus className="h-4 w-4" /> Add Service
+                </button>
             </div>
 
-            <div className="bg-white dark:bg-codex-fondo-secondary p-2 rounded-lg shadow flex-1 min-h-0 overflow-hidden flex flex-col">
+            <div className="bg-brand-oat p-2 rounded-lg shadow flex-1 min-h-0 overflow-hidden flex flex-col">
                 <Table
                     data={services}
                     columns={columns}

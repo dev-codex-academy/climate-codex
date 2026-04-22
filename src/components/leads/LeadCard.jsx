@@ -1,30 +1,14 @@
 import React from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { Badge } from "../ui/badge";
-import { Calendar, User, Building } from "lucide-react";
+import { Calendar, Building } from "lucide-react";
 
 export const LeadCard = ({ lead, salesUsers = [], onDragStart, onClick }) => {
 
-
-    // Helper to get responsible name
     const getResponsibleName = () => {
         const resp = lead.responsible;
         if (!resp) return "Unassigned";
-
-        // If it's an object with name/username
-        if (typeof resp === 'object') {
-            return resp.name || resp.username || "Unassigned";
-        }
-
-        // If it's a string that looks like a name (contains dot or space, or is just a username)
-        // gracefully handle if it is a string ID
-        if (typeof resp === 'string' && isNaN(parseInt(resp))) {
-            return resp;
-        }
-
-        // If it's an ID (number or string number), look it up
-        const userId = parseInt(resp);
-        const user = salesUsers.find(u => u.id === userId);
+        if (typeof resp === 'object') return resp.name || resp.username || "Unassigned";
+        if (typeof resp === 'string' && isNaN(parseInt(resp))) return resp;
+        const user = salesUsers.find(u => u.id === parseInt(resp));
         return user ? (user.name || user.username) : "Unassigned";
     };
 
@@ -32,56 +16,77 @@ export const LeadCard = ({ lead, salesUsers = [], onDragStart, onClick }) => {
         const client = lead.possible_client;
         if (!client) return null;
         if (typeof client === 'object') return client.name || "Unknown Client";
-        // If it's a string/number ID, we can't easily resolve it here without a list of clients.
-        // Assuming backend might send expanded object or we just show "Client ID: ..." if strictly needed,
-        // but typically for cards index the backend sends the name. 
-        // If it sends just ID, we might need to skip or show placeholder. 
         return "Client #" + client;
     };
 
+    const responsibleName = getResponsibleName();
+    const clientName = getPossibleClientName();
+
     return (
         <div
-            onClick={() => onClick && onClick(lead)}
+            onClick={() => onClick?.(lead)}
             draggable
             onDragStart={(e) => onDragStart(e, lead)}
-            className="group/card cursor-pointer transition-all duration-300 active:scale-[0.98]"
+            className="cursor-pointer active:scale-[0.98] transition-transform"
         >
-            <Card className="hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)] dark:bg-codex-fondo-secondary bg-white border border-codex-bordes-primary-variante2/30 dark:border-codex-bordes-terciario-variante4/30 shadow-sm mb-0 transition-all group-hover/card:-translate-y-1">
-                <CardHeader className="p-4 pb-0">
-                    <CardTitle className="text-xs font-bold leading-tight line-clamp-2 text-codex-texto-secondary dark:text-white uppercase tracking-tight">
-                        {lead.name}
-                    </CardTitle>
-                </CardHeader>
-                <CardContent className="p-4 pt-3 space-y-3">
-                    {/* Metadata */}
-                    <div className="grid grid-cols-1 gap-2">
-                        {/* Responsible */}
-                        <div className="flex items-center gap-2 px-2 py-1 rounded bg-codex-fondo-primary-variante1/50 dark:bg-codex-fondo-terciario-variante5/50 border border-codex-bordes-primary-variante2/20 dark:border-codex-bordes-terciario-variante4/20">
-                            <div className="h-4 w-4 rounded-full bg-codex-primary flex items-center justify-center text-[7px] font-black text-white shrink-0 shadow-sm">
-                                {getResponsibleName().charAt(0).toUpperCase()}
-                            </div>
-                            <span className="text-[9px] font-bold text-codex-texto-secondary dark:text-codex-texto-terciario-variante1 truncate">
-                                {getResponsibleName()}
-                            </span>
-                        </div>
+            <div
+                className="rounded-lg p-3 transition-all"
+                style={{
+                    backgroundColor: "#FBF7EF",
+                    border: "1px solid #D8D2C4",
+                    fontFamily: '"Source Sans 3", Arial, sans-serif',
+                }}
+                onMouseEnter={e => {
+                    e.currentTarget.style.borderColor = "#5E6A43";
+                    e.currentTarget.style.boxShadow = "0 4px 12px rgba(94,106,67,0.10)";
+                    e.currentTarget.style.transform = "translateY(-1px)";
+                }}
+                onMouseLeave={e => {
+                    e.currentTarget.style.borderColor = "#D8D2C4";
+                    e.currentTarget.style.boxShadow = "none";
+                    e.currentTarget.style.transform = "none";
+                }}
+            >
+                {/* Lead name */}
+                <p
+                    className="text-[11px] font-bold uppercase tracking-tight leading-tight line-clamp-2 mb-2.5"
+                    style={{ color: "#2E2A26" }}
+                >
+                    {lead.name}
+                </p>
 
-                        <div className="flex items-center justify-between text-[9px] text-muted-foreground font-medium px-1">
-                            {/* Date */}
-                            <div className="flex items-center gap-1.5 ">
-                                <Calendar className="w-2.5 h-2.5 opacity-70" />
-                                <span>{lead.created_at?.split('T')[0] || lead.date || "No date"}</span>
-                            </div>
-
-                            {getPossibleClientName() && (
-                                <div className="flex items-center gap-1.5 max-w-[50%]">
-                                    <Building className="w-2.5 h-2.5 opacity-70" />
-                                    <span className="truncate">{getPossibleClientName()}</span>
-                                </div>
-                            )}
-                        </div>
+                {/* Responsible */}
+                <div
+                    className="flex items-center gap-1.5 px-2 py-1 rounded-md mb-2"
+                    style={{ backgroundColor: "#F2EBDD", border: "1px solid #D8D2C4" }}
+                >
+                    <div
+                        className="h-4 w-4 rounded-full flex items-center justify-center text-[7px] font-black shrink-0"
+                        style={{ backgroundColor: "#5E6A43", color: "#FBF7EF" }}
+                    >
+                        {responsibleName.charAt(0).toUpperCase()}
                     </div>
-                </CardContent>
-            </Card>
-        </div >
+                    <span className="text-[9px] font-semibold truncate" style={{ color: "#2E2A26" }}>
+                        {responsibleName}
+                    </span>
+                </div>
+
+                {/* Date + client */}
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1" style={{ color: "#9b948e" }}>
+                        <Calendar className="w-2.5 h-2.5" />
+                        <span className="text-[9px] font-medium">
+                            {lead.created_at?.split('T')[0] || lead.date || "No date"}
+                        </span>
+                    </div>
+                    {clientName && (
+                        <div className="flex items-center gap-1 max-w-[55%]" style={{ color: "#9b948e" }}>
+                            <Building className="w-2.5 h-2.5 shrink-0" />
+                            <span className="text-[9px] truncate">{clientName}</span>
+                        </div>
+                    )}
+                </div>
+            </div>
+        </div>
     );
 };

@@ -47,7 +47,7 @@ function AdminLayoutContent() {
                     <div className="flex items-center gap-3 px-4 w-full">
                         <SidebarTrigger
                             className="-ml-1 transition-all rounded"
-                            style={{ color: "#6b6560" }}
+                            style={{ backgroundColor: "#5E6A43", color: "#FBF7EF" }}
                             onClick={(e) => e.stopPropagation()}
                         />
                         <Separator orientation="vertical" className="data-[orientation=vertical]:h-4" style={{ backgroundColor: "#D8D2C4" }} />

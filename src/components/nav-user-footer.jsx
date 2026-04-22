@@ -1,19 +1,8 @@
-import {
-  Sun, Moon, Monitor, ChevronsUpDown
-} from "lucide-react"
-
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@/components/ui/avatar"
+import { Sun, Moon, Monitor, ChevronsUpDown } from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuGroup,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import {
@@ -22,54 +11,57 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
-import { useAuth } from "@/context/AuthContext";
 import { UseTheme } from "./UseTheme";
 
-export function NavUserFooter({
-  user
-}) {
-  const { isMobile } = useSidebar();
+export function NavUserFooter({ user }) {
+  const { isMobile, open } = useSidebar();
+  const isCollapsed = !open && !isMobile;
 
-  const { logout } = useAuth();
-
-  const handleLogout = async (e) => {
-    console.log('cerrando desde funcion');
-    e.preventDefault();
-    await logout();
-  }
-
-  const [darkMode, setDarkMode] = UseTheme()
+  const [darkMode, setDarkMode] = UseTheme();
 
   const themeOptions = {
     system: { label: "System", icon: <Monitor className="size-4" /> },
     light: { label: "Light", icon: <Sun className="size-4" /> },
     dark: { label: "Dark", icon: <Moon className="size-4" /> },
-  }
+  };
 
-  const currentTheme = themeOptions[darkMode] || themeOptions.system
+  const currentTheme = themeOptions[darkMode] || themeOptions.system;
 
   return (
     <SidebarMenu>
       <SidebarMenuItem>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <SidebarMenuButton
-              size="lgv2"
-              className='data-[state=open]:bg-codex-botones-primary-variante1 data-[state=open]:text-codex-texto-primary data-[state=open]:border data-[state=open]:border-codex-bordes-primary-variante2
-              dark:data-[state=open]:bg-codex-botones-terciario-variante5 dark:data-[state=open]:text-codex-texto-terciario-variante1 dark:data-[state=open]:border-codex-bordes-terciario
-              cursor-pointer
-              hover:bg-codex-botones-primary-variante1 hover:text-codex-texto-primary hover:border hover:border-codex-bordes-primary-variante2
-              dark:hover:bg-codex-botones-terciario-variante5 dark:hover:text-codex-texto-terciario-variante1 dark:hover:border-codex-bordes-terciario
-             group-data-[collapsible=icon]:border-0! group-data-[collapsible=icon]:p-2! group-data-[collapsible=icon]:bg-codex-cards-primary-variante1! group-data-[collapsible=icon]:dark:bg-codex-cards-terciario-variante6!
-              '
-            >
-              {currentTheme.icon}
-              <span className="ml-2">{currentTheme.label}</span>
-              <ChevronsUpDown className="ml-auto size-4" />
-            </SidebarMenuButton>
+            {isCollapsed ? (
+              <button
+                className="flex h-9 w-9 items-center justify-center rounded-lg mx-auto transition-colors cursor-pointer"
+                style={{ color: "#6b6560", backgroundColor: "transparent" }}
+                onMouseEnter={e => e.currentTarget.style.backgroundColor = "#e8edde"}
+                onMouseLeave={e => e.currentTarget.style.backgroundColor = "transparent"}
+                title={currentTheme.label}
+              >
+                {currentTheme.icon}
+              </button>
+            ) : (
+              <SidebarMenuButton
+                size="sm"
+                className="cursor-pointer rounded-lg transition-colors"
+                style={{ color: "#6b6560", backgroundColor: "transparent" }}
+                onMouseEnter={e => e.currentTarget.style.backgroundColor = "#e8edde"}
+                onMouseLeave={e => e.currentTarget.style.backgroundColor = "transparent"}
+              >
+                {currentTheme.icon}
+                <span className="ml-1.5 text-sm" style={{ color: "#6b6560", fontFamily: '"Source Sans 3", Arial, sans-serif' }}>
+                  {currentTheme.label}
+                </span>
+                <ChevronsUpDown className="ml-auto size-3.5" style={{ color: "#9b948e" }} />
+              </SidebarMenuButton>
+            )}
           </DropdownMenuTrigger>
+
           <DropdownMenuContent
-            className="w-(--radix-dropdown-menu-trigger-width) min-w-48 rounded-lg"
+            className="min-w-40 rounded-lg"
+            style={{ backgroundColor: "#FBF7EF", border: "1px solid #D8D2C4" }}
             side={isMobile ? "bottom" : "right"}
             align="end"
             sideOffset={4}
@@ -78,10 +70,14 @@ export function NavUserFooter({
               <DropdownMenuItem
                 key={key}
                 onSelect={() => setDarkMode(key)}
-                className={`flex items-center gap-2 cursor-pointer ${darkMode === key ? "dark:bg-codex-botones-terciario-variante4 dark:text-codex-texto-terciario-variante1 bg-codex-botones-primary-variante2 text-codex-texto-primary-variante3" : " "
-                  }`}
+                className="cursor-pointer flex items-center gap-2"
+                style={{
+                  color: darkMode === key ? "#5E6A43" : "#2E2A26",
+                  backgroundColor: darkMode === key ? "rgba(94,106,67,0.08)" : "transparent",
+                  fontFamily: '"Source Sans 3", Arial, sans-serif',
+                }}
               >
-                {icon}
+                <span style={{ color: darkMode === key ? "#5E6A43" : "#9b948e" }}>{icon}</span>
                 {label}
               </DropdownMenuItem>
             ))}

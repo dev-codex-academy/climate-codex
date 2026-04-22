@@ -161,7 +161,7 @@ export const Dashboard = () => {
                 </div>
                 <p
                     className="text-xs hidden sm:block"
-                    style={{ color: "#D8D2C4", fontFamily: '"Source Sans 3", Arial, sans-serif', letterSpacing: "0.04em" }}
+                    style={{ color: "#6b6560", fontFamily: '"Source Sans 3", Arial, sans-serif', letterSpacing: "0.04em" }}
                 >
                     {new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}
                 </p>

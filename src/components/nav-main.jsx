@@ -16,11 +16,12 @@ import {
 } from "@/components/ui/sidebar"
 import { useLocation } from "react-router-dom";
 
-export function NavMain({
-  items
-}) {
+const OLIVE = "#5E6A43";
+const ACTIVE_BORDER = "3px solid #5E6A43";
 
+export function NavMain({ items }) {
   const location = useLocation();
+
   return (
     <SidebarMenu>
       {items.map((item) => {
@@ -28,20 +29,35 @@ export function NavMain({
         const hasSubItems = item.items && item.items.length > 0;
 
         if (!hasSubItems) {
+          const isActive = location.pathname === item.url ||
+            location.pathname.startsWith(item.url + "/");
+
           return (
             <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton asChild tooltip={item.title}>
-                <a href={item.url || "#"}>
-                  {item.icon ? (
-                    <div className="flex items-center group-data-[collapsible=icon]:hover:bg-codex-bordes-primary-variante2 group-data-[collapsible=icon]:dark:hover:bg-codex-bordes-terciario-variante5 group-data-[collapsible=icon]:rounded-sm">
-                      <Icon className="size-5 text-codex-iconos-primary dark:text-codex-iconos-terciario-variante2" />
-                    </div>
-                  ) : null}
-                  <span>{item.title}</span>
+              <SidebarMenuButton
+                asChild
+                tooltip={item.title}
+                style={isActive ? {
+                  backgroundColor: "var(--sidebar-accent)",
+                  borderLeft: ACTIVE_BORDER,
+                  borderRadius: "0 4px 4px 0",
+                } : {}}
+              >
+                <a
+                  href={item.url || "#"}
+                  style={{ fontFamily: '"Source Sans 3", Arial, sans-serif' }}
+                >
+                  {item.icon && (
+                    <Icon
+                      className="size-4"
+                      style={{ color: isActive ? OLIVE : undefined }}
+                    />
+                  )}
+                  <span className="font-medium text-foreground">{item.title}</span>
                 </a>
               </SidebarMenuButton>
             </SidebarMenuItem>
-          )
+          );
         }
 
         return (
@@ -49,54 +65,54 @@ export function NavMain({
             key={item.title}
             asChild
             defaultOpen={item.isActive}
-            className="group/collapsible">
+            className="group/collapsible"
+          >
             <SidebarMenuItem>
               <CollapsibleTrigger asChild>
-                <SidebarMenuButton tooltip={item.title}>
-                  {item.icon ?
+                <SidebarMenuButton
+                  tooltip={item.title}
+                  style={{ fontFamily: '"Source Sans 3", Arial, sans-serif' }}
+                >
+                  {item.icon && (
                     <div className="flex items-center">
                       <div
-                        className="
-                          p-1 
-                          bg-codex-botones-primary-variante2 
-                          dark:bg-codex-botones-terciario-variante5 
-                          rounded-md 
-                          group-data-[collapsible=icon]:hidden
-                        "
+                        className="p-1 rounded group-data-[collapsible=icon]:hidden"
+                        style={{ backgroundColor: "rgba(94,106,67,0.12)" }}
                       >
-                        <Icon className="size-4 text-codex-iconos-primary dark:text-codex-iconos-terciario-variante2" />
+                        <Icon className="size-4" style={{ color: OLIVE }} />
                       </div>
-
                       <Icon
-                        className="
-                          size-4 
-                          text-codex-iconos-primary 
-                          dark:text-codex-iconos-terciario-variante2 
-                          hidden 
-                          group-data-[collapsible=icon]:block
-                        "
+                        className="size-4 hidden group-data-[collapsible=icon]:block"
+                        style={{ color: OLIVE }}
                       />
                     </div>
-                    : null
-                  }
-                  <span className="line-clamp-1">{item.title}</span>
+                  )}
+                  <span className="line-clamp-1 font-medium text-foreground">
+                    {item.title}
+                  </span>
                   <ChevronRight
-                    className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                    className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90 text-muted-foreground"
+                  />
                 </SidebarMenuButton>
               </CollapsibleTrigger>
+
               <CollapsibleContent>
                 <SidebarMenuSub>
                   {item.items?.map((subItem) => {
                     const isActive = location.pathname === subItem.url;
-
                     return (
                       <SidebarMenuSubItem key={subItem.title}>
                         <SidebarMenuSubButton asChild>
                           <a
                             href={subItem.url}
-                            className={`flex items-center px-3 py-2 rounded-md transition
-                            ${isActive ? "bg-codex-fondo-primary-variante1 dark:bg-codex-fondo-terciario-variante4" : ""}
-                          `}
+                            className="flex items-center px-3 py-2 rounded transition-all"
+                            style={{
+                              color: isActive ? OLIVE : undefined,
+                              backgroundColor: isActive ? "var(--sidebar-accent)" : "transparent",
+                              fontFamily: '"Source Sans 3", Arial, sans-serif',
+                              fontWeight: isActive ? 600 : 400,
+                              borderLeft: isActive ? `2px solid ${OLIVE}` : "2px solid transparent",
+                            }}
                           >
                             <span>{subItem.title}</span>
                           </a>
@@ -106,12 +122,10 @@ export function NavMain({
                   })}
                 </SidebarMenuSub>
               </CollapsibleContent>
-
             </SidebarMenuItem>
           </Collapsible>
-        )
+        );
       })}
     </SidebarMenu>
-
   );
 }

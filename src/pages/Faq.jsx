@@ -10,25 +10,34 @@ export const Faq = () => {
     const navigate = useNavigate();
 
     return (
-        <div className="min-h-screen bg-slate-50 dark:bg-slate-900 p-6 md:p-12">
+        <div className="min-h-screen p-6 md:p-12" style={{ backgroundColor: "#FBF7EF", fontFamily: '"Source Sans 3", Arial, sans-serif' }}>
             <div className="max-w-3xl mx-auto space-y-8">
 
                 {/* Header */}
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between flex-wrap gap-4">
                     <div className="flex items-center gap-3">
-                        <div className="p-3 bg-purple-600 rounded-lg">
-                            <HelpCircle className="h-8 w-8 text-white" />
+                        <div
+                            className="flex h-12 w-12 items-center justify-center rounded-xl"
+                            style={{ backgroundColor: "rgba(94,106,67,0.12)", border: "1px solid rgba(94,106,67,0.3)" }}
+                        >
+                            <HelpCircle className="h-6 w-6" style={{ color: "#5E6A43" }} />
                         </div>
                         <div>
-                            <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Frequently Asked Questions</h1>
-                            <p className="text-slate-500 dark:text-slate-400 text-lg">
+                            <p className="text-2xl font-bold tracking-tight" style={{ color: "#2E2A26" }}>Frequently Asked Questions</p>
+                            <p className="text-sm mt-0.5" style={{ color: "#9b948e" }}>
                                 Common questions about using the CRM system.
                             </p>
                         </div>
                     </div>
-                    <Button variant="outline" onClick={() => navigate(-1)}>
-                        <ArrowLeft className="h-4 w-4 mr-2" /> Back
-                    </Button>
+                    <button
+                        onClick={() => navigate(-1)}
+                        className="flex items-center gap-2 h-9 px-3 rounded-lg text-sm font-medium transition-colors cursor-pointer"
+                        style={{ border: "1px solid #D8D2C4", backgroundColor: "transparent", color: "#6b6560" }}
+                        onMouseEnter={e => e.currentTarget.style.backgroundColor = "#F2EBDD"}
+                        onMouseLeave={e => e.currentTarget.style.backgroundColor = "transparent"}
+                    >
+                        <ArrowLeft className="h-4 w-4" /> Back
+                    </button>
                 </div>
 
                 <Card>
@@ -123,9 +132,9 @@ export const Faq = () => {
                                 <AccordionTrigger>What do the different Category and Catalogue fields mean?</AccordionTrigger>
                                 <AccordionContent>
                                     <ul className="list-disc list-inside space-y-2 mt-2">
-                                        <li><strong>Category Fields:</strong> <code className="bg-slate-100 dark:bg-slate-800 px-1 rounded">name</code> (the category name), <code className="bg-slate-100 dark:bg-slate-800 px-1 rounded">description</code> (details about the category's purpose), and <code className="bg-slate-100 dark:bg-slate-800 px-1 rounded">parent</code> (links to a parent category to create subcategories).</li>
-                                        <li><strong>Catalogue Item Fields:</strong> <code className="bg-slate-100 dark:bg-slate-800 px-1 rounded">name</code> (product/service name), <code className="bg-slate-100 dark:bg-slate-800 px-1 rounded">type</code> (product, service, or subscription), <code className="bg-slate-100 dark:bg-slate-800 px-1 rounded">base_price</code> & <code className="bg-slate-100 dark:bg-slate-800 px-1 rounded">currency</code> (standard pricing), <code className="bg-slate-100 dark:bg-slate-800 px-1 rounded">unit</code> (unit of measure like hour or seat), <code className="bg-slate-100 dark:bg-slate-800 px-1 rounded">tax_rate</code> (applicable tax percentage), and <code className="bg-slate-100 dark:bg-slate-800 px-1 rounded">inventory</code> (link to physical stock).</li>
-                                        <li><strong>Inventory Fields:</strong> <code className="bg-slate-100 dark:bg-slate-800 px-1 rounded">sku</code> (unique tracking code), <code className="bg-slate-100 dark:bg-slate-800 px-1 rounded">quantity_on_hand</code> (current stock), <code className="bg-slate-100 dark:bg-slate-800 px-1 rounded">reorder_level</code> (threshold for low stock warnings), and <code className="bg-slate-100 dark:bg-slate-800 px-1 rounded">location</code> (physical location of the item).</li>
+                                        <li><strong>Category Fields:</strong> <code className="px-1 rounded font-mono text-xs" style={{ backgroundColor: "#F2EBDD", color: "#4a5535" }}>name</code> (the category name), <code className="px-1 rounded font-mono text-xs" style={{ backgroundColor: "#F2EBDD", color: "#4a5535" }}>description</code> (details about the category's purpose), and <code className="px-1 rounded font-mono text-xs" style={{ backgroundColor: "#F2EBDD", color: "#4a5535" }}>parent</code> (links to a parent category to create subcategories).</li>
+                                        <li><strong>Catalogue Item Fields:</strong> <code className="px-1 rounded font-mono text-xs" style={{ backgroundColor: "#F2EBDD", color: "#4a5535" }}>name</code> (product/service name), <code className="px-1 rounded font-mono text-xs" style={{ backgroundColor: "#F2EBDD", color: "#4a5535" }}>type</code> (product, service, or subscription), <code className="px-1 rounded font-mono text-xs" style={{ backgroundColor: "#F2EBDD", color: "#4a5535" }}>base_price</code> & <code className="px-1 rounded font-mono text-xs" style={{ backgroundColor: "#F2EBDD", color: "#4a5535" }}>currency</code> (standard pricing), <code className="px-1 rounded font-mono text-xs" style={{ backgroundColor: "#F2EBDD", color: "#4a5535" }}>unit</code> (unit of measure like hour or seat), <code className="px-1 rounded font-mono text-xs" style={{ backgroundColor: "#F2EBDD", color: "#4a5535" }}>tax_rate</code> (applicable tax percentage), and <code className="px-1 rounded font-mono text-xs" style={{ backgroundColor: "#F2EBDD", color: "#4a5535" }}>inventory</code> (link to physical stock).</li>
+                                        <li><strong>Inventory Fields:</strong> <code className="px-1 rounded font-mono text-xs" style={{ backgroundColor: "#F2EBDD", color: "#4a5535" }}>sku</code> (unique tracking code), <code className="px-1 rounded font-mono text-xs" style={{ backgroundColor: "#F2EBDD", color: "#4a5535" }}>quantity_on_hand</code> (current stock), <code className="px-1 rounded font-mono text-xs" style={{ backgroundColor: "#F2EBDD", color: "#4a5535" }}>reorder_level</code> (threshold for low stock warnings), and <code className="px-1 rounded font-mono text-xs" style={{ backgroundColor: "#F2EBDD", color: "#4a5535" }}>location</code> (physical location of the item).</li>
                                     </ul>
                                 </AccordionContent>
                             </AccordionItem>
@@ -133,8 +142,8 @@ export const Faq = () => {
                                 <AccordionTrigger>What do the different Invoice fields mean?</AccordionTrigger>
                                 <AccordionContent>
                                     <ul className="list-disc list-inside space-y-2 mt-2">
-                                        <li><strong>Invoice Fields:</strong> <code className="bg-slate-100 dark:bg-slate-800 px-1 rounded">client</code> & <code className="bg-slate-100 dark:bg-slate-800 px-1 rounded">contact</code> (who the invoice is for), <code className="bg-slate-100 dark:bg-slate-800 px-1 rounded">status</code> (draft, sent, paid, overdue, etc.), <code className="bg-slate-100 dark:bg-slate-800 px-1 rounded">issue_date</code> & <code className="bg-slate-100 dark:bg-slate-800 px-1 rounded">due_date</code> (billing timelines), auto-calculated financial summaries like <code className="bg-slate-100 dark:bg-slate-800 px-1 rounded">subtotal</code>, <code className="bg-slate-100 dark:bg-slate-800 px-1 rounded">tax_amount</code>, <code className="bg-slate-100 dark:bg-slate-800 px-1 rounded">discount</code>, & <code className="bg-slate-100 dark:bg-slate-800 px-1 rounded">total</code>, and <code className="bg-slate-100 dark:bg-slate-800 px-1 rounded">amount_paid</code> (tracked from payments).</li>
-                                        <li><strong>Invoice Line Item Fields:</strong> <code className="bg-slate-100 dark:bg-slate-800 px-1 rounded">catalogue_item</code> (reference to a predefined catalog item), <code className="bg-slate-100 dark:bg-slate-800 px-1 rounded">description</code> (specific details of the charge), <code className="bg-slate-100 dark:bg-slate-800 px-1 rounded">quantity</code> & <code className="bg-slate-100 dark:bg-slate-800 px-1 rounded">unit_price</code> (used for line subtotal), and <code className="bg-slate-100 dark:bg-slate-800 px-1 rounded">tax_rate</code> (tax percentage for that specific line).</li>
+                                        <li><strong>Invoice Fields:</strong> <code className="px-1 rounded font-mono text-xs" style={{ backgroundColor: "#F2EBDD", color: "#4a5535" }}>client</code> & <code className="px-1 rounded font-mono text-xs" style={{ backgroundColor: "#F2EBDD", color: "#4a5535" }}>contact</code> (who the invoice is for), <code className="px-1 rounded font-mono text-xs" style={{ backgroundColor: "#F2EBDD", color: "#4a5535" }}>status</code> (draft, sent, paid, overdue, etc.), <code className="px-1 rounded font-mono text-xs" style={{ backgroundColor: "#F2EBDD", color: "#4a5535" }}>issue_date</code> & <code className="px-1 rounded font-mono text-xs" style={{ backgroundColor: "#F2EBDD", color: "#4a5535" }}>due_date</code> (billing timelines), auto-calculated financial summaries like <code className="px-1 rounded font-mono text-xs" style={{ backgroundColor: "#F2EBDD", color: "#4a5535" }}>subtotal</code>, <code className="px-1 rounded font-mono text-xs" style={{ backgroundColor: "#F2EBDD", color: "#4a5535" }}>tax_amount</code>, <code className="px-1 rounded font-mono text-xs" style={{ backgroundColor: "#F2EBDD", color: "#4a5535" }}>discount</code>, & <code className="px-1 rounded font-mono text-xs" style={{ backgroundColor: "#F2EBDD", color: "#4a5535" }}>total</code>, and <code className="px-1 rounded font-mono text-xs" style={{ backgroundColor: "#F2EBDD", color: "#4a5535" }}>amount_paid</code> (tracked from payments).</li>
+                                        <li><strong>Invoice Line Item Fields:</strong> <code className="px-1 rounded font-mono text-xs" style={{ backgroundColor: "#F2EBDD", color: "#4a5535" }}>catalogue_item</code> (reference to a predefined catalog item), <code className="px-1 rounded font-mono text-xs" style={{ backgroundColor: "#F2EBDD", color: "#4a5535" }}>description</code> (specific details of the charge), <code className="px-1 rounded font-mono text-xs" style={{ backgroundColor: "#F2EBDD", color: "#4a5535" }}>quantity</code> & <code className="px-1 rounded font-mono text-xs" style={{ backgroundColor: "#F2EBDD", color: "#4a5535" }}>unit_price</code> (used for line subtotal), and <code className="px-1 rounded font-mono text-xs" style={{ backgroundColor: "#F2EBDD", color: "#4a5535" }}>tax_rate</code> (tax percentage for that specific line).</li>
                                     </ul>
                                 </AccordionContent>
                             </AccordionItem>
@@ -167,8 +176,9 @@ export const Faq = () => {
                     </CardContent>
                 </Card>
 
-                <div className="text-center text-sm text-muted-foreground pt-8">
-                    Still have questions? Contact support at <a href="mailto:project@codex.academy" className="underline">project@codex.academy</a>
+                <div className="text-center text-sm pt-8" style={{ color: "#9b948e", borderTop: "1px solid #D8D2C4", paddingTop: "2rem" }}>
+                    Still have questions? Contact support at{" "}
+                    <a href="mailto:project@codex.academy" className="underline" style={{ color: "#5E6A43" }}>project@codex.academy</a>
                 </div>
 
             </div>

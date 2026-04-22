@@ -1,17 +1,40 @@
 import React from 'react';
 import { useForm } from 'react-hook-form';
-import { Button } from '../ui/button';
 import { X } from 'lucide-react';
+
+const inputClass = {
+    backgroundColor: "#fff",
+    border: "1px solid #D8D2C4",
+    color: "#2E2A26",
+    borderRadius: "6px",
+    padding: "8px 10px",
+    fontSize: "14px",
+    width: "100%",
+    fontFamily: '"Source Sans 3", Arial, sans-serif',
+    outline: "none",
+};
+
+const labelClass = {
+    display: "block",
+    fontSize: "11px",
+    fontWeight: 600,
+    textTransform: "uppercase",
+    letterSpacing: "0.06em",
+    color: "#6b6560",
+    marginBottom: "5px",
+    fontFamily: '"Source Sans 3", Arial, sans-serif',
+};
 
 export const AttributeForm = ({ entity, onSubmit, onCancel, isLoading, initialData = null }) => {
     const isEdit = !!initialData;
 
-    // Parse initialData list_values to string if needed
     const getDefaultValues = () => {
         if (!initialData) return {};
         return {
             ...initialData,
-            list_values: Array.isArray(initialData.list_values) ? initialData.list_values.join(', ') : initialData.list_values
+            list_values: Array.isArray(initialData.list_values)
+                ? initialData.list_values.join(', ')
+                : initialData.list_values
         };
     };
 
@@ -19,64 +42,79 @@ export const AttributeForm = ({ entity, onSubmit, onCancel, isLoading, initialDa
         defaultValues: getDefaultValues()
     });
 
-    React.useEffect(() => {
-        reset(getDefaultValues());
-    }, [initialData, reset]);
+    React.useEffect(() => { reset(getDefaultValues()); }, [initialData, reset]);
 
     const selectedType = watch("type");
 
     const handleFormSubmit = (data) => {
-        let payload = {
-            ...data,
-            is_required: data.is_required === true
-        };
-
+        let payload = { ...data, is_required: data.is_required === true };
         if (data.type === 'list' && typeof data.list_values === 'string') {
-            // Convert comma separated string to array, trimming whitespace
             payload.list_values = data.list_values.split(',').map(s => s.trim()).filter(s => s);
         } else {
             payload.list_values = [];
         }
-
         onSubmit(payload);
     };
 
     return (
-        <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
-            <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-semibold">{isEdit ? 'Edit Attribute' : `Add Attribute for ${entity}`}</h3>
-                <button type="button" onClick={onCancel} className="text-muted-foreground hover:text-foreground">
-                    <X size={20} />
+        <form
+            onSubmit={handleSubmit(handleFormSubmit)}
+            className="space-y-4"
+            style={{ fontFamily: '"Source Sans 3", Arial, sans-serif' }}
+        >
+            {/* Header */}
+            <div className="flex justify-between items-center mb-2">
+                <p style={{ fontSize: "15px", fontWeight: 600, color: "#2E2A26" }}>
+                    {isEdit ? 'Edit Attribute' : `Add Attribute — ${entity}`}
+                </p>
+                <button
+                    type="button"
+                    onClick={onCancel}
+                    className="flex h-7 w-7 items-center justify-center rounded-md transition-colors cursor-pointer"
+                    style={{ color: "#9b948e", backgroundColor: "transparent" }}
+                    onMouseEnter={e => e.currentTarget.style.backgroundColor = "#F2EBDD"}
+                    onMouseLeave={e => e.currentTarget.style.backgroundColor = "transparent"}
+                >
+                    <X size={16} />
                 </button>
             </div>
 
+            {/* Name */}
             <div>
-                <label className="block text-sm font-medium mb-1">Name (Key)</label>
+                <label style={labelClass}>Name (Key)</label>
                 <input
                     {...register("name", { required: "Name is required" })}
-                    className="w-full p-2 rounded-md border border-border bg-background text-foreground disabled:opacity-50 disabled:cursor-not-allowed"
+                    style={{ ...inputClass, opacity: isEdit ? 0.6 : 1, cursor: isEdit ? "not-allowed" : "text" }}
                     placeholder="e.g. industry_sector"
                     disabled={isEdit}
+                    onFocus={e => !isEdit && (e.target.style.borderColor = "#5E6A43")}
+                    onBlur={e => e.target.style.borderColor = "#D8D2C4"}
                 />
-                {errors.name && <span className="text-red-500 text-xs">{errors.name.message}</span>}
-                <p className="text-xs text-muted-foreground mt-1">Internal identifier (unique, no spaces). Cannot be changed after creation.</p>
+                {errors.name && <span style={{ color: "#c0392b", fontSize: "11px" }}>{errors.name.message}</span>}
+                <p style={{ fontSize: "11px", color: "#9b948e", marginTop: "3px" }}>
+                    Internal identifier (unique, no spaces). Cannot be changed after creation.
+                </p>
             </div>
 
+            {/* Label */}
             <div>
-                <label className="block text-sm font-medium mb-1">Label (Display Name)</label>
+                <label style={labelClass}>Label (Display Name)</label>
                 <input
                     {...register("label", { required: "Label is required" })}
-                    className="w-full p-2 rounded-md border border-border bg-background text-foreground"
+                    style={inputClass}
                     placeholder="e.g. Industry Sector"
+                    onFocus={e => e.target.style.borderColor = "#5E6A43"}
+                    onBlur={e => e.target.style.borderColor = "#D8D2C4"}
                 />
-                {errors.label && <span className="text-red-500 text-xs">{errors.label.message}</span>}
+                {errors.label && <span style={{ color: "#c0392b", fontSize: "11px" }}>{errors.label.message}</span>}
             </div>
 
+            {/* Type */}
             <div>
-                <label className="block text-sm font-medium mb-1">Type</label>
+                <label style={labelClass}>Type</label>
                 <select
                     {...register("type", { required: "Type is required" })}
-                    className="w-full p-2 rounded-md border border-border bg-background text-foreground disabled:opacity-50 disabled:cursor-not-allowed"
+                    style={{ ...inputClass, opacity: isEdit ? 0.6 : 1, cursor: isEdit ? "not-allowed" : "pointer", appearance: "auto" }}
                     disabled={isEdit}
                 >
                     <option value="text">Text</option>
@@ -89,44 +127,69 @@ export const AttributeForm = ({ entity, onSubmit, onCancel, isLoading, initialDa
                 </select>
             </div>
 
+            {/* List options */}
             {selectedType === 'list' && (
                 <div>
-                    <label className="block text-sm font-medium mb-1">List Options (Comma separated)</label>
+                    <label style={labelClass}>List Options (comma separated)</label>
                     <textarea
-                        {...register("list_values", { required: "List options are required for list type" })}
-                        className="w-full p-2 rounded-md border border-border bg-background text-foreground h-24"
+                        {...register("list_values", { required: "List options are required" })}
+                        style={{ ...inputClass, height: "80px", resize: "vertical" }}
                         placeholder="Option 1, Option 2, Option 3"
+                        onFocus={e => e.target.style.borderColor = "#5E6A43"}
+                        onBlur={e => e.target.style.borderColor = "#D8D2C4"}
                     />
-                    {errors.list_values && <span className="text-red-500 text-xs">{errors.list_values.message}</span>}
+                    {errors.list_values && <span style={{ color: "#c0392b", fontSize: "11px" }}>{errors.list_values.message}</span>}
                 </div>
             )}
 
+            {/* Description */}
             <div>
-                <label className="block text-sm font-medium mb-1">Description</label>
+                <label style={labelClass}>Description</label>
                 <textarea
                     {...register("description")}
-                    className="w-full p-2 rounded-md border border-border bg-background text-foreground h-20"
+                    style={{ ...inputClass, height: "72px", resize: "vertical" }}
                     placeholder="Describe what this attribute is for..."
+                    onFocus={e => e.target.style.borderColor = "#5E6A43"}
+                    onBlur={e => e.target.style.borderColor = "#D8D2C4"}
                 />
             </div>
 
+            {/* Required checkbox */}
             <div className="flex items-center gap-2">
                 <input
                     type="checkbox"
                     id="is_required"
                     {...register("is_required")}
-                    className="rounded border-gray-300 text-primary focus:ring-primary"
+                    style={{ accentColor: "#5E6A43", width: "14px", height: "14px", cursor: "pointer" }}
                 />
-                <label htmlFor="is_required" className="text-sm font-medium">Required Field</label>
+                <label htmlFor="is_required" style={{ fontSize: "13px", fontWeight: 500, color: "#2E2A26", cursor: "pointer" }}>
+                    Required Field
+                </label>
             </div>
 
-            <div className="flex justify-end gap-2 mt-6">
-                <Button type="button" variant="outline" onClick={onCancel} disabled={isLoading}>
+            {/* Actions */}
+            <div className="flex justify-end gap-2 pt-2" style={{ borderTop: "1px solid #D8D2C4" }}>
+                <button
+                    type="button"
+                    onClick={onCancel}
+                    disabled={isLoading}
+                    className="h-9 px-4 rounded-lg text-sm font-semibold transition-colors cursor-pointer"
+                    style={{ border: "1px solid #D8D2C4", backgroundColor: "transparent", color: "#6b6560" }}
+                    onMouseEnter={e => e.currentTarget.style.backgroundColor = "#F2EBDD"}
+                    onMouseLeave={e => e.currentTarget.style.backgroundColor = "transparent"}
+                >
                     Cancel
-                </Button>
-                <Button type="submit" disabled={isLoading}>
+                </button>
+                <button
+                    type="submit"
+                    disabled={isLoading}
+                    className="h-9 px-4 rounded-lg text-sm font-semibold transition-colors cursor-pointer"
+                    style={{ backgroundColor: isLoading ? "#4a5535" : "#5E6A43", color: "#FBF7EF", opacity: isLoading ? 0.7 : 1 }}
+                    onMouseEnter={e => !isLoading && (e.currentTarget.style.backgroundColor = "#4a5535")}
+                    onMouseLeave={e => !isLoading && (e.currentTarget.style.backgroundColor = "#5E6A43")}
+                >
                     {isLoading ? 'Saving...' : 'Save Attribute'}
-                </Button>
+                </button>
             </div>
         </form>
     );

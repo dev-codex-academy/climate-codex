@@ -2,861 +2,369 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Copy, Terminal, Shield, Database, Layout, Webhook, ArrowLeft, Network } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
+
+const METHOD_PILL = {
+    GET:    { bg: "rgba(94,106,67,0.10)",  border: "rgba(94,106,67,0.35)",  color: "#4a5535" },
+    POST:   { bg: "rgba(242,155,107,0.12)", border: "rgba(242,155,107,0.4)", color: "#c0622a" },
+    PUT:    { bg: "rgba(184,199,106,0.12)", border: "rgba(184,199,106,0.4)", color: "#697a28" },
+    PATCH:  { bg: "rgba(94,106,67,0.10)",  border: "rgba(94,106,67,0.35)",  color: "#4a5535" },
+    DELETE: { bg: "rgba(192,57,43,0.10)",  border: "rgba(192,57,43,0.35)",  color: "#c0392b" },
+};
+
+const MethodBadge = ({ method }) => {
+    const c = METHOD_PILL[method] || METHOD_PILL.GET;
+    return (
+        <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-widest"
+            style={{ backgroundColor: c.bg, border: `1px solid ${c.border}`, color: c.color }}>
+            {method}
+        </span>
+    );
+};
+
+const EndpointBlock = ({ method, path, description, children }) => (
+    <div className="p-4 rounded-lg" style={{ backgroundColor: "#FBF7EF", border: "1px solid #D8D2C4" }}>
+        <div className="flex items-center justify-between mb-2 flex-wrap gap-2">
+            <MethodBadge method={method} />
+            <code className="text-sm font-mono" style={{ color: "#5E6A43" }}>{path}</code>
+        </div>
+        {description && <p className="text-sm mb-3" style={{ color: "#6b6560" }}>{description}</p>}
+        {children}
+    </div>
+);
+
+const InfoBlock = ({ title, color = "#5E6A43", items }) => (
+    <div className="p-4 rounded-lg" style={{ backgroundColor: "#F2EBDD", borderLeft: `4px solid ${color}`, border: "1px solid #D8D2C4" }}>
+        <p className="text-sm font-semibold mb-2" style={{ color: "#2E2A26" }}>{title}</p>
+        <ul className="list-disc list-inside text-sm space-y-1" style={{ color: "#6b6560" }}>
+            {items.map((item, i) => <li key={i}>{item}</li>)}
+        </ul>
+    </div>
+);
+
+const SectionTitle = ({ children }) => (
+    <p className="text-base font-semibold mb-1" style={{ color: "#2E2A26", fontFamily: '"Source Sans 3", Arial, sans-serif' }}>{children}</p>
+);
 
 export const ApiGuide = () => {
     const [activeTab, setActiveTab] = useState("leads");
     const navigate = useNavigate();
 
-    const CopyBlock = ({ text }) => {
+    const CopyBlock = ({ text }) => (
+        <div className="relative group mt-2">
+            <pre className="bg-[#1e1e1e] text-[#d4d4d4] p-4 rounded-lg overflow-x-auto text-sm font-mono border border-[#333]">
+                {text}
+            </pre>
+            <button
+                className="absolute top-2 right-2 h-7 w-7 flex items-center justify-center rounded opacity-50 hover:opacity-100 transition-opacity cursor-pointer"
+                style={{ color: "#d4d4d4" }}
+                onClick={() => navigator.clipboard.writeText(text)}
+                title="Copy"
+            >
+                <Copy className="h-3.5 w-3.5" />
+            </button>
+        </div>
+    );
 
-        const handleCopy = () => {
-            navigator.clipboard.writeText(text);
-        };
-
-        return (
-            <div className="relative group mt-2">
-                <pre className="bg-slate-950 text-slate-50 p-4 rounded-lg overflow-x-auto text-sm font-mono border border-slate-800">
-                    {text}
-                </pre>
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    className="absolute top-2 right-2 text-slate-400 hover:text-white"
-                    onClick={handleCopy}
-                >
-                    <Copy className="h-4 w-4" />
-                </Button>
-            </div>
-        );
-    };
+    const tabs = ['leads','clients','contacts','services','pipelines','followups','catalogue','invoices','assets','attributes','webhooks','files'];
 
     return (
-        <div className="min-h-screen bg-slate-50 dark:bg-slate-900 p-6 md:p-12">
+        <div className="min-h-screen p-6 md:p-12" style={{ backgroundColor: "#FBF7EF", fontFamily: '"Source Sans 3", Arial, sans-serif' }}>
             <div className="max-w-5xl mx-auto space-y-8">
 
                 {/* Header */}
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between flex-wrap gap-4">
                     <div className="flex items-center gap-3">
-                        <div className="p-3 bg-blue-600 rounded-lg">
-                            <Terminal className="h-8 w-8 text-white" />
+                        <div className="flex h-12 w-12 items-center justify-center rounded-xl"
+                            style={{ backgroundColor: "rgba(94,106,67,0.12)", border: "1px solid rgba(94,106,67,0.3)" }}>
+                            <Terminal className="h-6 w-6" style={{ color: "#5E6A43" }} />
                         </div>
                         <div>
-                            <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">API Integration Guide</h1>
-                            <p className="text-slate-500 dark:text-slate-400 text-lg">
-                                Documentation for accessing CRM data programmatically.
-                            </p>
+                            <p className="text-2xl font-bold tracking-tight" style={{ color: "#2E2A26" }}>API Integration Guide</p>
+                            <p className="text-sm mt-0.5" style={{ color: "#9b948e" }}>Documentation for accessing CRM data programmatically.</p>
                         </div>
                     </div>
-                    <Button variant="outline" onClick={() => navigate(-1)}>
-                        <ArrowLeft className="h-4 w-4 mr-2" /> Back
-                    </Button>
+                    <button onClick={() => navigate(-1)}
+                        className="flex items-center gap-2 h-9 px-3 rounded-lg text-sm font-medium transition-colors cursor-pointer"
+                        style={{ border: "1px solid #D8D2C4", backgroundColor: "transparent", color: "#6b6560" }}
+                        onMouseEnter={e => e.currentTarget.style.backgroundColor = "#F2EBDD"}
+                        onMouseLeave={e => e.currentTarget.style.backgroundColor = "transparent"}>
+                        <ArrowLeft className="h-4 w-4" /> Back
+                    </button>
                 </div>
 
                 {/* Authentication */}
                 <Card>
                     <CardHeader>
                         <div className="flex items-center gap-2">
-                            <Shield className="h-5 w-5 text-green-600" />
+                            <Shield className="h-5 w-5" style={{ color: "#5E6A43" }} />
                             <CardTitle>Authentication</CardTitle>
                         </div>
-                        <CardDescription>
-                            All API requests must be authenticated using a simplified Token-based mechanism.
-                        </CardDescription>
+                        <CardDescription>All API requests must be authenticated using a Token-based mechanism.</CardDescription>
                     </CardHeader>
-                    <CardContent className="space-y-6">
+                    <CardContent className="space-y-5">
                         <div>
-                            <h3 className="text-sm font-semibold mb-2">1. Obtain a Token</h3>
-                            <p className="text-sm text-slate-600 dark:text-slate-400 mb-2">
-                                Send a POST request with your credentials to receive an authentication token.
-                            </p>
+                            <p className="text-sm font-semibold mb-1" style={{ color: "#2E2A26" }}>1. Obtain a Token</p>
+                            <p className="text-sm mb-2" style={{ color: "#6b6560" }}>Send a POST request with your credentials to receive an authentication token.</p>
                             <CopyBlock text={`curl -X POST https://dev.codexcrm.click/api-token-auth/ \\
 -H "Content-Type: application/json" \\
--d '{
-  "username": "YOUR_USERNAME",
-  "password": "YOUR_PASSWORD"
-}'`} />
+-d '{"username": "YOUR_USERNAME", "password": "YOUR_PASSWORD"}'`} />
                         </div>
-
                         <div>
-                            <h3 className="text-sm font-semibold mb-2">2. Use the Token</h3>
-                            <p className="text-sm text-slate-600 dark:text-slate-400 mb-2">
-                                Include the token in the <code>Authorization</code> header of subsequent requests.
-                            </p>
+                            <p className="text-sm font-semibold mb-1" style={{ color: "#2E2A26" }}>2. Use the Token</p>
+                            <p className="text-sm mb-2" style={{ color: "#6b6560" }}>Include the token in the <code>Authorization</code> header of subsequent requests.</p>
                             <CopyBlock text={`Authorization: Token YOUR_TOKEN_HERE`} />
                         </div>
                     </CardContent>
                 </Card>
 
-                {/* Main Resources */}
+                {/* Resources */}
                 <Card>
                     <CardHeader>
                         <div className="flex items-center gap-2">
-                            <Database className="h-5 w-5 text-blue-600" />
+                            <Database className="h-5 w-5" style={{ color: "#5E6A43" }} />
                             <CardTitle>Resources Directory</CardTitle>
                         </div>
-                        <CardDescription>
-                            Browse detailed documentation for each resource.
-                        </CardDescription>
+                        <CardDescription>Browse detailed documentation for each resource.</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <div className="flex flex-col md:flex-row gap-6">
-                            {/* Sidebar Tabs */}
-                            <div className="w-full md:w-1/4 space-y-1">
-                                {['leads', 'clients', 'contacts', 'services', 'pipelines', 'followups', 'catalogue', 'invoices', 'assets', 'attributes', 'webhooks', 'files'].map((tab) => (
-                                    <Button
-                                        key={tab}
-                                        variant={activeTab === tab ? "secondary" : "ghost"}
-                                        onClick={() => setActiveTab(tab)}
-                                        className="w-full justify-start capitalize"
+                            {/* Tab nav */}
+                            <div className="w-full md:w-1/4 space-y-0.5">
+                                {tabs.map((tab) => (
+                                    <button key={tab} onClick={() => setActiveTab(tab)}
+                                        className="w-full text-left px-3 py-2 rounded-lg text-sm font-medium capitalize transition-colors cursor-pointer"
+                                        style={{
+                                            backgroundColor: activeTab === tab ? "rgba(94,106,67,0.12)" : "transparent",
+                                            color: activeTab === tab ? "#5E6A43" : "#6b6560",
+                                            fontWeight: activeTab === tab ? 600 : 400,
+                                        }}
+                                        onMouseEnter={e => activeTab !== tab && (e.currentTarget.style.backgroundColor = "#F2EBDD")}
+                                        onMouseLeave={e => activeTab !== tab && (e.currentTarget.style.backgroundColor = "transparent")}
                                     >
-                                        {tab.replace('followups', 'Follow Ups')}
-                                    </Button>
+                                        {tab === 'followups' ? 'Follow Ups' : tab.charAt(0).toUpperCase() + tab.slice(1)}
+                                    </button>
                                 ))}
                             </div>
 
-                            {/* Content Area */}
-                            <div className="w-full md:w-3/4 min-h-[400px]">
-                                {activeTab === 'leads' && (
-                                    <div className="space-y-4 animate-in fade-in-50 duration-300">
-                                        <h3 className="text-lg font-semibold">Leads (Opportunities)</h3>
-                                        <div className="p-4 border rounded-md bg-white dark:bg-slate-950">
-                                            <div className="flex items-center justify-between mb-2">
-                                                <Badge variant="outline">GET</Badge>
-                                                <code className="text-sm font-mono text-blue-600 dark:text-blue-400">/api/leads/</code>
-                                            </div>
-                                            <p className="text-sm text-muted-foreground mb-4">
-                                                Retrieve a paginated list of leads.
-                                            </p>
-                                            <CopyBlock text={`curl -X GET https://dev.codexcrm.click/api/leads/ \\
--H "Authorization: Token YOUR_TOKEN"`} />
-                                        </div>
-                                        <div className="p-4 border rounded-md bg-white dark:bg-slate-950">
-                                            <div className="flex items-center justify-between mb-2">
-                                                <Badge>POST</Badge>
-                                                <code className="text-sm font-mono text-blue-600 dark:text-blue-400">/api/leads/</code>
-                                            </div>
-                                            <p className="text-sm text-muted-foreground mb-4">
-                                                Create a new lead.
-                                                <br /><br />
-                                                <strong>Note:</strong> Leads use <code>attributes</code> for their own custom fields, <code>client_attributes</code> for the future generated Client data, and an <code>items</code> array that directly links to the unified <code>catalogue_item</code> records to generate services and invoices dynamically upon closing the deal.
-                                            </p>
-                                            <CopyBlock text={`{
-  "name": "New Service Lead",
-  "stage": "Prospecting",
-  "responsible": 1,
-  "lost_reason": "Price (Required if stage is Lost)", 
-  "attributes": { "source": "Web" },
-  "client_attributes": { "age": 25, "location": "NY" },
-  "items": [
-    {
-      "catalogue_item": "UUID-OF-CATALOGUE-ITEM",
-      "quantity": 1,
-      "custom_price": 5000,
-      "attributes": {
-        "dynamic_field": "value"
-      }
-    }
-  ],
-  "list_of_tasks": [
-    {
-      "task": "Initial call",
-      "date": "2025-01-20",
-      "completed": false
-    }
-  ]
-}`} />
-                                        </div>
-                                        <div className="p-4 border rounded-md bg-white dark:bg-slate-950">
-                                            <div className="flex items-center justify-between mb-2">
-                                                <Badge variant="outline">PUT</Badge>
-                                                <code className="text-sm font-mono text-blue-600 dark:text-blue-400">/api/leads/{'{uuid}'}/</code>
-                                            </div>
-                                            <p className="text-sm text-muted-foreground mb-4">
-                                                Update an existing lead.
-                                            </p>
-                                            <CopyBlock text={`{
-  "stage": "Lost",
-  "lost_reason": "Budget constraints (Required)",
-  "name": "Updated Name"
-}`} />
-                                        </div>
-                                        <div className="p-4 border rounded-md bg-white dark:bg-slate-950">
-                                            <div className="flex items-center justify-between mb-2">
-                                                <Badge variant="destructive">DELETE</Badge>
-                                                <code className="text-sm font-mono text-blue-600 dark:text-blue-400">/api/leads/{'{uuid}'}/</code>
-                                            </div>
-                                            <p className="text-sm text-muted-foreground mb-4">
-                                                Delete a lead.
-                                            </p>
-                                            <CopyBlock text={`curl -X DELETE https://dev.codexcrm.click/api/leads/{uuid}/ \\
--H "Authorization: Token YOUR_TOKEN"`} />
-                                        </div>
-                                    </div>
-                                )}
+                            {/* Content */}
+                            <div className="w-full md:w-3/4 min-h-[400px] space-y-4">
 
-                                {activeTab === 'clients' && (
-                                    <div className="space-y-4 animate-in fade-in-50 duration-300">
-                                        <h3 className="text-lg font-semibold">Clients</h3>
-                                        <div className="p-4 border rounded-md bg-white dark:bg-slate-950">
-                                            <div className="flex items-center justify-between mb-2">
-                                                <Badge variant="outline">GET</Badge>
-                                                <code className="text-sm font-mono text-blue-600 dark:text-blue-400">/api/clients/</code>
-                                            </div>
-                                            <p className="text-sm text-muted-foreground mb-4">
-                                                List all clients. Supports filtering by name.
-                                            </p>
-                                            <CopyBlock text={`curl -X GET "https://dev.codexcrm.click/api/clients/?name=Acme" \\
--H "Authorization: Token YOUR_TOKEN"`} />
-                                        </div>
-                                        <div className="p-4 border rounded-md bg-white dark:bg-slate-950">
-                                            <div className="flex items-center justify-between mb-2">
-                                                <Badge>POST</Badge>
-                                                <code className="text-sm font-mono text-blue-600 dark:text-blue-400">/api/clients/</code>
-                                            </div>
-                                            <p className="text-sm text-muted-foreground mb-4">
-                                                Create a new client.
-                                            </p>
-                                            <CopyBlock text={`{
-  "name": "Acme Corp",
-  "attributes": {
-    "industry": "Tech"
-  }
-}`} />
-                                        </div>
-                                        <div className="p-4 border rounded-md bg-white dark:bg-slate-950">
-                                            <div className="flex items-center justify-between mb-2">
-                                                <Badge variant="outline">PUT</Badge>
-                                                <code className="text-sm font-mono text-blue-600 dark:text-blue-400">/api/clients/{'{uuid}'}/</code>
-                                            </div>
-                                            <p className="text-sm text-muted-foreground mb-4">
-                                                Update client details.
-                                            </p>
-                                            <CopyBlock text={`{
-  "name": "Acme Inc",
-  "attributes": {
-    "industry": "Finance"
-  }
-}`} />
-                                        </div>
-                                        <div className="p-4 border rounded-md bg-white dark:bg-slate-950">
-                                            <div className="flex items-center justify-between mb-2">
-                                                <Badge variant="destructive">DELETE</Badge>
-                                                <code className="text-sm font-mono text-blue-600 dark:text-blue-400">/api/clients/{'{uuid}'}/</code>
-                                            </div>
-                                            <p className="text-sm text-muted-foreground mb-4">
-                                                Delete a client.
-                                            </p>
-                                            <CopyBlock text={`curl -X DELETE https://dev.codexcrm.click/api/clients/{uuid}/ \\
--H "Authorization: Token YOUR_TOKEN"`} />
-                                        </div>
-                                    </div>
-                                )}
+                                {activeTab === 'leads' && (<>
+                                    <SectionTitle>Leads (Opportunities)</SectionTitle>
+                                    <EndpointBlock method="GET" path="/api/leads/" description="Retrieve a paginated list of leads.">
+                                        <CopyBlock text={`curl -X GET https://dev.codexcrm.click/api/leads/ \\\n-H "Authorization: Token YOUR_TOKEN"`} />
+                                    </EndpointBlock>
+                                    <EndpointBlock method="POST" path="/api/leads/">
+                                        <p className="text-sm mb-3" style={{ color: "#6b6560" }}>Create a new lead. Uses <code>attributes</code> for custom fields, <code>client_attributes</code> for future Client data, and <code>items</code> array linking catalogue items.</p>
+                                        <CopyBlock text={`{\n  "name": "New Service Lead",\n  "stage": "Prospecting",\n  "responsible": 1,\n  "attributes": { "source": "Web" },\n  "items": [{ "catalogue_item": "UUID", "quantity": 1 }]\n}`} />
+                                    </EndpointBlock>
+                                    <EndpointBlock method="PUT" path="/api/leads/{uuid}/" description="Update an existing lead.">
+                                        <CopyBlock text={`{ "stage": "Lost", "lost_reason": "Budget constraints (Required)", "name": "Updated Name" }`} />
+                                    </EndpointBlock>
+                                    <EndpointBlock method="DELETE" path="/api/leads/{uuid}/" description="Delete a lead.">
+                                        <CopyBlock text={`curl -X DELETE https://dev.codexcrm.click/api/leads/{uuid}/ \\\n-H "Authorization: Token YOUR_TOKEN"`} />
+                                    </EndpointBlock>
+                                </>)}
 
-                                {activeTab === 'contacts' && (
-                                    <div className="space-y-4 animate-in fade-in-50 duration-300">
-                                        <h3 className="text-lg font-semibold">Contacts</h3>
-                                        <div className="p-4 border rounded-md bg-white dark:bg-slate-950">
-                                            <div className="flex items-center justify-between mb-2">
-                                                <Badge variant="outline">GET</Badge>
-                                                <code className="text-sm font-mono text-blue-600 dark:text-blue-400">/api/contacts/</code>
-                                            </div>
-                                            <p className="text-sm text-muted-foreground mb-4">
-                                                List all contacts. Supports filtering by client or name.
-                                            </p>
-                                            <CopyBlock text={`curl -X GET "https://dev.codexcrm.click/api/contacts/?client={client_uuid}" \\
--H "Authorization: Token YOUR_TOKEN"`} />
-                                        </div>
-                                        <div className="p-4 border rounded-md bg-white dark:bg-slate-950">
-                                            <div className="flex items-center justify-between mb-2">
-                                                <Badge>POST</Badge>
-                                                <code className="text-sm font-mono text-blue-600 dark:text-blue-400">/api/contacts/</code>
-                                            </div>
-                                            <p className="text-sm text-muted-foreground mb-4">
-                                                Create a new contact.
-                                            </p>
-                                            <CopyBlock text={`{
-  "client": "client-uuid",
-  "first_name": "Maria",
-  "last_name": "Lopez",
-  "email": "m.lopez@example.com",
-  "is_primary": true
-}`} />
-                                        </div>
-                                        <div className="p-4 border rounded-md bg-white dark:bg-slate-950">
-                                            <div className="flex items-center justify-between mb-2">
-                                                <Badge variant="outline">PATCH</Badge>
-                                                <code className="text-sm font-mono text-blue-600 dark:text-blue-400">/api/contacts/{'{uuid}'}/</code>
-                                            </div>
-                                            <p className="text-sm text-muted-foreground mb-4">
-                                                Update a contact.
-                                            </p>
-                                            <CopyBlock text={`{
-  "job_title": "CEO",
-  "is_primary": true
-}`} />
-                                        </div>
-                                        <div className="p-4 border rounded-md bg-white dark:bg-slate-950">
-                                            <div className="flex items-center justify-between mb-2">
-                                                <Badge variant="destructive">DELETE</Badge>
-                                                <code className="text-sm font-mono text-blue-600 dark:text-blue-400">/api/contacts/{'{uuid}'}/</code>
-                                            </div>
-                                            <p className="text-sm text-muted-foreground mb-4">
-                                                Delete a contact.
-                                            </p>
-                                            <CopyBlock text={`curl -X DELETE https://dev.codexcrm.click/api/contacts/{uuid}/ \\
--H "Authorization: Token YOUR_TOKEN"`} />
-                                        </div>
-                                    </div>
-                                )}
+                                {activeTab === 'clients' && (<>
+                                    <SectionTitle>Clients</SectionTitle>
+                                    <EndpointBlock method="GET" path="/api/clients/" description="List all clients. Supports filtering by name.">
+                                        <CopyBlock text={`curl -X GET "https://dev.codexcrm.click/api/clients/?name=Acme" \\\n-H "Authorization: Token YOUR_TOKEN"`} />
+                                    </EndpointBlock>
+                                    <EndpointBlock method="POST" path="/api/clients/" description="Create a new client.">
+                                        <CopyBlock text={`{ "name": "Acme Corp", "attributes": { "industry": "Tech" } }`} />
+                                    </EndpointBlock>
+                                    <EndpointBlock method="PUT" path="/api/clients/{uuid}/" description="Update client details.">
+                                        <CopyBlock text={`{ "name": "Acme Inc", "attributes": { "industry": "Finance" } }`} />
+                                    </EndpointBlock>
+                                    <EndpointBlock method="DELETE" path="/api/clients/{uuid}/" description="Delete a client.">
+                                        <CopyBlock text={`curl -X DELETE https://dev.codexcrm.click/api/clients/{uuid}/ \\\n-H "Authorization: Token YOUR_TOKEN"`} />
+                                    </EndpointBlock>
+                                </>)}
 
-                                {activeTab === 'services' && (
-                                    <div className="space-y-4 animate-in fade-in-50 duration-300">
-                                        <h3 className="text-lg font-semibold">Services</h3>
-                                        <div className="p-4 border rounded-md bg-white dark:bg-slate-950">
-                                            <div className="flex items-center justify-between mb-2">
-                                                <Badge variant="outline">GET</Badge>
-                                                <code className="text-sm font-mono text-blue-600 dark:text-blue-400">/api/services/</code>
-                                            </div>
-                                            <p className="text-sm text-muted-foreground mb-4">
-                                                Retrieve services provided to clients.
-                                            </p>
-                                            <CopyBlock text={`curl -X GET https://dev.codexcrm.click/api/services/ \\
--H "Authorization: Token YOUR_TOKEN"`} />
-                                        </div>
-                                        <div className="p-4 border rounded-md bg-white dark:bg-slate-950">
-                                            <div className="flex items-center justify-between mb-2">
-                                                <Badge>POST</Badge>
-                                                <code className="text-sm font-mono text-blue-600 dark:text-blue-400">/api/services/</code>
-                                            </div>
-                                            <p className="text-sm text-muted-foreground mb-4">
-                                                Create a service.
-                                            </p>
-                                            <CopyBlock text={`{
-  "name": "Jane Doe",
-  "client": "client-uuid",
-  "attributes": {
-    "program": "Full Stack"
-  }
-}`} />
-                                        </div>
-                                        <div className="p-4 border rounded-md bg-white dark:bg-slate-950">
-                                            <div className="flex items-center justify-between mb-2">
-                                                <Badge variant="outline">PUT</Badge>
-                                                <code className="text-sm font-mono text-blue-600 dark:text-blue-400">/api/services/{'{uuid}'}/</code>
-                                            </div>
-                                            <p className="text-sm text-muted-foreground mb-4">
-                                                Update service details.
-                                            </p>
-                                            <CopyBlock text={`{
-  "name": "Jane Doe Smith",
-  "attributes": {
-    "program": "Data Science"
-  }
-}`} />
-                                        </div>
-                                        <div className="p-4 border rounded-md bg-white dark:bg-slate-950">
-                                            <div className="flex items-center justify-between mb-2">
-                                                <Badge variant="destructive">DELETE</Badge>
-                                                <code className="text-sm font-mono text-blue-600 dark:text-blue-400">/api/services/{'{uuid}'}/</code>
-                                            </div>
-                                            <p className="text-sm text-muted-foreground mb-4">
-                                                Delete a service.
-                                            </p>
-                                            <CopyBlock text={`curl -X DELETE https://dev.codexcrm.click/api/services/{uuid}/ \\
--H "Authorization: Token YOUR_TOKEN"`} />
-                                        </div>
-                                    </div>
-                                )}
+                                {activeTab === 'contacts' && (<>
+                                    <SectionTitle>Contacts</SectionTitle>
+                                    <EndpointBlock method="GET" path="/api/contacts/" description="List all contacts. Supports filtering by client or name.">
+                                        <CopyBlock text={`curl -X GET "https://dev.codexcrm.click/api/contacts/?client={client_uuid}" \\\n-H "Authorization: Token YOUR_TOKEN"`} />
+                                    </EndpointBlock>
+                                    <EndpointBlock method="POST" path="/api/contacts/" description="Create a new contact.">
+                                        <CopyBlock text={`{ "client": "client-uuid", "first_name": "Maria", "last_name": "Lopez", "email": "m.lopez@example.com", "is_primary": true }`} />
+                                    </EndpointBlock>
+                                    <EndpointBlock method="PATCH" path="/api/contacts/{uuid}/" description="Update a contact.">
+                                        <CopyBlock text={`{ "job_title": "CEO", "is_primary": true }`} />
+                                    </EndpointBlock>
+                                    <EndpointBlock method="DELETE" path="/api/contacts/{uuid}/" description="Delete a contact.">
+                                        <CopyBlock text={`curl -X DELETE https://dev.codexcrm.click/api/contacts/{uuid}/ \\\n-H "Authorization: Token YOUR_TOKEN"`} />
+                                    </EndpointBlock>
+                                </>)}
 
-                                {activeTab === 'pipelines' && (
-                                    <div className="space-y-4 animate-in fade-in-50 duration-300">
-                                        <h3 className="text-lg font-semibold flex items-center gap-2"><Network className="h-5 w-5" /> Pipelines</h3>
-                                        <p className="text-sm text-muted-foreground">Manage sales processes and stages.</p>
+                                {activeTab === 'services' && (<>
+                                    <SectionTitle>Services</SectionTitle>
+                                    <EndpointBlock method="GET" path="/api/services/" description="Retrieve services provided to clients.">
+                                        <CopyBlock text={`curl -X GET https://dev.codexcrm.click/api/services/ \\\n-H "Authorization: Token YOUR_TOKEN"`} />
+                                    </EndpointBlock>
+                                    <EndpointBlock method="POST" path="/api/services/" description="Create a service.">
+                                        <CopyBlock text={`{ "name": "Jane Doe", "client": "client-uuid", "attributes": { "program": "Full Stack" } }`} />
+                                    </EndpointBlock>
+                                    <EndpointBlock method="PUT" path="/api/services/{uuid}/" description="Update service details.">
+                                        <CopyBlock text={`{ "name": "Jane Doe Smith", "attributes": { "program": "Data Science" } }`} />
+                                    </EndpointBlock>
+                                    <EndpointBlock method="DELETE" path="/api/services/{uuid}/" description="Delete a service.">
+                                        <CopyBlock text={`curl -X DELETE https://dev.codexcrm.click/api/services/{uuid}/ \\\n-H "Authorization: Token YOUR_TOKEN"`} />
+                                    </EndpointBlock>
+                                </>)}
 
-                                        <div className="p-4 border rounded-md bg-white dark:bg-slate-950">
-                                            <div className="flex items-center justify-between mb-2">
-                                                <Badge variant="outline">GET</Badge>
-                                                <code className="text-sm font-mono text-blue-600 dark:text-blue-400">/api/pipelines/</code>
-                                            </div>
-                                            <p className="text-sm text-muted-foreground mb-4">List all configured pipelines.</p>
-                                        </div>
+                                {activeTab === 'pipelines' && (<>
+                                    <SectionTitle>Pipelines</SectionTitle>
+                                    <p className="text-sm" style={{ color: "#6b6560" }}>Manage sales processes and stages.</p>
+                                    <EndpointBlock method="GET" path="/api/pipelines/" description="List all configured pipelines." />
+                                    <EndpointBlock method="POST" path="/api/pipelines/">
+                                        <p className="text-sm mb-3" style={{ color: "#6b6560" }}>"Won" and "Lost" stages are <strong>automatically appended</strong>. Do <strong>not</strong> include them in your payload.</p>
+                                        <CopyBlock text={`{\n  "name": "B2B Sales",\n  "stages": [\n    {"name": "Prospecting", "color": "#6c6f73", "order": 1},\n    {"name": "Negotiation", "color": "#007bff", "order": 2}\n  ]\n}`} />
+                                    </EndpointBlock>
+                                    <EndpointBlock method="PUT" path="/api/pipelines/{uuid}/" description="Update a pipeline.">
+                                        <CopyBlock text={`{ "name": "B2B Sales V2", "stages": [{"name": "Qualification", "color": "#6c6f73", "order": 1}] }`} />
+                                    </EndpointBlock>
+                                    <EndpointBlock method="DELETE" path="/api/pipelines/{uuid}/" description="Delete a pipeline.">
+                                        <CopyBlock text={`curl -X DELETE https://dev.codexcrm.click/api/pipelines/{uuid}/ \\\n-H "Authorization: Token YOUR_TOKEN"`} />
+                                    </EndpointBlock>
+                                </>)}
 
-                                        <div className="p-4 border rounded-md bg-white dark:bg-slate-950">
-                                            <div className="flex items-center justify-between mb-2">
-                                                <Badge>POST</Badge>
-                                                <code className="text-sm font-mono text-blue-600 dark:text-blue-400">/api/pipelines/</code>
-                                            </div>
-                                            <p className="text-sm text-muted-foreground mb-4">
-                                                Create a new pipeline with stages.
-                                                <br /><br />
-                                                <ul className="list-disc list-inside space-y-1">
-                                                    <li>"Won" and "Lost" stages are <strong>automatically appended</strong> (Order 99 & 100).</li>
-                                                    <li>Do <strong>not</strong> include stages named "Won" or "Lost" in your payload.</li>
-                                                    <li>Maximum of 98 custom stages allowed.</li>
-                                                </ul>
-                                            </p>
-                                            <CopyBlock text={`{
-    "name": "B2B Sales",
-    "stages": [
-        {"name": "Prospecting", "color": "#6c6f73", "order": 1},
-        {"name": "Negotiation", "color": "#007bff", "order": 2}
-    ]
-}`} />
-                                        </div>
+                                {activeTab === 'followups' && (<>
+                                    <SectionTitle>Follow Ups</SectionTitle>
+                                    <p className="text-sm" style={{ color: "#6b6560" }}>Interactions logged against a specific Service.</p>
+                                    <EndpointBlock method="GET" path="/services/{service_id}/follow-ups/" description="List follow-ups for a specific service." />
+                                    <EndpointBlock method="POST" path="/services/{service_id}/follow-ups/">
+                                        <CopyBlock text={`{ "follow_up_date": "2025-01-15T10:00:00Z", "comment": "Sent brochure.", "attributes": { "channel": "email" } }`} />
+                                    </EndpointBlock>
+                                    <EndpointBlock method="PUT" path="/services/{service_id}/follow-ups/{uuid}/" description="Update a follow-up interaction.">
+                                        <CopyBlock text={`{ "comment": "Sent updated brochure and pricing.", "follow_up_date": "2025-01-16T10:00:00Z" }`} />
+                                    </EndpointBlock>
+                                    <EndpointBlock method="DELETE" path="/services/{service_id}/follow-ups/{uuid}/" description="Delete a follow-up.">
+                                        <CopyBlock text={`curl -X DELETE https://dev.codexcrm.click/services/{service_id}/follow-ups/{uuid}/ \\\n-H "Authorization: Token YOUR_TOKEN"`} />
+                                    </EndpointBlock>
+                                </>)}
 
-                                        <div className="p-4 border rounded-md bg-white dark:bg-slate-950">
-                                            <div className="flex items-center justify-between mb-2">
-                                                <Badge variant="outline">PUT</Badge>
-                                                <code className="text-sm font-mono text-blue-600 dark:text-blue-400">/api/pipelines/{'{uuid}'}/</code>
-                                            </div>
-                                            <p className="text-sm text-muted-foreground mb-4">Update a pipeline.</p>
-                                            <CopyBlock text={`{
-    "name": "B2B Sales V2",
-    "stages": [
-        {"name": "Qualification", "color": "#6c6f73", "order": 1},
-        {"name": "Closed", "color": "#28a745", "order": 2}
-    ]
-}`} />
-                                        </div>
+                                {activeTab === 'catalogue' && (<>
+                                    <SectionTitle>Catalogue & Categories</SectionTitle>
+                                    <p className="text-sm" style={{ color: "#6b6560" }}>Manage products, services, subscriptions, and their categories.</p>
+                                    <EndpointBlock method="GET" path="/api/categories/" description="List product and service categories." />
+                                    <EndpointBlock method="POST" path="/api/categories/" description="Create a new category.">
+                                        <CopyBlock text={`{ "name": "Software", "description": "Software products", "parent": null }`} />
+                                    </EndpointBlock>
+                                    <EndpointBlock method="GET" path="/api/catalogue/" description="List catalogue items. Supports filtering by category or type." />
+                                    <EndpointBlock method="POST" path="/api/catalogue/" description="Create a new catalogue item.">
+                                        <CopyBlock text={`{ "category": "category-uuid", "name": "Web Development", "type": "service", "base_price": "100.00", "currency": "USD", "unit": "hour", "is_active": true }`} />
+                                    </EndpointBlock>
+                                    <EndpointBlock method="PATCH" path="/api/catalogue/{uuid}/" description="Update a catalogue item.">
+                                        <CopyBlock text={`{ "base_price": "120.00" }`} />
+                                    </EndpointBlock>
+                                    <EndpointBlock method="DELETE" path="/api/catalogue/{uuid}/" description="Delete a catalogue item.">
+                                        <CopyBlock text={`curl -X DELETE https://dev.codexcrm.click/api/catalogue/{uuid}/ \\\n-H "Authorization: Token YOUR_TOKEN"`} />
+                                    </EndpointBlock>
+                                    <p className="text-sm font-semibold mt-4" style={{ color: "#2E2A26" }}>Base Fields Guide</p>
+                                    <InfoBlock title="Category Fields" color="#5E6A43" items={[
+                                        <><code>name</code>: The name of the category.</>,
+                                        <><code>description</code>: Details about the category's purpose.</>,
+                                        <><code>parent</code>: UUID of a parent category to create subcategories.</>,
+                                    ]} />
+                                    <InfoBlock title="Catalogue Item Fields" color="#B8C76A" items={[
+                                        <><code>name</code>: The name of the product or service.</>,
+                                        <><code>type</code>: product, service, or subscription.</>,
+                                        <><code>base_price</code> &amp; <code>currency</code>: Standard pricing.</>,
+                                        <><code>unit</code>: Unit of measure (hour, seat, month).</>,
+                                        <><code>tax_rate</code>: Default tax percentage.</>,
+                                        <><code>inventory</code>: Optional link to physical stock.</>,
+                                    ]} />
+                                    <InfoBlock title="Inventory Fields" color="#F29B6B" items={[
+                                        <><code>sku</code>: Unique Stock Keeping Unit for tracking.</>,
+                                        <><code>quantity_on_hand</code>: Current available stock.</>,
+                                        <><code>reorder_level</code>: Threshold for low stock warnings.</>,
+                                        <><code>location</code>: Physical location of the stock.</>,
+                                    ]} />
+                                </>)}
 
-                                        <div className="p-4 border rounded-md bg-white dark:bg-slate-950">
-                                            <div className="flex items-center justify-between mb-2">
-                                                <Badge variant="destructive">DELETE</Badge>
-                                                <code className="text-sm font-mono text-blue-600 dark:text-blue-400">/api/pipelines/{'{uuid}'}/</code>
-                                            </div>
-                                            <p className="text-sm text-muted-foreground mb-4">Delete a pipeline.</p>
-                                            <CopyBlock text={`curl -X DELETE https://dev.codexcrm.click/api/pipelines/{uuid}/ \\
--H "Authorization: Token YOUR_TOKEN"`} />
-                                        </div>
-                                    </div>
-                                )}
+                                {activeTab === 'invoices' && (<>
+                                    <SectionTitle>Invoices & Payments</SectionTitle>
+                                    <p className="text-sm" style={{ color: "#6b6560" }}>Billing, invoicing, and payment tracking.</p>
+                                    <EndpointBlock method="GET" path="/api/invoices/" description="List invoices." />
+                                    <EndpointBlock method="POST" path="/api/invoices/" description="Create a draft invoice.">
+                                        <CopyBlock text={`{ "client": "client-uuid", "status": "draft", "issue_date": "2026-02-26", "due_date": "2026-03-26", "currency": "USD" }`} />
+                                    </EndpointBlock>
+                                    <EndpointBlock method="PATCH" path="/api/invoices/{uuid}/" description="Update an invoice status.">
+                                        <CopyBlock text={`{ "status": "sent" }`} />
+                                    </EndpointBlock>
+                                    <EndpointBlock method="POST" path="/api/invoices/{invoice_uuid}/line-items/" description="Add a line item to an invoice.">
+                                        <CopyBlock text={`{ "catalogue_item": "item-uuid", "description": "Web Dev - 20h", "quantity": "20.00", "unit_price": "100.00", "tax_rate": "15.00" }`} />
+                                    </EndpointBlock>
+                                    <EndpointBlock method="POST" path="/api/invoices/{invoice_uuid}/payments/" description="Record a payment for an invoice.">
+                                        <CopyBlock text={`{ "amount": "2300.00", "method": "bank_transfer", "paid_at": "2026-03-01T10:00:00Z", "reference": "WIRE-2026-001" }`} />
+                                    </EndpointBlock>
+                                    <p className="text-sm font-semibold mt-4" style={{ color: "#2E2A26" }}>Base Fields Guide</p>
+                                    <InfoBlock title="Invoice Fields" color="#5E6A43" items={[
+                                        <><code>client</code> &amp; <code>contact</code>: Entities responsible for the invoice.</>,
+                                        <><code>status</code>: draft, sent, paid, overdue, void.</>,
+                                        <><code>issue_date</code> &amp; <code>due_date</code>: Billing timelines.</>,
+                                        <><code>subtotal</code>, <code>tax_amount</code>, <code>discount</code>, <code>total</code>: Auto-calculated.</>,
+                                        <><code>amount_paid</code>: Total covered by registered payments.</>,
+                                    ]} />
+                                    <InfoBlock title="Invoice Line Item Fields" color="#B8C76A" items={[
+                                        <><code>catalogue_item</code>: Optional reference to a predefined product/service.</>,
+                                        <><code>description</code>: Specific details of what is being charged.</>,
+                                        <><code>quantity</code> &amp; <code>unit_price</code>: Used to calculate line subtotal.</>,
+                                        <><code>tax_rate</code>: Tax percentage for this specific line.</>,
+                                    ]} />
+                                </>)}
 
-                                {activeTab === 'followups' && (
-                                    <div className="space-y-4 animate-in fade-in-50 duration-300">
-                                        <h3 className="text-lg font-semibold">Follow Ups</h3>
-                                        <p className="text-sm text-muted-foreground">Interactions logged against a specific Service.</p>
+                                {activeTab === 'assets' && (<>
+                                    <SectionTitle>Assets</SectionTitle>
+                                    <p className="text-sm" style={{ color: "#6b6560" }}>Manage physical company assets and personnel assignments.</p>
+                                    <EndpointBlock method="GET" path="/api/assets/" description="List all physical assets." />
+                                    <EndpointBlock method="POST" path="/api/assets/" description="Create a new asset.">
+                                        <CopyBlock text={`{ "name": "MacBook Pro", "description": "2023 16-inch model", "bought_date": "2023-01-15", "price": "2000.00", "quantity": 10 }`} />
+                                    </EndpointBlock>
+                                    <EndpointBlock method="GET" path="/api/asset-assignments/" description="List all asset lending assignments." />
+                                    <EndpointBlock method="POST" path="/api/asset-assignments/" description="Lend an asset to personnel.">
+                                        <CopyBlock text={`{ "asset": "asset-uuid", "borrow_date": "2023-06-01", "name": "John Doe", "email": "john@example.com", "lending_amount": 1 }`} />
+                                    </EndpointBlock>
+                                </>)}
 
-                                        <div className="p-4 border rounded-md bg-white dark:bg-slate-950">
-                                            <div className="flex items-center justify-between mb-2">
-                                                <Badge variant="outline">GET</Badge>
-                                                <code className="text-sm font-mono text-blue-600 dark:text-blue-400">/services/{'{service_id}'}/follow-ups/</code>
-                                            </div>
-                                            <p className="text-sm text-muted-foreground mb-4">List follow-ups for a specific service.</p>
-                                        </div>
+                                {activeTab === 'attributes' && (<>
+                                    <SectionTitle>Attributes & Metadata</SectionTitle>
+                                    <EndpointBlock method="GET" path="/api/attributes/{entity}/">
+                                        <p className="text-sm mb-3" style={{ color: "#6b6560" }}>
+                                            Get schema/attributes for an entity.<br />
+                                            Options: <code>client</code>, <code>contact</code>, <code>service</code>, <code>lead</code>, <code>follow_up</code>, <code>category</code>, <code>catalogue_item</code>, <code>invoice</code>, <code>payment</code>, <code>asset</code>, <code>asset_assignment</code>.
+                                        </p>
+                                        <CopyBlock text={`curl -X GET https://dev.codexcrm.click/api/attributes/lead/ \\\n-H "Authorization: Token YOUR_TOKEN"`} />
+                                    </EndpointBlock>
+                                </>)}
 
-                                        <div className="p-4 border rounded-md bg-white dark:bg-slate-950">
-                                            <div className="flex items-center justify-between mb-2">
-                                                <Badge>POST</Badge>
-                                                <code className="text-sm font-mono text-blue-600 dark:text-blue-400">/services/{'{service_id}'}/follow-ups/</code>
-                                            </div>
-                                            <CopyBlock text={`{
-    "follow_up_date": "2025-01-15T10:00:00Z",
-    "comment": "Sent brochure.",
-    "attributes": { "channel": "email" }
-}`} />
-                                        </div>
+                                {activeTab === 'webhooks' && (<>
+                                    <SectionTitle>Webhooks</SectionTitle>
+                                    <p className="text-sm" style={{ color: "#6b6560" }}>Automate HTTP callbacks triggered by events (CREATE, UPDATE, DELETE) on any model.</p>
+                                    <EndpointBlock method="GET" path="/api/webhooks/" description="List all registered webhooks." />
+                                    <EndpointBlock method="POST" path="/api/webhooks/">
+                                        <p className="text-sm mb-3" style={{ color: "#6b6560" }}>Create a new Webhook. Supports variable interpolation via <code>{'{self.field_name}'}</code> syntax in URLs, headers, and custom payloads.</p>
+                                        <CopyBlock text={`{\n  "name": "Notify External System",\n  "model": "Lead",\n  "event": "CREATE",\n  "url": "https://api.external.com/hooks/{self.id}",\n  "method": "POST",\n  "is_active": true,\n  "conditions": [{ "field": "stage", "operator": "=", "value": "Moodle" }],\n  "payload": { "email": "{self.attributes.email}" }\n}`} />
+                                    </EndpointBlock>
+                                    <EndpointBlock method="PUT" path="/api/webhooks/{uuid}/" description="Update an existing webhook configuration." />
+                                    <EndpointBlock method="DELETE" path="/api/webhooks/{uuid}/" description="Delete a webhook." />
+                                </>)}
 
-                                        <div className="p-4 border rounded-md bg-white dark:bg-slate-950">
-                                            <div className="flex items-center justify-between mb-2">
-                                                <Badge variant="outline">PUT</Badge>
-                                                <code className="text-sm font-mono text-blue-600 dark:text-blue-400">/services/{'{service_id}'}/follow-ups/{'{uuid}'}/</code>
-                                            </div>
-                                            <p className="text-sm text-muted-foreground mb-4">Update a follow-up interaction.</p>
-                                            <CopyBlock text={`{
-    "comment": "Sent updated brochure and pricing.",
-    "follow_up_date": "2025-01-16T10:00:00Z"
-}`} />
-                                        </div>
+                                {activeTab === 'files' && (<>
+                                    <SectionTitle>File Uploads</SectionTitle>
+                                    <p className="text-sm" style={{ color: "#6b6560" }}>Upload and link attachments to system records like Clients or Services via S3.</p>
+                                    <EndpointBlock method="POST" path="/api/clients/{uuid}/files/" description="Upload an image/file and attach it to a Client.">
+                                        <CopyBlock text={`curl -X POST https://dev.codexcrm.click/api/clients/{uuid}/files/ \\\n  -H "Authorization: Token YOUR_TOKEN" \\\n  -H "Content-Type: multipart/form-data" \\\n  -F "file=@/path/to/local/image.jpg"`} />
+                                    </EndpointBlock>
+                                    <EndpointBlock method="POST" path="/api/services/{uuid}/files/" description="Upload a file to a Service. The API responds with the generated S3 public URL.">
+                                        <CopyBlock text={`{ "url": "https://bucket.s3.amazonaws.com/services/uuid/image.jpg" }`} />
+                                    </EndpointBlock>
+                                </>)}
 
-                                        <div className="p-4 border rounded-md bg-white dark:bg-slate-950">
-                                            <div className="flex items-center justify-between mb-2">
-                                                <Badge variant="destructive">DELETE</Badge>
-                                                <code className="text-sm font-mono text-blue-600 dark:text-blue-400">/services/{'{service_id}'}/follow-ups/{'{uuid}'}/</code>
-                                            </div>
-                                            <p className="text-sm text-muted-foreground mb-4">Delete a follow-up.</p>
-                                            <CopyBlock text={`curl -X DELETE https://dev.codexcrm.click/services/{service_id}/follow-ups/{uuid}/ \\
--H "Authorization: Token YOUR_TOKEN"`} />
-                                        </div>
-                                    </div>
-                                )}
-
-                                {activeTab === 'catalogue' && (
-                                    <div className="space-y-4 animate-in fade-in-50 duration-300">
-                                        <h3 className="text-lg font-semibold">Catalogue & Categories</h3>
-                                        <p className="text-sm text-muted-foreground">Manage products, services, subscriptions, and their categories.</p>
-
-                                        <div className="p-4 border rounded-md bg-white dark:bg-slate-950">
-                                            <div className="flex items-center justify-between mb-2">
-                                                <Badge variant="outline">GET</Badge>
-                                                <code className="text-sm font-mono text-blue-600 dark:text-blue-400">/api/categories/</code>
-                                            </div>
-                                            <p className="text-sm text-muted-foreground mb-4">List product and service categories.</p>
-                                        </div>
-
-                                        <div className="p-4 border rounded-md bg-white dark:bg-slate-950">
-                                            <div className="flex items-center justify-between mb-2">
-                                                <Badge>POST</Badge>
-                                                <code className="text-sm font-mono text-blue-600 dark:text-blue-400">/api/categories/</code>
-                                            </div>
-                                            <p className="text-sm text-muted-foreground mb-4">Create a new category.</p>
-                                            <CopyBlock text={`{
-  "name": "Software",
-  "description": "Software products",
-  "parent": null
-}`} />
-                                        </div>
-
-                                        <div className="p-4 border rounded-md bg-white dark:bg-slate-950">
-                                            <div className="flex items-center justify-between mb-2">
-                                                <Badge variant="outline">GET</Badge>
-                                                <code className="text-sm font-mono text-blue-600 dark:text-blue-400">/api/catalogue/</code>
-                                            </div>
-                                            <p className="text-sm text-muted-foreground mb-4">List catalogue items. Supports filtering by category or type.</p>
-                                        </div>
-
-                                        <div className="p-4 border rounded-md bg-white dark:bg-slate-950">
-                                            <div className="flex items-center justify-between mb-2">
-                                                <Badge>POST</Badge>
-                                                <code className="text-sm font-mono text-blue-600 dark:text-blue-400">/api/catalogue/</code>
-                                            </div>
-                                            <p className="text-sm text-muted-foreground mb-4">Create a new catalogue item.</p>
-                                            <CopyBlock text={`{
-  "category": "category-uuid",
-  "name": "Web Development",
-  "type": "service",
-  "base_price": "100.00",
-  "currency": "USD",
-  "unit": "hour",
-  "is_active": true
-}`} />
-                                        </div>
-
-                                        <div className="p-4 border rounded-md bg-white dark:bg-slate-950">
-                                            <div className="flex items-center justify-between mb-2">
-                                                <Badge variant="outline">PATCH</Badge>
-                                                <code className="text-sm font-mono text-blue-600 dark:text-blue-400">/api/catalogue/{'{uuid}'}/</code>
-                                            </div>
-                                            <p className="text-sm text-muted-foreground mb-4">Update a catalogue item.</p>
-                                            <CopyBlock text={`{
-  "base_price": "120.00"
-}`} />
-                                        </div>
-
-                                        <div className="p-4 border rounded-md bg-white dark:bg-slate-950">
-                                            <div className="flex items-center justify-between mb-2">
-                                                <Badge variant="destructive">DELETE</Badge>
-                                                <code className="text-sm font-mono text-blue-600 dark:text-blue-400">/api/catalogue/{'{uuid}'}/</code>
-                                            </div>
-                                            <p className="text-sm text-muted-foreground mb-4">Delete a catalogue item.</p>
-                                            <CopyBlock text={`curl -X DELETE https://dev.codexcrm.click/api/catalogue/{uuid}/ \\
--H "Authorization: Token YOUR_TOKEN"`} />
-                                        </div>
-
-                                        <div className="p-4 border rounded-md bg-white dark:bg-slate-950">
-                                            <div className="flex items-center justify-between mb-2">
-                                                <Badge variant="outline">GET</Badge>
-                                                <code className="text-sm font-mono text-blue-600 dark:text-blue-400">/api/inventory/</code>
-                                            </div>
-                                            <p className="text-sm text-muted-foreground mb-4">List inventory for physical products.</p>
-                                        </div>
-
-                                        <h4 className="text-md font-semibold mt-6 mb-2">Base Fields Guide</h4>
-                                        <div className="space-y-4">
-                                            <div className="p-4 border rounded-md bg-slate-50 dark:bg-slate-900 border-l-4 border-l-blue-400">
-                                                <h5 className="text-sm font-semibold mb-2">Category Fields</h5>
-                                                <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
-                                                    <li><code className="text-slate-800 dark:text-slate-200">name</code>: The name of the category.</li>
-                                                    <li><code className="text-slate-800 dark:text-slate-200">description</code>: Details about the category's purpose.</li>
-                                                    <li><code className="text-slate-800 dark:text-slate-200">parent</code>: UUID of a parent category, used to create subcategories.</li>
-                                                </ul>
-                                            </div>
-                                            <div className="p-4 border rounded-md bg-slate-50 dark:bg-slate-900 border-l-4 border-l-purple-400">
-                                                <h5 className="text-sm font-semibold mb-2">Catalogue Item Fields</h5>
-                                                <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
-                                                    <li><code className="text-slate-800 dark:text-slate-200">name</code>: The name of the product or service.</li>
-                                                    <li><code className="text-slate-800 dark:text-slate-200">type</code>: The type of item (product, service, or subscription).</li>
-                                                    <li><code className="text-slate-800 dark:text-slate-200">base_price</code> & <code className="text-slate-800 dark:text-slate-200">currency</code>: The standard price and currency.</li>
-                                                    <li><code className="text-slate-800 dark:text-slate-200">unit</code>: The unit of measure (e.g., hour, seat, month).</li>
-                                                    <li><code className="text-slate-800 dark:text-slate-200">tax_rate</code>: The default tax percentage for this item.</li>
-                                                    <li><code className="text-slate-800 dark:text-slate-200">inventory</code>: Optional UUID linking to physical stock records.</li>
-                                                </ul>
-                                            </div>
-                                            <div className="p-4 border rounded-md bg-slate-50 dark:bg-slate-900 border-l-4 border-l-amber-400">
-                                                <h5 className="text-sm font-semibold mb-2">Inventory Fields</h5>
-                                                <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
-                                                    <li><code className="text-slate-800 dark:text-slate-200">sku</code>: Unique Stock Keeping Unit for tracking physical items.</li>
-                                                    <li><code className="text-slate-800 dark:text-slate-200">quantity_on_hand</code>: The current available stock.</li>
-                                                    <li><code className="text-slate-800 dark:text-slate-200">reorder_level</code>: The stock threshold that triggers a restock warning.</li>
-                                                    <li><code className="text-slate-800 dark:text-slate-200">location</code>: The physical location of the stock (e.g., Aisle 4).</li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
-
-                                {activeTab === 'invoices' && (
-                                    <div className="space-y-4 animate-in fade-in-50 duration-300">
-                                        <h3 className="text-lg font-semibold">Invoices & Payments</h3>
-                                        <p className="text-sm text-muted-foreground">Billing, invoicing, and payment tracking.</p>
-
-                                        <div className="p-4 border rounded-md bg-white dark:bg-slate-950">
-                                            <div className="flex items-center justify-between mb-2">
-                                                <Badge variant="outline">GET</Badge>
-                                                <code className="text-sm font-mono text-blue-600 dark:text-blue-400">/api/invoices/</code>
-                                            </div>
-                                            <p className="text-sm text-muted-foreground mb-4">List invoices.</p>
-                                        </div>
-
-                                        <div className="p-4 border rounded-md bg-white dark:bg-slate-950">
-                                            <div className="flex items-center justify-between mb-2">
-                                                <Badge>POST</Badge>
-                                                <code className="text-sm font-mono text-blue-600 dark:text-blue-400">/api/invoices/</code>
-                                            </div>
-                                            <p className="text-sm text-muted-foreground mb-4">Create a draft invoice.</p>
-                                            <CopyBlock text={`{
-  "client": "client-uuid",
-  "status": "draft",
-  "issue_date": "2026-02-26",
-  "due_date": "2026-03-26",
-  "currency": "USD"
-}`} />
-                                        </div>
-
-                                        <div className="p-4 border rounded-md bg-white dark:bg-slate-950">
-                                            <div className="flex items-center justify-between mb-2">
-                                                <Badge variant="outline">PATCH</Badge>
-                                                <code className="text-sm font-mono text-blue-600 dark:text-blue-400">/api/invoices/{'{uuid}'}/</code>
-                                            </div>
-                                            <p className="text-sm text-muted-foreground mb-4">Update an invoice status.</p>
-                                            <CopyBlock text={`{
-  "status": "sent"
-}`} />
-                                        </div>
-
-                                        <div className="p-4 border rounded-md bg-white dark:bg-slate-950">
-                                            <div className="flex items-center justify-between mb-2">
-                                                <Badge>POST</Badge>
-                                                <code className="text-sm font-mono text-blue-600 dark:text-blue-400">/api/invoices/{'{invoice_uuid}'}/line-items/</code>
-                                            </div>
-                                            <p className="text-sm text-muted-foreground mb-4">Add a line item to an invoice.</p>
-                                            <CopyBlock text={`{
-  "catalogue_item": "item-uuid",
-  "description": "Web Development - 20 hours",
-  "quantity": "20.00",
-  "unit_price": "100.00",
-  "tax_rate": "15.00"
-}`} />
-                                        </div>
-
-                                        <div className="p-4 border rounded-md bg-white dark:bg-slate-950">
-                                            <div className="flex items-center justify-between mb-2">
-                                                <Badge>POST</Badge>
-                                                <code className="text-sm font-mono text-blue-600 dark:text-blue-400">/api/invoices/{'{invoice_uuid}'}/payments/</code>
-                                            </div>
-                                            <p className="text-sm text-muted-foreground mb-4">Record a payment for an invoice.</p>
-                                            <CopyBlock text={`{
-  "amount": "2300.00",
-  "method": "bank_transfer",
-  "paid_at": "2026-03-01T10:00:00Z",
-  "reference": "WIRE-2026-001"
-}`} />
-                                        </div>
-
-                                        <h4 className="text-md font-semibold mt-6 mb-2">Base Fields Guide</h4>
-                                        <div className="space-y-4">
-                                            <div className="p-4 border rounded-md bg-slate-50 dark:bg-slate-900 border-l-4 border-l-emerald-400">
-                                                <h5 className="text-sm font-semibold mb-2">Invoice Fields</h5>
-                                                <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
-                                                    <li><code className="text-slate-800 dark:text-slate-200">client</code> & <code className="text-slate-800 dark:text-slate-200">contact</code>: The entities responsible for the invoice.</li>
-                                                    <li><code className="text-slate-800 dark:text-slate-200">status</code>: The current state (draft, sent, paid, overdue, void).</li>
-                                                    <li><code className="text-slate-800 dark:text-slate-200">issue_date</code> & <code className="text-slate-800 dark:text-slate-200">due_date</code>: Billing timelines.</li>
-                                                    <li><code className="text-slate-800 dark:text-slate-200">subtotal</code>, <code className="text-slate-800 dark:text-slate-200">tax_amount</code>, <code className="text-slate-800 dark:text-slate-200">discount</code>, <code className="text-slate-800 dark:text-slate-200">total</code>: Auto-calculated financial summaries.</li>
-                                                    <li><code className="text-slate-800 dark:text-slate-200">amount_paid</code>: Total amount covered by registered payments.</li>
-                                                </ul>
-                                            </div>
-                                            <div className="p-4 border rounded-md bg-slate-50 dark:bg-slate-900 border-l-4 border-l-indigo-400">
-                                                <h5 className="text-sm font-semibold mb-2">Invoice Line Item Fields</h5>
-                                                <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
-                                                    <li><code className="text-slate-800 dark:text-slate-200">catalogue_item</code>: Optional reference to a predefined product/service.</li>
-                                                    <li><code className="text-slate-800 dark:text-slate-200">description</code>: Specific details of what is being charged.</li>
-                                                    <li><code className="text-slate-800 dark:text-slate-200">quantity</code> & <code className="text-slate-800 dark:text-slate-200">unit_price</code>: Used to calculate the line subtotal.</li>
-                                                    <li><code className="text-slate-800 dark:text-slate-200">tax_rate</code>: Tax percentage applicable to this specific line.</li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
-
-
-                                {activeTab === 'assets' && (
-                                    <div className="space-y-4 animate-in fade-in-50 duration-300">
-                                        <h3 className="text-lg font-semibold flex items-center gap-2">Assets</h3>
-                                        <p className="text-sm text-muted-foreground">Manage physical company assets and personnel assignments.</p>
-
-                                        <div className="p-4 border rounded-md bg-white dark:bg-slate-950">
-                                            <div className="flex items-center justify-between mb-2">
-                                                <Badge variant="outline">GET</Badge>
-                                                <code className="text-sm font-mono text-blue-600 dark:text-blue-400">/api/assets/</code>
-                                            </div>
-                                            <p className="text-sm text-muted-foreground mb-4">List all physical assets.</p>
-                                        </div>
-
-                                        <div className="p-4 border rounded-md bg-white dark:bg-slate-950">
-                                            <div className="flex items-center justify-between mb-2">
-                                                <Badge>POST</Badge>
-                                                <code className="text-sm font-mono text-blue-600 dark:text-blue-400">/api/assets/</code>
-                                            </div>
-                                            <p className="text-sm text-muted-foreground mb-4">Create a new asset.</p>
-                                            <CopyBlock text={`{
-  "name": "MacBook Pro",
-  "description": "2023 16-inch model",
-  "bought_date": "2023-01-15",
-  "price": "2000.00",
-  "quantity": 10
-}`} />
-                                        </div>
-
-                                        <div className="p-4 border rounded-md bg-white dark:bg-slate-950">
-                                            <div className="flex items-center justify-between mb-2">
-                                                <Badge variant="outline">GET</Badge>
-                                                <code className="text-sm font-mono text-blue-600 dark:text-blue-400">/api/asset-assignments/</code>
-                                            </div>
-                                            <p className="text-sm text-muted-foreground mb-4">List all asset lending assignments.</p>
-                                        </div>
-
-                                        <div className="p-4 border rounded-md bg-white dark:bg-slate-950">
-                                            <div className="flex items-center justify-between mb-2">
-                                                <Badge>POST</Badge>
-                                                <code className="text-sm font-mono text-blue-600 dark:text-blue-400">/api/asset-assignments/</code>
-                                            </div>
-                                            <p className="text-sm text-muted-foreground mb-4">Lend an asset to personnel.</p>
-                                            <CopyBlock text={`{
-  "asset": "asset-uuid",
-  "borrow_date": "2023-06-01",
-  "name": "John Doe",
-  "email": "john@example.com",
-  "lending_amount": 1
-}`} />
-                                        </div>
-                                    </div>
-                                )}
-
-
-                                {activeTab === 'attributes' && (
-                                    <div className="space-y-4 animate-in fade-in-50 duration-300">
-                                        <h3 className="text-lg font-semibold">Attributes & Metadata</h3>
-                                        <div className="p-4 border rounded-md bg-white dark:bg-slate-950">
-                                            <div className="flex items-center justify-between mb-2">
-                                                <Badge variant="outline">GET</Badge>
-                                                <code className="text-sm font-mono text-blue-600 dark:text-blue-400">/api/attributes/{'{entity}'}/</code>
-                                            </div>
-                                            <p className="text-sm text-muted-foreground mb-4">
-                                                Get schema/attributes for an entity.
-                                                <br />
-                                                Entity options: <code>client</code>, <code>contact</code>, <code>service</code>, <code>lead</code>, <code>follow_up</code>, <code>category</code>, <code>catalogue_item</code>, <code>invoice</code>, <code>payment</code>, <code>asset</code>, <code>asset_assignment</code>.
-                                            </p>
-                                            <CopyBlock text={`curl -X GET https://dev.codexcrm.click/api/attributes/lead/ \\
--H "Authorization: Token YOUR_TOKEN"`} />
-                                        </div>
-                                    </div>
-                                )}
-
-                                {activeTab === 'webhooks' && (
-                                    <div className="space-y-4 animate-in fade-in-50 duration-300">
-                                        <h3 className="text-lg font-semibold flex items-center gap-2"><Webhook className="h-5 w-5" /> Webhooks</h3>
-                                        <p className="text-sm text-muted-foreground">Automate HTTP callbacks triggered by events (CREATE, UPDATE, DELETE) on any model.</p>
-
-                                        <div className="p-4 border rounded-md bg-white dark:bg-slate-950">
-                                            <div className="flex items-center justify-between mb-2">
-                                                <Badge variant="outline">GET</Badge>
-                                                <code className="text-sm font-mono text-blue-600 dark:text-blue-400">/api/webhooks/</code>
-                                            </div>
-                                            <p className="text-sm text-muted-foreground mb-4">List all registered webhooks.</p>
-                                        </div>
-
-                                        <div className="p-4 border rounded-md bg-white dark:bg-slate-950">
-                                            <div className="flex items-center justify-between mb-2">
-                                                <Badge>POST</Badge>
-                                                <code className="text-sm font-mono text-blue-600 dark:text-blue-400">/api/webhooks/</code>
-                                            </div>
-                                            <p className="text-sm text-muted-foreground mb-4">
-                                                Create a new Webhook.
-                                                <br /><br />
-                                                Provides variable interpolation via <code>{'{self.field_name}'}</code> syntax in URLs, headers, and custom payloads.
-                                            </p>
-                                            <CopyBlock text={`{
-  "name": "Notify External System",
-  "model": "Lead",
-  "event": "CREATE",
-  "url": "https://api.external.com/hooks/{self.id}",
-  "method": "POST",
-  "is_active": true,
-  "conditions": [
-    { "field": "stage", "operator": "=", "value": "Moodle" }
-  ],
-  "payload": {
-    "email": "{self.attributes.email}"
-  }
-}`} />
-                                        </div>
-
-                                        <div className="p-4 border rounded-md bg-white dark:bg-slate-950">
-                                            <div className="flex items-center justify-between mb-2">
-                                                <Badge variant="outline">PUT</Badge>
-                                                <code className="text-sm font-mono text-blue-600 dark:text-blue-400">/api/webhooks/{'{uuid}'}/</code>
-                                            </div>
-                                            <p className="text-sm text-muted-foreground mb-4">Update an existing webhook configuration.</p>
-                                        </div>
-                                        
-                                        <div className="p-4 border rounded-md bg-white dark:bg-slate-950">
-                                            <div className="flex items-center justify-between mb-2">
-                                                <Badge variant="destructive">DELETE</Badge>
-                                                <code className="text-sm font-mono text-blue-600 dark:text-blue-400">/api/webhooks/{'{uuid}'}/</code>
-                                            </div>
-                                            <p className="text-sm text-muted-foreground mb-4">Delete a webhook.</p>
-                                        </div>
-                                    </div>
-                                )}
-
-                                {activeTab === 'files' && (
-                                    <div className="space-y-4 animate-in fade-in-50 duration-300">
-                                        <h3 className="text-lg font-semibold flex items-center gap-2"><Layout className="h-5 w-5" /> File Uploads</h3>
-                                        <p className="text-sm text-muted-foreground">Upload and link attachments to system records like Clients or Services via S3.</p>
-
-                                        <div className="p-4 border rounded-md bg-white dark:bg-slate-950">
-                                            <div className="flex items-center justify-between mb-2">
-                                                <Badge>POST</Badge>
-                                                <code className="text-sm font-mono text-blue-600 dark:text-blue-400">/api/clients/{'{uuid}'}/files/</code>
-                                            </div>
-                                            <p className="text-sm text-muted-foreground mb-4">
-                                                Upload an image/file and attach it to a Client.
-                                            </p>
-                                            <CopyBlock text={`curl -X POST https://dev.codexcrm.click/api/clients/{uuid}/files/ \\
-  -H "Authorization: Token YOUR_TOKEN" \\
-  -H "Content-Type: multipart/form-data" \\
-  -F "file=@/path/to/local/image.jpg"`} />
-                                        </div>
-
-                                        <div className="p-4 border rounded-md bg-white dark:bg-slate-950">
-                                            <div className="flex items-center justify-between mb-2">
-                                                <Badge>POST</Badge>
-                                                <code className="text-sm font-mono text-blue-600 dark:text-blue-400">/api/services/{'{uuid}'}/files/</code>
-                                            </div>
-                                            <p className="text-sm text-muted-foreground mb-4">
-                                                Upload an image/file and attach it to a Service. The API will respond with the generated S3 public URL.
-                                            </p>
-                                            <CopyBlock text={`{
-  "url": "https://bucket.s3.amazonaws.com/services/uuid/image.jpg",
-  "list_of_images": [
-    "https://bucket.s3.amazonaws.com/services/uuid/image.jpg"
-  ]
-}`} />
-                                        </div>
-                                    </div>
-                                )}
                             </div>
                         </div>
                     </CardContent>

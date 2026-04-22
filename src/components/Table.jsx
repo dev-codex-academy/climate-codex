@@ -195,19 +195,35 @@ export const Table = ({
           {searchable && (
             <div className="relative w-full">
               {/* Input de shadcn */}
-              <Input
+              <input
                 placeholder="Search..."
                 value={searchTerm}
                 onChange={(e) => {
                   setSearchTerm(e.target.value);
                   setCurrentPage(1);
                 }}
-                className="h-11 w-full sm:w-[320px] pr-9 text-codex-texto-primary dark:text-codex-texto-primary-variante1"
+                style={{
+                  height: "36px",
+                  width: "100%",
+                  maxWidth: "320px",
+                  paddingLeft: "12px",
+                  paddingRight: "36px",
+                  backgroundColor: "#fff",
+                  border: "1px solid #D8D2C4",
+                  borderRadius: "6px",
+                  color: "#2E2A26",
+                  fontSize: "14px",
+                  fontFamily: '"Source Sans 3", Arial, sans-serif',
+                  outline: "none",
+                }}
+                onFocus={e => e.target.style.borderColor = "#5E6A43"}
+                onBlur={e => e.target.style.borderColor = "#D8D2C4"}
               />
               {searchTerm ? (
                 <button
                   onClick={() => setSearchTerm("")}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-codex-iconos-primary dark:text-codex-iconos-primary-variante1 hover:text-foreground/80 cursor-pointer"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 cursor-pointer"
+                  style={{ color: "#9b948e" }}
                   title="Clear"
                 >
                   <RefreshCcw className="w-4 h-4" />
@@ -219,7 +235,7 @@ export const Table = ({
 
         {/* Select de shadcn */}
         <div className="flex items-center gap-2 sm:justify-end">
-          <span className="text-sm text-codex-texto-primary dark:text-codex-texto-primary-variante1">Rows per page</span>
+          <span className="text-sm" style={{ color: "#6b6560", fontFamily: '"Source Sans 3", Arial, sans-serif' }}>Rows per page</span>
           <Select
             value={String(pageSize)}
             onValueChange={(v) => {
@@ -227,7 +243,10 @@ export const Table = ({
               setCurrentPage(1);
             }}
           >
-            <SelectTrigger className="w-[88px] h-11">
+            <SelectTrigger
+              className="w-[88px] h-9"
+              style={{ backgroundColor: "#fff", border: "1px solid #D8D2C4", color: "#2E2A26", fontFamily: '"Source Sans 3", Arial, sans-serif', fontSize: "14px" }}
+            >
               <SelectValue placeholder={pageSize} />
             </SelectTrigger>
             <SelectContent align="end" sideOffset={4}>
@@ -242,20 +261,32 @@ export const Table = ({
       </div>
 
       {/* Tabla */}
-      <div className="flex-1 overflow-auto mt-4 rounded-sm border border-codex-bordes-secondary-variante2 dark:border-codex-bordes-primary-variante4 bg-transparent relative">
+      <div
+        className="flex-1 overflow-auto mt-4 relative"
+        style={{ borderRadius: "8px", border: "1px solid #D8D2C4", backgroundColor: "#FBF7EF" }}
+      >
         <div className="min-w-full inline-block align-middle">
           <table className="w-full text-sm">
-            <thead className="bg-codex-fondo-primary-variante2 dark:bg-codex-fondo-primary-variante3 text-center text-codex-texto-secondary dark:text-codex-texto-primary-variante1">
-              <tr>
+            <thead>
+              <tr style={{ backgroundColor: "#5E6A43" }}>
                 {visibleCols.map((col) => {
                   const canSort = col.key !== "_actions";
                   const isSorted = sortKey === col.key ? sortDir : null;
                   return (
                     <th
                       key={col.key}
-                      style={col.width ? { width: col.width } : undefined}
+                      style={{
+                        ...(col.width ? { width: col.width } : {}),
+                        backgroundColor: "#5E6A43",
+                        color: "#FBF7EF",
+                        position: "sticky",
+                        top: 0,
+                        zIndex: 10,
+                        fontFamily: '"Source Sans 3", Arial, sans-serif',
+                        letterSpacing: "0.06em",
+                      }}
                       className={[
-                        "px-2 py-2 text-xs font-semibold tracking-wide text-center sticky top-0 z-10 bg-codex-fondo-primary-variante2 dark:bg-codex-fondo-primary-variante3",
+                        "px-3 py-2.5 text-xs font-semibold text-center",
                         canSort ? "cursor-pointer select-none" : "",
                       ].join(" ")}
                       onClick={canSort ? () => toggleSort(col.key) : undefined}
@@ -263,20 +294,23 @@ export const Table = ({
                     >
                       <div className="flex items-center gap-1 justify-center">
                         {col.label}
-                        {isSorted === "asc" && <span>▲</span>}
-                        {isSorted === "desc" && <span>▼</span>}
+                        {isSorted === "asc" && <span className="opacity-70">▲</span>}
+                        {isSorted === "desc" && <span className="opacity-70">▼</span>}
                       </div>
                     </th>
                   );
                 })}
               </tr>
             </thead>
-            <tbody className="divide-y divide-border text-codex-texto-secondary dark:text-codex-texto-primary-variante1">
+            <tbody style={{ color: "#2E2A26" }}>
               {currentData.length ? (
                 currentData.map((row, idx) => (
                   <tr
                     key={row.id_rol ?? row.id ?? idx}
-                    className="hover:bg-codex-hover-primary-variante1 dark:hover:bg-codex-hover-primary-variante4/70"
+                    style={{ borderBottom: "1px solid #D8D2C4" }}
+                    className="transition-colors"
+                    onMouseEnter={e => e.currentTarget.style.backgroundColor = "#F2EBDD"}
+                    onMouseLeave={e => e.currentTarget.style.backgroundColor = ""}
                   >
                     {visibleCols.map((col) => (
                       <td
@@ -298,7 +332,8 @@ export const Table = ({
                 <tr>
                   <td
                     colSpan={visibleCols.length}
-                    className="px-4 py-6 text-center text-muted-foreground"
+                    className="px-4 py-10 text-center"
+                    style={{ color: "#9b948e", fontFamily: '"Source Sans 3", Arial, sans-serif' }}
                   >
                     No results.
                   </td>
@@ -310,14 +345,14 @@ export const Table = ({
       </div>
 
       {/* Paginación */}
-      <div className="mt-auto px-4 py-2 text-xs border-t border-border">
+      <div className="mt-auto px-4 py-2 text-xs" style={{ borderTop: "1px solid #D8D2C4" }}>
         <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-between">
-          <div className=" text-center sm:text-left">
-            <span className="font-medium text-foreground">{startRecord}</span> -{" "}
-            <span className="font-medium text-foreground">{endRecord}</span>{" "}
+          <div className="text-center sm:text-left" style={{ color: "#6b6560", fontFamily: '"Source Sans 3", Arial, sans-serif' }}>
+            <span className="font-semibold" style={{ color: "#2E2A26" }}>{startRecord}</span> -{" "}
+            <span className="font-semibold" style={{ color: "#2E2A26" }}>{endRecord}</span>{" "}
             (Page {currentPage} of {totalPages})
           </div>
-          <div className="flex items-center justify-center gap-1 text-codex-secondary">
+          <div className="flex items-center justify-center gap-1">
             <Button
               variant="terciary"
               className="h-9 px-3"

@@ -375,6 +375,7 @@
   --chartcodex-5: #FFDCC8;
 
   /* Sidebar */
+  --sidebar: #F2EBDD;
   --sidebar-foreground: #2E2A26;
   --sidebar-primary: #5E6A43;
   --sidebar-primary-foreground: #FBF7EF;
@@ -385,54 +386,47 @@
 }
 
 .dark {
+  /* Brand Manual Dark Mode — warm dark tones from Hearth Ink */
+  --background: #2a261f;
+  --foreground: #FBF7EF;
 
-  --background: oklch(0.216 0.028 245.2);
+  --card: #332e26;
+  --card-foreground: #FBF7EF;
+  --popover: #332e26;
+  --popover-foreground: #FBF7EF;
 
-  --foreground: oklch(0.982 0.002 248.6);
+  --primary: #F29B6B;
+  --primary-foreground: #2E2A26;
 
+  --secondary: #7a8a56;
+  --secondary-foreground: #FBF7EF;
 
-  --card: oklch(0.245 0.026 246);
-  --card-foreground: var(--foreground);
-  --popover: oklch(0.245 0.026 246);
-  --popover-foreground: var(--foreground);
+  --accent: #B8C76A;
+  --accent-foreground: #2E2A26;
 
-  --primary: oklch(0.40 0.08 165);
-  /* Dark Green #335249 - "More black/dark green" */
-  --primary-foreground: oklch(0.982 0.002 248.6);
+  --muted: rgba(242,155,107,0.12);
+  --muted-foreground: #b8b0a8;
 
-  --secondary: oklch(0.590 0.070 171.4);
-  /* Green more "luminoso" */
-  --secondary-foreground: oklch(0.110 0.005 250);
+  --destructive: #e05252;
 
-  --accent: oklch(0.45 0.08 165);
-  /* Dark Green Light */
-  --accent-foreground: oklch(0.110 0.005 250);
+  --border: rgba(251,247,239,0.12);
+  --input: rgba(251,247,239,0.10);
+  --ring: #F29B6B;
 
-  --muted: oklch(0.270 0.020 250);
-  --muted-foreground: oklch(0.780 0.030 250);
+  --chart-1: #F29B6B;
+  --chart-2: #B8C76A;
+  --chart-3: #7a8a56;
+  --chart-4: #FFDCC8;
+  --chart-5: rgba(251,247,239,0.3);
 
-  --destructive: #5c3131;
-
-
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.700 0.120 251.4);
-
-  /* Charts in dark (contrast) */
-  --chart-1: oklch(0.700 0.120 251.4);
-  --chart-2: oklch(0.590 0.070 171.4);
-  --chart-3: oklch(0.840 0.030 251.4);
-  --chart-4: oklch(0.760 0.070 251.4);
-  --chart-5: oklch(0.480 0.015 250);
-
-  /*--sidebar: oklch(0.245 0.026 246);*/
-  --sidebar-foreground: var(--foreground);
-  --sidebar-primary: var(--primary);
-  --sidebar-primary-foreground: var(--primary-foreground);
-  --sidebar-accent: var(--accent);
-  --sidebar-accent-foreground: var(--accent-foreground);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: var(--ring);
+  --sidebar: #332e26;
+  --sidebar-foreground: #FBF7EF;
+  --sidebar-primary: #7a8a56;
+  --sidebar-primary-foreground: #FBF7EF;
+  --sidebar-accent: rgba(184,199,106,0.15);
+  --sidebar-accent-foreground: #FBF7EF;
+  --sidebar-border: rgba(251,247,239,0.10);
+  --sidebar-ring: #F29B6B;
 }
 
 @layer base {

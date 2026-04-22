@@ -1,28 +1,44 @@
 import React, { useEffect, useState } from 'react';
 import { getAttributes, createAttribute, updateAttribute, deleteAttribute } from '../services/attributeService';
 import { AttributeForm } from '../components/attributes/AttributeForm';
-import { Button } from '../components/ui/button';
-import { Plus, Trash, Edit, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Plus, Trash, Edit, ChevronLeft, ChevronRight, SlidersHorizontal } from 'lucide-react';
 import Swal from 'sweetalert2';
 
-// Simple Modern Modal Component
+const TYPE_COLORS = {
+    text:     { bg: "rgba(94,106,67,0.10)",  border: "rgba(94,106,67,0.35)",  color: "#4a5535" },
+    boolean:  { bg: "rgba(242,155,107,0.12)", border: "rgba(242,155,107,0.4)", color: "#c0622a" },
+    list:     { bg: "rgba(184,199,106,0.12)", border: "rgba(184,199,106,0.4)", color: "#697a28" },
+    number:   { bg: "rgba(216,210,196,0.4)",  border: "#D8D2C4",               color: "#6b6560" },
+    date:     { bg: "rgba(216,210,196,0.4)",  border: "#D8D2C4",               color: "#6b6560" },
+};
+
+const TypePill = ({ type }) => {
+    const c = TYPE_COLORS[type?.toLowerCase()] || TYPE_COLORS.number;
+    return (
+        <span
+            className="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-widest"
+            style={{ backgroundColor: c.bg, border: `1px solid ${c.border}`, color: c.color }}
+        >
+            {type}
+        </span>
+    );
+};
+
 const Modal = ({ isOpen, children, onClose }) => {
     if (!isOpen) return null;
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-codex-fondo-secondary/40 backdrop-blur-sm animate-in fade-in duration-300">
+        <div
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm"
+            style={{ backgroundColor: "rgba(46,42,38,0.4)" }}
+        >
             <div
-                className="bg-white dark:bg-codex-fondo-secondary border border-codex-bordes-primary-variante2/30 dark:border-codex-bordes-terciario-variante4/30 rounded-2xl shadow-2xl p-6 w-full max-w-md animate-in zoom-in-95 duration-300 relative"
-                onClick={(e) => e.stopPropagation()}
+                className="w-full max-w-md rounded-xl shadow-2xl p-6 relative"
+                style={{ backgroundColor: "#FBF7EF", border: "1px solid #D8D2C4" }}
+                onClick={e => e.stopPropagation()}
             >
-                {/* <button
-                    onClick={onClose}
-                    className="absolute right-4 top-4 p-1 rounded-full hover:bg-muted transition-colors text-muted-foreground"
-                >
-                    <Plus className="rotate-45 size-5" />
-                </button> */}
                 {children}
             </div>
-            <div className="absolute inset-0 -z-10" onClick={onClose}></div>
+            <div className="absolute inset-0 -z-10" onClick={onClose} />
         </div>
     );
 };
@@ -34,16 +50,12 @@ export const Attributes = () => {
     ]);
     const [attributesData, setAttributesData] = useState({});
     const [loading, setLoading] = useState(true);
-
-    // Modal State
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [currentEntity, setCurrentEntity] = useState(null);
     const [editingAttribute, setEditingAttribute] = useState(null);
     const [formLoading, setFormLoading] = useState(false);
 
-    useEffect(() => {
-        fetchAllAttributes();
-    }, []);
+    useEffect(() => { fetchAllAttributes(); }, []);
 
     const fetchAllAttributes = async () => {
         setLoading(true);
@@ -61,17 +73,8 @@ export const Attributes = () => {
         }
     };
 
-    const handleAddClick = (entity) => {
-        setCurrentEntity(entity);
-        setEditingAttribute(null);
-        setIsModalOpen(true);
-    };
-
-    const handleEditClick = (entity, attribute) => {
-        setCurrentEntity(entity);
-        setEditingAttribute(attribute);
-        setIsModalOpen(true);
-    };
+    const handleAddClick = (entity) => { setCurrentEntity(entity); setEditingAttribute(null); setIsModalOpen(true); };
+    const handleEditClick = (entity, attribute) => { setCurrentEntity(entity); setEditingAttribute(attribute); setIsModalOpen(true); };
 
     const handleCreateOrUpdate = async (data) => {
         setFormLoading(true);
@@ -81,195 +84,217 @@ export const Attributes = () => {
             } else {
                 await createAttribute(currentEntity, data);
             }
-
-            // Refresh specifics
             const updatedList = await getAttributes(currentEntity);
             setAttributesData(prev => ({ ...prev, [currentEntity]: updatedList }));
-
             setIsModalOpen(false);
             setEditingAttribute(null);
-            Swal.fire({
-                icon: 'success',
-                title: editingAttribute ? 'Attribute Updated' : 'Attribute Created',
-                toast: true,
-                position: 'top-end',
-                showConfirmButton: false,
-                timer: 3000
-            });
+            Swal.fire({ icon: 'success', title: editingAttribute ? 'Attribute Updated' : 'Attribute Created', toast: true, position: 'top-end', showConfirmButton: false, timer: 3000 });
         } catch (error) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: error.message
-            });
+            Swal.fire({ icon: 'error', title: 'Error', text: error.message });
         } finally {
             setFormLoading(false);
         }
     };
 
     const handleDelete = async (entity, id) => {
-        // Confirmation
         const result = await Swal.fire({
             title: 'Are you sure?',
             text: "You won't be able to revert this!",
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
+            confirmButtonColor: '#5E6A43',
+            cancelButtonColor: '#9b948e',
             confirmButtonText: 'Yes, delete it!'
         });
-
-        if (result.isConfirmed) {
-            try {
-                await deleteAttribute(entity, id);
-                // Refresh
-                const updatedList = await getAttributes(entity);
-                setAttributesData(prev => ({ ...prev, [entity]: updatedList }));
-
-                Swal.fire(
-                    'Deleted!',
-                    'Your attribute has been deleted.',
-                    'success'
-                )
-            } catch (error) {
-                Swal.fire(
-                    'Error!',
-                    'Failed to delete attribute.',
-                    'error'
-                )
-            }
+        if (!result.isConfirmed) return;
+        try {
+            await deleteAttribute(entity, id);
+            const updatedList = await getAttributes(entity);
+            setAttributesData(prev => ({ ...prev, [entity]: updatedList }));
+            Swal.fire({ icon: 'success', title: 'Deleted!', text: 'Attribute deleted.', toast: true, position: 'top-end', showConfirmButton: false, timer: 3000 });
+        } catch {
+            Swal.fire({ icon: 'error', title: 'Error!', text: 'Failed to delete attribute.' });
         }
     };
 
-    if (loading) return <div className="p-8">Loading Attributes...</div>;
+    if (loading) {
+        return (
+            <div className="p-8 text-center" style={{ color: "#6b6560", fontFamily: '"Source Sans 3", Arial, sans-serif' }}>
+                Loading Attributes...
+            </div>
+        );
+    }
 
     return (
-        <div className="flex-1 flex flex-col min-h-0 bg-codex-fondo-primary-variante1 dark:bg-codex-fondo-secondary-variante5/30 transition-colors duration-300 overflow-hidden w-full max-w-[95vw]">
-            <header className="shrink-0 z-30 w-full border-b border-codex-bordes-primary-variante2 dark:border-codex-bordes-terciario-variante4 bg-white/70 dark:bg-codex-fondo-secondary/70 backdrop-blur-md px-6 py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <div className="min-w-0 flex-1">
-                    <h1 className="text-2xl font-bold tracking-tight text-codex-texto-primary dark:text-codex-texto-terciario-variante1 uppercase">
-                        Core Attributes Management
-                    </h1>
-                    <p className="text-xs text-muted-foreground flex items-center gap-1.5 mt-0.5 truncate">
-                        <span className="shrink-0 flex h-2 w-2 rounded-full bg-codex-primary animate-pulse"></span>
-                        Define and customize fields for your core system entities.
-                    </p>
-                </div>
-                <div className="flex items-center gap-4">
-                    <div className="flex items-center -space-x-2 overflow-hidden">
-                        {/* {entities.slice(0, 1).map((e, i) => (
-                            <div key={i} className="h-7 w-7 rounded-full ring-2 ring-white dark:ring-codex-fondo-secondary bg-codex-fondo-primary-variante2 flex items-center justify-center text-[8px] font-bold uppercase transition-transform hover:-translate-y-0.5 cursor-help" title={e}>
-                                {e.charAt(0)}
-                            </div>
-                        ))} */}
+        <div
+            className="flex-1 flex flex-col min-h-0 overflow-hidden w-full"
+            style={{ backgroundColor: "#FBF7EF", fontFamily: '"Source Sans 3", Arial, sans-serif' }}
+        >
+            {/* Page header */}
+            <div
+                className="shrink-0 px-6 py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3"
+                style={{ borderBottom: "1px solid #D8D2C4", backgroundColor: "#F2EBDD" }}
+            >
+                <div className="flex items-center gap-3">
+                    <div
+                        className="flex h-10 w-10 items-center justify-center rounded-lg"
+                        style={{ backgroundColor: "rgba(94,106,67,0.12)", border: "1px solid rgba(94,106,67,0.3)" }}
+                    >
+                        <SlidersHorizontal className="h-5 w-5" style={{ color: "#5E6A43" }} />
                     </div>
-                    <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">{entities.length} Modules</span>
+                    <div>
+                        <p className="text-base font-semibold uppercase tracking-wide" style={{ color: "#2E2A26", fontFamily: '"Source Sans 3", Arial, sans-serif' }}>
+                            Core Attributes Management
+                        </p>
+                        <p className="text-xs flex items-center gap-1.5 mt-0.5" style={{ color: "#9b948e" }}>
+                            <span className="h-1.5 w-1.5 rounded-full animate-pulse inline-block" style={{ backgroundColor: "#5E6A43" }} />
+                            Define and customize fields for your core system entities.
+                        </p>
+                    </div>
                 </div>
-            </header>
-
-            {/* Main Content Area */}
-            <div className="flex-1 min-h-0 overflow-hidden p-6 relative group/board">
-                {/* Scroll Nav Controls */}
-                <div className="absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-codex-fondo-primary-variante1/30 dark:from-[#1e242a]/30 to-transparent pointer-events-none z-10 opacity-0 group-hover/board:opacity-100 transition-opacity"></div>
-                <div className="absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-codex-fondo-primary-variante1/30 dark:from-[#1e242a]/30 to-transparent pointer-events-none z-10 opacity-0 group-hover/board:opacity-100 transition-opacity"></div>
-
-                {/* Scroll Button Left */}
-                <button
-                    onClick={() => document.getElementById('attr-scroll-container').scrollBy({ left: -400, behavior: 'smooth' })}
-                    className="absolute left-4 top-1/2 -translate-y-1/2 z-20 p-3 bg-white/80 dark:bg-codex-fondo-secondary shadow-xl border border-codex-bordes-primary-variante2 dark:border-codex-bordes-terciario-variante4 rounded-full opacity-0 group-hover/board:opacity-100 transition-all hover:scale-110 active:scale-95 hidden md:block"
+                <span
+                    className="text-xs font-semibold uppercase tracking-widest px-3 py-1 rounded-full"
+                    style={{ backgroundColor: "rgba(94,106,67,0.10)", border: "1px solid rgba(94,106,67,0.3)", color: "#5E6A43" }}
                 >
-                    <ChevronLeft size={16} className="text-codex-primary" />
+                    {entities.length} Modules
+                </span>
+            </div>
+
+            {/* Kanban board */}
+            <div className="flex-1 min-h-0 overflow-hidden p-5 relative group/board">
+                {/* Scroll fade overlays */}
+                <div className="absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-[#FBF7EF] to-transparent pointer-events-none z-10 opacity-0 group-hover/board:opacity-100 transition-opacity" />
+                <div className="absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-[#FBF7EF] to-transparent pointer-events-none z-10 opacity-0 group-hover/board:opacity-100 transition-opacity" />
+
+                {/* Scroll left */}
+                <button
+                    onClick={() => document.getElementById('attr-scroll-container').scrollBy({ left: -420, behavior: 'smooth' })}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 z-20 h-9 w-9 flex items-center justify-center rounded-full opacity-0 group-hover/board:opacity-100 transition-all hover:scale-105 hidden md:flex"
+                    style={{ backgroundColor: "#FBF7EF", border: "1px solid #D8D2C4", color: "#5E6A43", boxShadow: "0 2px 8px rgba(0,0,0,0.10)" }}
+                >
+                    <ChevronLeft size={16} />
                 </button>
 
-                {/* Scroll Button Right */}
+                {/* Scroll right */}
                 <button
-                    onClick={() => document.getElementById('attr-scroll-container').scrollBy({ left: 400, behavior: 'smooth' })}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 z-20 p-3 bg-white/80 dark:bg-codex-fondo-secondary shadow-xl border border-codex-bordes-primary-variante2 dark:border-codex-bordes-terciario-variante4 rounded-full opacity-0 group-hover/board:opacity-100 transition-all hover:scale-110 active:scale-95 hidden md:block"
+                    onClick={() => document.getElementById('attr-scroll-container').scrollBy({ left: 420, behavior: 'smooth' })}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 z-20 h-9 w-9 flex items-center justify-center rounded-full opacity-0 group-hover/board:opacity-100 transition-all hover:scale-105 hidden md:flex"
+                    style={{ backgroundColor: "#FBF7EF", border: "1px solid #D8D2C4", color: "#5E6A43", boxShadow: "0 2px 8px rgba(0,0,0,0.10)" }}
                 >
-                    <ChevronRight size={16} className="text-codex-primary" />
+                    <ChevronRight size={16} />
                 </button>
 
                 <div
                     id="attr-scroll-container"
-                    className="flex gap-8 overflow-x-auto pb-8 h-full snap-x snap-mandatory scrollbar-hide scroll-smooth"
+                    className="flex gap-5 overflow-x-auto pb-4 h-full scroll-smooth"
+                    style={{ scrollbarWidth: "thin", scrollbarColor: "#D8D2C4 transparent" }}
                 >
-                    {entities.map(entity => (
-                        <div key={entity} className="flex-shrink-0 w-[85vw] md:w-[450px] flex flex-col rounded-2xl bg-white/50 dark:bg-codex-fondo-secondary/40 border border-codex-bordes-primary-variante2/50 dark:border-codex-bordes-terciario-variante4/50 h-full max-h-full shadow-sm backdrop-blur-sm transition-all hover:shadow-md snap-center">
-                            {/* Column Header */}
-                            <div className="p-5 flex justify-between items-center sticky top-0 bg-white/80 dark:bg-codex-fondo-secondary/80 rounded-t-2xl z-10 backdrop-blur-sm border-b border-codex-bordes-primary-variante2/30 dark:border-codex-bordes-terciario-variante4/30">
-                                <div className="flex items-center gap-3">
-                                    <div className="h-10 w-10 rounded-xl bg-codex-fondo-primary-variante1 dark:bg-codex-fondo-terciario-variante5 flex items-center justify-center text-codex-primary font-bold shadow-inner">
-                                        {entity === 'service' ? 'S' : entity.charAt(0).toUpperCase()}
-                                    </div>
-                                    <div className="flex flex-col">
-                                        <h2 className="text-sm font-black uppercase tracking-widest text-codex-texto-secondary dark:text-codex-texto-terciario-variante1 leading-none">
-                                            {entity === 'service' ? 'Service'
-                                                : entity === 'lead_client_info' ? 'Client Info'
-                                                    : entity === 'lead_service_info' ? 'Service Info'
-                                                        : entity.replace('_', ' ')}
-                                        </h2>
-                                        <span className="text-[10px] text-muted-foreground font-medium mt-1">Entity Module</span>
-                                    </div>
-                                </div>
-                                <Button
-                                    size="sm"
-                                    onClick={() => handleAddClick(entity)}
-                                    className="bg-codex-primary hover:bg-codex-primary/90 text-white rounded-full px-4 h-8 text-[10px] font-bold uppercase tracking-wider transition-all hover:scale-105"
-                                >
-                                    <Plus size={14} className="mr-1" /> New
-                                </Button>
-                            </div>
+                    {entities.map(entity => {
+                        const label = entity === 'catalogue_item' ? 'Catalogue Item'
+                            : entity === 'asset_assignment' ? 'Asset Assignment'
+                            : entity.replace('_', ' ');
+                        const attrs = attributesData[entity] || [];
 
-                            <div className="p-5 flex-1 overflow-y-auto space-y-4 custom-scrollbar">
-                                {attributesData[entity] && attributesData[entity].length === 0 ? (
-                                    <div className="h-40 flex flex-col items-center justify-center border-2 border-dashed border-codex-bordes-primary-variante2/30 dark:border-codex-bordes-terciario-variante4/30 rounded-2xl m-2 bg-muted/20">
-                                        <div className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">No Attributes</div>
-                                        <div className="text-[9px] text-muted-foreground/60 mt-1 italic">Start by adding one</div>
+                        return (
+                            <div
+                                key={entity}
+                                className="flex-shrink-0 w-[85vw] md:w-[360px] flex flex-col rounded-xl h-full"
+                                style={{ border: "1px solid #D8D2C4", backgroundColor: "#FBF7EF", overflow: "hidden" }}
+                            >
+                                {/* Column header */}
+                                <div
+                                    className="px-4 py-3 flex justify-between items-center shrink-0"
+                                    style={{ backgroundColor: "#5E6A43", borderBottom: "1px solid #4a5535" }}
+                                >
+                                    <div className="flex items-center gap-2.5">
+                                        <div
+                                            className="flex h-8 w-8 items-center justify-center rounded-lg text-sm font-bold uppercase"
+                                            style={{ backgroundColor: "rgba(251,247,239,0.15)", color: "#FBF7EF" }}
+                                        >
+                                            {entity.charAt(0).toUpperCase()}
+                                        </div>
+                                        <div>
+                                            <p className="text-xs font-black uppercase tracking-widest leading-none" style={{ color: "#FBF7EF" }}>
+                                                {label}
+                                            </p>
+                                            <span className="text-[9px] font-medium" style={{ color: "rgba(251,247,239,0.6)" }}>Entity Module</span>
+                                        </div>
                                     </div>
-                                ) : (
-                                    <div className="space-y-3">
-                                        {(attributesData[entity] || []).map(attr => (
-                                            <div key={attr.id || attr.name} className="group/item flex items-center justify-between p-4 rounded-xl bg-white dark:bg-codex-fondo-secondary border border-codex-bordes-primary-variante2/20 dark:border-codex-bordes-terciario-variante4/20 hover:border-codex-primary/40 transition-all hover:shadow-sm">
-                                                <div className="min-w-0">
-                                                    <div className="flex items-center gap-2">
-                                                        <p className="font-bold text-xs text-codex-texto-secondary dark:text-white truncate uppercase tracking-tight">{attr.label}</p>
-                                                        {attr.is_required && <span className="text-[10px] text-red-500 font-bold" title="Required">●</span>}
-                                                    </div>
-                                                    <div className="flex items-center gap-3 mt-1.5">
-                                                        <span className="bg-codex-fondo-primary-variante1 dark:bg-codex-fondo-terciario-variante5 text-codex-primary dark:text-codex-texto-terciario-variante1 px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-widest">{attr.type}</span>
-                                                        <span className="font-mono text-[9px] text-muted-foreground truncate opacity-70">#{attr.name}</span>
-                                                    </div>
+                                    <button
+                                        onClick={() => handleAddClick(entity)}
+                                        className="flex items-center gap-1 px-3 h-7 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer"
+                                        style={{ backgroundColor: "rgba(251,247,239,0.15)", color: "#FBF7EF", border: "1px solid rgba(251,247,239,0.25)" }}
+                                        onMouseEnter={e => e.currentTarget.style.backgroundColor = "rgba(251,247,239,0.25)"}
+                                        onMouseLeave={e => e.currentTarget.style.backgroundColor = "rgba(251,247,239,0.15)"}
+                                    >
+                                        <Plus size={11} /> New
+                                    </button>
+                                </div>
+
+                                {/* Attribute list */}
+                                <div className="flex-1 overflow-y-auto p-3 space-y-2">
+                                    {attrs.length === 0 ? (
+                                        <div
+                                            className="h-24 flex flex-col items-center justify-center rounded-lg m-1"
+                                            style={{ border: "1.5px dashed #D8D2C4", color: "#9b948e" }}
+                                        >
+                                            <p className="text-[10px] uppercase tracking-widest font-bold">No Attributes</p>
+                                            <p className="text-[9px] mt-0.5 opacity-60 italic">Start by adding one</p>
+                                        </div>
+                                    ) : attrs.map(attr => (
+                                        <div
+                                            key={attr.id || attr.name}
+                                            className="group/item flex items-center justify-between p-3 rounded-lg transition-all"
+                                            style={{ backgroundColor: "#F2EBDD", border: "1px solid #D8D2C4" }}
+                                            onMouseEnter={e => { e.currentTarget.style.borderColor = "#5E6A43"; e.currentTarget.style.backgroundColor = "#ede7d9"; }}
+                                            onMouseLeave={e => { e.currentTarget.style.borderColor = "#D8D2C4"; e.currentTarget.style.backgroundColor = "#F2EBDD"; }}
+                                        >
+                                            <div className="min-w-0">
+                                                <div className="flex items-center gap-1.5">
+                                                    <p className="font-bold text-xs uppercase tracking-tight truncate" style={{ color: "#2E2A26" }}>
+                                                        {attr.label}
+                                                    </p>
+                                                    {attr.is_required && (
+                                                        <span className="text-[9px] font-bold" style={{ color: "#c0392b" }} title="Required">●</span>
+                                                    )}
                                                 </div>
-                                                <div className="flex gap-1 opacity-0 group-hover/item:opacity-100 transition-opacity">
-                                                    <button
-                                                        onClick={() => handleEditClick(entity, attr)}
-                                                        className="p-2 text-codex-primary hover:bg-codex-primary/10 rounded-lg transition-all hover:scale-110 active:scale-90"
-                                                        title="Edit Attribute"
-                                                    >
-                                                        <Edit size={15} />
-                                                    </button>
-                                                    <button
-                                                        onClick={() => handleDelete(entity, attr.id)}
-                                                        className="p-2 text-destructive hover:bg-destructive/10 rounded-lg transition-all hover:scale-110 active:scale-90"
-                                                        title="Delete Attribute"
-                                                    >
-                                                        <Trash size={15} />
-                                                    </button>
+                                                <div className="flex items-center gap-2 mt-1">
+                                                    <TypePill type={attr.type} />
+                                                    <span className="font-mono text-[9px] truncate opacity-60" style={{ color: "#6b6560" }}>#{attr.name}</span>
                                                 </div>
                                             </div>
-                                        ))}
-                                    </div>
-                                )}
+                                            <div className="flex gap-0.5 opacity-0 group-hover/item:opacity-100 transition-opacity shrink-0 ml-2">
+                                                <button
+                                                    onClick={() => handleEditClick(entity, attr)}
+                                                    className="flex h-7 w-7 items-center justify-center rounded-md transition-colors cursor-pointer"
+                                                    style={{ color: "#5E6A43" }}
+                                                    onMouseEnter={e => e.currentTarget.style.backgroundColor = "rgba(94,106,67,0.1)"}
+                                                    onMouseLeave={e => e.currentTarget.style.backgroundColor = "transparent"}
+                                                    title="Edit"
+                                                >
+                                                    <Edit size={13} />
+                                                </button>
+                                                <button
+                                                    onClick={() => handleDelete(entity, attr.id)}
+                                                    className="flex h-7 w-7 items-center justify-center rounded-md transition-colors cursor-pointer"
+                                                    style={{ color: "#c0392b" }}
+                                                    onMouseEnter={e => e.currentTarget.style.backgroundColor = "rgba(192,57,43,0.08)"}
+                                                    onMouseLeave={e => e.currentTarget.style.backgroundColor = "transparent"}
+                                                    title="Delete"
+                                                >
+                                                    <Trash size={13} />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
-                        </div>
-                    ))}
+                        );
+                    })}
                 </div>
             </div>
 
-            <Modal
-                isOpen={isModalOpen}
-                onClose={() => { setIsModalOpen(false); setEditingAttribute(null); }}
-            >
+            <Modal isOpen={isModalOpen} onClose={() => { setIsModalOpen(false); setEditingAttribute(null); }}>
                 <AttributeForm
                     entity={currentEntity}
                     onSubmit={handleCreateOrUpdate}

@@ -22,31 +22,18 @@ export const LeadBoard = ({ refreshTrigger, selectedPipelineId, setSelectedPipel
     const [lostReason, setLostReason] = useState("");
     const [pendingLostLeadId, setPendingLostLeadId] = useState(null);
 
-    const scrollLeft = () => {
-        if (scrollContainerRef.current) {
-            scrollContainerRef.current.scrollBy({ left: -300, behavior: 'smooth' });
-        }
-    };
+    const scrollLeft = () => scrollContainerRef.current?.scrollBy({ left: -320, behavior: 'smooth' });
+    const scrollRight = () => scrollContainerRef.current?.scrollBy({ left: 320, behavior: 'smooth' });
 
-    const scrollRight = () => {
-        if (scrollContainerRef.current) {
-            scrollContainerRef.current.scrollBy({ left: 300, behavior: 'smooth' });
-        }
-    };
-
-    // Load pipelines on mount
     useEffect(() => {
         const fetchPipelines = async () => {
             const pipelinesData = await getPipelines();
             const loadedPipelines = pipelinesData.results || pipelinesData || [];
             setPipelines(loadedPipelines);
-
-            // Set default if needed
             if (loadedPipelines.length > 0 && !selectedPipelineId) {
                 setSelectedPipelineId(loadedPipelines[0].id);
             }
         };
-
         const fetchSalesUsers = async () => {
             try {
                 const salesData = await getSales();
@@ -55,16 +42,13 @@ export const LeadBoard = ({ refreshTrigger, selectedPipelineId, setSelectedPipel
                 console.error("Failed to load sales users", err);
             }
         };
-
         fetchPipelines();
         fetchSalesUsers();
     }, []);
 
-    // Load leads when pipeline or trigger changes
     useEffect(() => {
         const fetchLeads = async () => {
             if (!selectedPipelineId) return;
-
             setLoading(true);
             try {
                 const leadsData = await getLeads({ pipeline_id: selectedPipelineId });
@@ -75,56 +59,36 @@ export const LeadBoard = ({ refreshTrigger, selectedPipelineId, setSelectedPipel
                 setLoading(false);
             }
         };
-
         fetchLeads();
     }, [selectedPipelineId, refreshTrigger]);
 
-    // Update stages when pipeline selected
     useEffect(() => {
         if (!selectedPipelineId || !pipelines.length) return;
-
         const activePipeline = pipelines.find(p => p.id == selectedPipelineId);
-        if (activePipeline && activePipeline.stages) {
-            const sortedStages = [...activePipeline.stages].sort((a, b) => a.order - b.order);
-            setStages(sortedStages);
+        if (activePipeline?.stages) {
+            setStages([...activePipeline.stages].sort((a, b) => a.order - b.order));
         } else {
             setStages([]);
         }
     }, [selectedPipelineId, pipelines]);
 
-    const handleDragStart = (e, lead) => {
-        e.dataTransfer.setData("leadId", lead.id);
-    };
-
-    const handleDragOver = (e) => {
-        e.preventDefault();
-    };
+    const handleDragOver = (e) => e.preventDefault();
 
     const handleDrop = async (e, targetStageName) => {
         e.preventDefault();
         const leadId = e.dataTransfer.getData("leadId");
-
         if (targetStageName.toLowerCase() === "lost") {
             setPendingLostLeadId(leadId);
             setLostReason("");
             setLostModalOpen(true);
             return;
         }
-
         performStageUpdate(leadId, targetStageName);
     };
 
     const performStageUpdate = async (leadId, targetStageName, additionalPayload = {}) => {
-        // Optimistic update
         const originalLeads = [...leads];
-        const updatedLeads = leads.map(l => {
-            if (l.id.toString() === leadId) {
-                return { ...l, stage: targetStageName };
-            }
-            return l;
-        });
-        setLeads(updatedLeads);
-
+        setLeads(leads.map(l => l.id.toString() === leadId ? { ...l, stage: targetStageName } : l));
         try {
             await updateLead(leadId, { stage: targetStageName, ...additionalPayload });
         } catch (error) {
@@ -141,18 +105,23 @@ export const LeadBoard = ({ refreshTrigger, selectedPipelineId, setSelectedPipel
     };
 
     if (loading) {
-        return <div className="p-10 text-center">Loading board...</div>;
+        return (
+            <div className="p-10 text-center" style={{ color: "#6b6560", fontFamily: '"Source Sans 3", Arial, sans-serif' }}>
+                Loading board...
+            </div>
+        );
     }
 
     if (!pipelines.length) {
         return (
-            <div className="flex flex-col items-center justify-center p-10 h-full">
+            <div className="flex flex-col items-center justify-center p-10 h-full" style={{ fontFamily: '"Source Sans 3", Arial, sans-serif' }}>
                 <div className="text-center mb-8">
-                    <h3 className="text-xl font-semibold mb-2">No active pipeline found</h3>
-                    <p className="text-muted-foreground mb-6">Configure your first pipeline to start managing leads.</p>
+                    <h3 className="text-lg font-semibold mb-2" style={{ color: "#2E2A26" }}>No active pipeline found</h3>
+                    <p className="text-sm mb-6" style={{ color: "#9b948e" }}>Configure your first pipeline to start managing leads.</p>
                     <Link
                         to="/pipeline"
-                        className="bg-primary text-primary-foreground px-4 py-2 rounded-md hover:bg-primary/90 transition-colors"
+                        className="px-4 py-2 rounded-lg text-sm font-semibold transition-colors"
+                        style={{ backgroundColor: "#5E6A43", color: "#FBF7EF" }}
                     >
                         Manage Pipelines
                     </Link>
@@ -162,65 +131,71 @@ export const LeadBoard = ({ refreshTrigger, selectedPipelineId, setSelectedPipel
     }
 
     return (
-        <div className="flex flex-col h-[calc(100vh-100px)] relative group/board">
-            {/* Pipeline Selector / Toolbar */}
-            <div className="px-6 py-3 flex flex-wrap items-center justify-between gap-4 bg-white/40 dark:bg-transparent border-b border-codex-bordes-primary-variante2/30 dark:border-codex-bordes-terciario-variante4/30">
-                <div className="flex items-center gap-3">
-                    <span className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground">Active Pipeline</span>
-                    <div className="relative group/select">
-                        <select
-                            value={selectedPipelineId || ""}
-                            onChange={(e) => setSelectedPipelineId(e.target.value)}
-                            className="appearance-none pl-3 pr-8 py-1.5 rounded-full border border-codex-bordes-primary-variante2 dark:border-codex-bordes-terciario-variante4 bg-white dark:bg-codex-fondo-secondary text-codex-texto-secondary dark:text-codex-texto-terciario-variante1 text-xs font-medium focus:ring-2 focus:ring-codex-primary/20 focus:outline-none min-w-[220px] cursor-pointer shadow-sm transition-all hover:border-codex-primary"
-                        >
-                            {pipelines.map(p => (
-                                <option key={p.id} value={p.id}>{p.name}</option>
-                            ))}
-                        </select>
-                        <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-muted-foreground group-hover/select:text-codex-primary transition-colors">
-                            <ChevronRight size={14} className="rotate-90" />
-                        </div>
-                    </div>
-                </div>
-
-                {/* <div className="flex items-center gap-2">
-                    <div className="flex items-center -space-x-2 overflow-hidden">
-                        {salesUsers.slice(0, 3).map((user, i) => (
-                            <div key={i} className="h-6 w-6 rounded-full ring-2 ring-white dark:ring-codex-fondo-secondary bg-codex-fondo-primary-variante2 flex items-center justify-center text-[8px] font-bold uppercase transition-transform hover:-translate-y-0.5 cursor-help" title={user.name || user.username}>
-                                {user.name?.charAt(0) || user.username?.charAt(0) || "?"}
-                            </div>
+        <div
+            className="flex flex-col h-[calc(100vh-100px)] relative group/board"
+            style={{ fontFamily: '"Source Sans 3", Arial, sans-serif' }}
+        >
+            {/* Pipeline selector toolbar */}
+            <div
+                className="px-5 py-2.5 flex items-center gap-3 shrink-0"
+                style={{ borderBottom: "1px solid #D8D2C4", backgroundColor: "#FBF7EF" }}
+            >
+                <span
+                    className="text-[10px] uppercase tracking-widest font-bold shrink-0"
+                    style={{ color: "#9b948e" }}
+                >
+                    Active Pipeline
+                </span>
+                <div className="relative">
+                    <select
+                        value={selectedPipelineId || ""}
+                        onChange={(e) => setSelectedPipelineId(e.target.value)}
+                        className="appearance-none pl-3 pr-7 py-1.5 rounded-full text-xs font-semibold focus:outline-none cursor-pointer transition-colors"
+                        style={{
+                            border: "1px solid #D8D2C4",
+                            backgroundColor: "#F2EBDD",
+                            color: "#2E2A26",
+                            minWidth: "200px",
+                        }}
+                    >
+                        {pipelines.map(p => (
+                            <option key={p.id} value={p.id}>{p.name}</option>
                         ))}
-                    </div>
-                    <span className="text-[10px] text-muted-foreground font-medium">Team leads</span>
-                </div> */}
+                    </select>
+                    <ChevronRight
+                        size={13}
+                        className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none rotate-90"
+                        style={{ color: "#9b948e" }}
+                    />
+                </div>
             </div>
 
-            {/* Scroll Button Left */}
+            {/* Scroll buttons */}
             <button
                 onClick={scrollLeft}
-                className="absolute left-1 top-1/2 z-20 p-2 bg-background/80 hover:bg-background shadow-md border border-border rounded-full opacity-0 group-hover/board:opacity-100 transition-opacity disabled:opacity-0"
+                className="absolute left-2 top-1/2 z-20 h-9 w-9 flex items-center justify-center rounded-full opacity-0 group-hover/board:opacity-100 transition-opacity"
+                style={{ backgroundColor: "#FBF7EF", border: "1px solid #D8D2C4", color: "#5E6A43", boxShadow: "0 2px 8px rgba(0,0,0,0.10)" }}
             >
-                <ChevronLeft size={24} />
+                <ChevronLeft size={18} />
             </button>
-
-            {/* Scroll Button Right */}
             <button
                 onClick={scrollRight}
-                className="absolute right-1 top-1/2 z-20 p-2 bg-background/80 hover:bg-background shadow-md border border-border rounded-full opacity-0 group-hover/board:opacity-100 transition-opacity"
+                className="absolute right-2 top-1/2 z-20 h-9 w-9 flex items-center justify-center rounded-full opacity-0 group-hover/board:opacity-100 transition-opacity"
+                style={{ backgroundColor: "#FBF7EF", border: "1px solid #D8D2C4", color: "#5E6A43", boxShadow: "0 2px 8px rgba(0,0,0,0.10)" }}
             >
-                <ChevronRight size={24} />
+                <ChevronRight size={18} />
             </button>
 
-
+            {/* Kanban columns */}
             <div
                 ref={scrollContainerRef}
-                className="flex gap-4 overflow-x-auto pb-4 px-4 h-full mt-2 scrollbar-hide scroll-smooth"
+                className="flex gap-4 overflow-x-auto pb-4 px-4 h-full mt-3 scroll-smooth"
+                style={{ scrollbarWidth: "thin", scrollbarColor: "#D8D2C4 transparent" }}
             >
                 {stages.map((stage, index) => {
-                    // Filter leads for this stage
+                    const stageColor = stage.color || "#5E6A43";
                     const stageLeads = leads.filter(l => {
                         const matchesStage = l.stage === stage.name || l.stage_id === stage.id;
-                        // Fallback: If it's the first stage, include leads with no stage defined
                         if (index === 0 && !l.stage && !l.stage_id) return true;
                         return matchesStage;
                     });
@@ -228,40 +203,66 @@ export const LeadBoard = ({ refreshTrigger, selectedPipelineId, setSelectedPipel
                     return (
                         <div
                             key={stage.name}
-                            className="flex-shrink-0 w-80 flex flex-col rounded-xl bg-white/50 dark:bg-codex-fondo-secondary/40 border border-codex-bordes-primary-variante2/50 dark:border-codex-bordes-terciario-variante4/50 h-full max-h-full shadow-sm backdrop-blur-sm transition-all hover:shadow-md"
-                            style={{ borderTop: `4px solid ${stage.color || '#4F8071'}` }}
+                            className="flex-shrink-0 w-72 flex flex-col rounded-xl h-full transition-all"
+                            style={{
+                                border: "1px solid #D8D2C4",
+                                borderTop: `4px solid ${stageColor}`,
+                                backgroundColor: "#FBF7EF",
+                            }}
                             onDragOver={handleDragOver}
                             onDrop={(e) => handleDrop(e, stage.name)}
                         >
-                            {/* Column Header */}
-                            <div className="p-4 flex justify-between items-center sticky top-0 bg-white/80 dark:bg-codex-fondo-secondary/80 rounded-t-xl z-10 backdrop-blur-sm">
+                            {/* Column header */}
+                            <div
+                                className="px-4 py-3 flex items-center justify-between shrink-0 rounded-t-lg"
+                                style={{ backgroundColor: "#F2EBDD", borderBottom: "1px solid #D8D2C4" }}
+                            >
                                 <div className="flex items-center gap-2">
                                     <div
-                                        className="h-2 w-2 rounded-full"
-                                        style={{ backgroundColor: stage.color || '#4F8071' }}
-                                    ></div>
-                                    <h3 className="font-bold text-xs uppercase tracking-widest text-codex-texto-secondary dark:text-codex-texto-terciario-variante1">{stage.name}</h3>
+                                        className="h-2 w-2 rounded-full shrink-0"
+                                        style={{ backgroundColor: stageColor }}
+                                    />
+                                    <h3
+                                        className="font-black text-[10px] uppercase tracking-widest"
+                                        style={{ color: "#2E2A26" }}
+                                    >
+                                        {stage.name}
+                                    </h3>
                                 </div>
-                                <span className="bg-codex-fondo-primary-variante1 dark:bg-codex-fondo-terciario-variante5 text-codex-primary dark:text-codex-texto-terciario-variante1 text-[10px] font-bold px-2 py-0.5 rounded-full tabular-nums">
+                                <span
+                                    className="text-[10px] font-bold px-2 py-0.5 rounded-full tabular-nums"
+                                    style={{
+                                        backgroundColor: "rgba(94,106,67,0.12)",
+                                        border: "1px solid rgba(94,106,67,0.25)",
+                                        color: "#5E6A43",
+                                    }}
+                                >
                                     {stageLeads.length}
                                 </span>
                             </div>
 
-                            {/* Drop Zone / List */}
-                            <div className="flex-1 p-3 overflow-y-auto min-h-[100px] space-y-3 custom-scrollbar">
+                            {/* Cards list */}
+                            <div className="flex-1 p-2.5 overflow-y-auto space-y-2.5 min-h-[80px]">
                                 {stageLeads.map((lead) => (
                                     <LeadCard
                                         key={lead.id}
                                         lead={lead}
                                         salesUsers={salesUsers}
-                                        onDragStart={handleDragStart}
-                                        onClick={() => onLeadClick && onLeadClick(lead)}
+                                        onDragStart={(e, l) => e.dataTransfer.setData("leadId", l.id)}
+                                        onClick={() => onLeadClick?.(lead)}
                                     />
                                 ))}
                                 {stageLeads.length === 0 && (
-                                    <div className="h-24 flex flex-col items-center justify-center border-2 border-dashed border-codex-bordes-primary-variante2/30 dark:border-codex-bordes-terciario-variante4/30 rounded-lg m-2">
-                                        <div className="text-[10px] text-muted-foreground uppercase tracking-widest font-medium">Empty Stage</div>
-                                        <div className="text-[9px] text-muted-foreground/60">Drop cards here</div>
+                                    <div
+                                        className="h-20 flex flex-col items-center justify-center rounded-lg mx-1"
+                                        style={{ border: "1.5px dashed #D8D2C4" }}
+                                    >
+                                        <p className="text-[9px] uppercase tracking-widest font-bold" style={{ color: "#9b948e" }}>
+                                            Empty Stage
+                                        </p>
+                                        <p className="text-[8px] mt-0.5 opacity-60" style={{ color: "#9b948e" }}>
+                                            Drop cards here
+                                        </p>
                                     </div>
                                 )}
                             </div>
@@ -270,7 +271,7 @@ export const LeadBoard = ({ refreshTrigger, selectedPipelineId, setSelectedPipel
                 })}
             </div>
 
-            {/* Modal for Lost Reason */}
+            {/* Lost reason modal */}
             <Modal
                 isOpen={lostModalOpen}
                 onClose={() => { setLostModalOpen(false); setPendingLostLeadId(null); }}
@@ -289,8 +290,12 @@ export const LeadBoard = ({ refreshTrigger, selectedPipelineId, setSelectedPipel
                         />
                     </div>
                     <div className="flex justify-end gap-2 pt-4 border-t">
-                        <Button variant="outline" onClick={() => { setLostModalOpen(false); setPendingLostLeadId(null); }}>Cancel</Button>
-                        <Button onClick={handleLostSubmit} disabled={!lostReason.trim()}>Confirm</Button>
+                        <Button variant="outline" onClick={() => { setLostModalOpen(false); setPendingLostLeadId(null); }}>
+                            Cancel
+                        </Button>
+                        <Button onClick={handleLostSubmit} disabled={!lostReason.trim()}>
+                            Confirm
+                        </Button>
                     </div>
                 </div>
             </Modal>
