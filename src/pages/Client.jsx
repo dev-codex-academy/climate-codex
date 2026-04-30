@@ -109,9 +109,15 @@ export const Client = () => {
                     </p>
                 </div>
                 <div className="flex gap-2">
-                    <Button variant="outline" onClick={handleExportExcel}>
-                        <Download className="mr-2 h-4 w-4" /> Export Excel
-                    </Button>
+                    <button
+                        onClick={handleExportExcel}
+                        className="flex items-center gap-2 h-9 px-4 rounded-lg text-sm font-semibold transition-colors cursor-pointer"
+                        style={{ backgroundColor: "#F2EBDD", border: "1px solid #5E6A43", color: "#5E6A43" }}
+                        onMouseEnter={e => e.currentTarget.style.backgroundColor = "rgba(94,106,67,0.15)"}
+                        onMouseLeave={e => e.currentTarget.style.backgroundColor = "#F2EBDD"}
+                    >
+                        <Download className="h-4 w-4" /> Export Excel
+                    </button>
                     <Button onClick={() => navigate("/client/new")}>
                         <Plus className="mr-2 h-4 w-4" /> Add Client
                     </Button>
