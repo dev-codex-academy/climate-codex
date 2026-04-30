@@ -25,11 +25,11 @@ const labelClass = {
     fontFamily: '"Source Sans 3", Arial, sans-serif',
 };
 
-export const AttributeForm = ({ entity, onSubmit, onCancel, isLoading, initialData = null }) => {
+export const AttributeForm = ({ entity, onSubmit, onCancel, isLoading, initialData = null, defaultOrder = 1 }) => {
     const isEdit = !!initialData;
 
     const getDefaultValues = () => {
-        if (!initialData) return {};
+        if (!initialData) return { order: defaultOrder };
         return {
             ...initialData,
             list_values: Array.isArray(initialData.list_values)
@@ -107,6 +107,23 @@ export const AttributeForm = ({ entity, onSubmit, onCancel, isLoading, initialDa
                     onBlur={e => e.target.style.borderColor = "#D8D2C4"}
                 />
                 {errors.label && <span style={{ color: "#c0392b", fontSize: "11px" }}>{errors.label.message}</span>}
+            </div>
+
+            {/* Order */}
+            <div>
+                <label style={labelClass}>Display Order</label>
+                <input
+                    type="number"
+                    min="1"
+                    {...register("order", { required: "Order is required", valueAsNumber: true, min: { value: 1, message: "Minimum value is 1" } })}
+                    style={inputClass}
+                    onFocus={e => e.target.style.borderColor = "#5E6A43"}
+                    onBlur={e => e.target.style.borderColor = "#D8D2C4"}
+                />
+                {errors.order && <span style={{ color: "#c0392b", fontSize: "11px" }}>{errors.order.message}</span>}
+                <p style={{ fontSize: "11px", color: "#9b948e", marginTop: "3px" }}>
+                    Controls the position of this field in forms. Lower numbers appear first.
+                </p>
             </div>
 
             {/* Type */}
