@@ -125,13 +125,25 @@ export const LandingPage = () => {
                     <p className="text-muted-foreground" style={{ color: "#6b6560" }}>
                         We've received your information. A representative will reach out to you shortly.
                     </p>
-                    <button 
-                        onClick={() => window.location.reload()}
-                        className="px-8 py-3 rounded-xl font-bold transition-all shadow-lg hover:shadow-xl"
-                        style={{ backgroundColor: OLIVE, color: LINEN }}
-                    >
-                        Send Another Inquiry
-                    </button>
+                    
+                    <div className="pt-4 flex flex-col gap-3">
+                        <a 
+                            href="https://calendly.com/climate-codex/30min"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="w-full py-4 rounded-xl font-bold transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
+                            style={{ backgroundColor: OLIVE, color: LINEN }}
+                        >
+                            Schedule a Meeting
+                        </a>
+                        <button 
+                            onClick={() => window.location.reload()}
+                            className="w-full py-3 rounded-xl font-bold transition-all opacity-60 hover:opacity-100"
+                            style={{ border: `1px solid ${PEBBLE}`, color: INK }}
+                        >
+                            Send Another Inquiry
+                        </button>
+                    </div>
                 </div>
             </div>
         );
