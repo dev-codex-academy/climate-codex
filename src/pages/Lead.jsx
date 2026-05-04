@@ -16,7 +16,7 @@ export const Lead = () => {
 
     return (
         <div
-            className="h-full flex flex-col w-full"
+            className="h-full flex flex-col w-full overflow-hidden"
             style={{ backgroundColor: "#FBF7EF", fontFamily: '"Source Sans 3", Arial, sans-serif' }}
         >
             {/* Page header — same pattern as Attributes */}

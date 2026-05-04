@@ -4,6 +4,7 @@ import { NotFound } from "../pages/NotFound"
 import { Lead } from "../pages/Lead"
 import { Pipeline } from "../pages/Pipeline";
 import { Attributes } from "../pages/Attributes";
+import { PipelineAttributesAdmin } from "../pages/PipelineAttributesAdmin";
 import { Client } from "../pages/Client";
 import { Service } from "../pages/Service";
 import { Followup } from "../pages/Followup";
@@ -73,6 +74,7 @@ export const RouterApp = () => {
                 <Route path="lead/:id" element={<PermissionGuard requiredPermission="app.add_lead"><LeadDetail /></PermissionGuard>} />
                 <Route path="pipeline" element={<PermissionGuard requiredPermission="app.add_pipeline"><Pipeline /></PermissionGuard>} />
                 <Route path="attribute" element={<PermissionGuard requiredPermission="app.add_attribute"><Attributes /></PermissionGuard>} />
+                <Route path="attribute-pipeline" element={<PermissionGuard requiredPermission="app.add_pipeline"><PipelineAttributesAdmin /></PermissionGuard>} />
                 <Route path="client" element={<PermissionGuard requiredPermission="app.add_client"><Client /></PermissionGuard>} />
                 <Route path="client/:id" element={<PermissionGuard requiredPermission="app.add_client"><ClientDetail /></PermissionGuard>} />
                 <Route path="contact" element={<PermissionGuard requiredPermission="app.add_contact"><Contact /></PermissionGuard>} />

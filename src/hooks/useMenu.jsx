@@ -92,11 +92,21 @@ export const useMenu = () => {
                         };
                     });
 
+                // Inject Pipeline Attributes if pipeline permission exists
+                if (permissions.includes("app.add_pipeline")) {
+                    formattedMenu.push({
+                        title: "Lead Fields",
+                        url: "/attribute-pipeline",
+                        icon: "SlidersHorizontal",
+                        items: [],
+                    });
+                }
+
                 // Grouping — meaningful buckets, no "Others" catch-all
                 const crmItems = ["Lead", "Clients", "Contacts", "Service", "Pipeline"];
                 const billingItems = ["Invoices", "Catalogue", "Categories", "Inventory"];
                 const assetItems = ["Assets", "Asset Assignments"];
-                const adminItems = ["Attribute", "Webhook"];
+                const adminItems = ["Attribute", "Lead Fields", "Webhook"];
 
                 const groups = [
                     { label: "CRM", items: formattedMenu.filter(i => crmItems.includes(i.title)) },

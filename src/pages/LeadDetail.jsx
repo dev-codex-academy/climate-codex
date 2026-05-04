@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { getLeadClientAttributes, createLead, updateLead, uploadLeadImage, getLead } from "../services/leadService";
 import { getPipelineAttributes } from "../services/pipelineAttributeService";
+import { getPipelines } from "../services/pipelineService";
 import { getCatalogueItems } from "../services/catalogueService";
 import { getSales } from "../services/salesService";
 import { getClients } from "../services/clientService";
@@ -31,6 +32,7 @@ export const LeadDetail = () => {
     const [attributes, setAttributes] = useState([]);
     const [clientAttributes, setClientAttributes] = useState([]);
     const [activePipelineId, setActivePipelineId] = useState(pipelineId || null);
+    const [pipelines, setPipelines] = useState([]);
     const [catalogueOptions, setCatalogueOptions] = useState([]);
     const [salesUsers, setSalesUsers] = useState([]);
     const [formData, setFormData] = useState({});
@@ -81,17 +83,20 @@ export const LeadDetail = () => {
             try {
                 fetchSalesUsers().catch(e => console.error(e));
                 fetchClients().catch(e => console.error(e));
+                fetchPipelines().catch(e => console.error(e));
 
                 if (!isNew) {
-                    // Load lead first so we know its pipeline, then fetch pipeline attrs
+                    // Load lead first so we know its pipeline
                     const data = await getLead(id);
                     const pid = data.pipeline?.id || data.pipeline || null;
                     if (pid) setActivePipelineId(String(pid));
-                    await fetchAttributes(pid ? String(pid) : null);
+                    // fetchAttributes will be triggered by useEffect on activePipelineId
                     populateForm(data);
                 } else {
                     // For new leads pipelineId comes from navigation state
-                    await fetchAttributes(pipelineId || null);
+                    if (pipelineId) {
+                        setActivePipelineId(String(pipelineId));
+                    }
                     setName("");
                     setPossibleClient("");
                     setMoodleCourseId("");
@@ -108,6 +113,16 @@ export const LeadDetail = () => {
         };
         init();
     }, [id, isNew]);
+
+    // Reactive attribute fetching
+    useEffect(() => {
+        if (activePipelineId) {
+            fetchAttributes(activePipelineId);
+        } else {
+            // Fetch at least client attributes and catalogue even if no pipeline
+            fetchAttributes(null);
+        }
+    }, [activePipelineId]);
 
     const populateForm = (leadData) => {
         setName(leadData.name || "");
@@ -176,6 +191,15 @@ export const LeadDetail = () => {
             setClients(Array.isArray(data) ? data : []);
         } catch (err) {
             console.error("Error fetching clients", err);
+        }
+    };
+
+    const fetchPipelines = async () => {
+        try {
+            const data = await getPipelines();
+            setPipelines(Array.isArray(data) ? data : (data.results || []));
+        } catch (err) {
+            console.error("Error fetching pipelines", err);
         }
     };
 
@@ -403,7 +427,7 @@ export const LeadDetail = () => {
             console.log("LEAD DETAIL PAYLOAD:", payload);
 
             if (isNew) {
-                payload.pipeline = pipelineId;
+                payload.pipeline = activePipelineId;
                 // Include initial tasks/notes for creation if needed, typically backend handles empty lists
                 // But generally users add tasks/notes AFTER getting an ID.
                 // If we want to support adding them during creation, we pass them in payload:
@@ -550,6 +574,28 @@ export const LeadDetail = () => {
                                 onChange={(e) => setMoodleCourseId(e.target.value)}
                             />
                         </div>
+
+                        {/* Pipeline Selection (Only for New Leads) */}
+                        {isNew && (
+                            <div className="space-y-2">
+                                <Label htmlFor="pipeline-select">Pipeline *</Label>
+                                <Select
+                                    value={activePipelineId}
+                                    onValueChange={setActivePipelineId}
+                                >
+                                    <SelectTrigger id="pipeline-select" className="w-full">
+                                        <SelectValue placeholder="Select a pipeline" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {pipelines.map(p => (
+                                            <SelectItem key={p.id} value={String(p.id)}>
+                                                {p.name}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        )}
                     </div>
 
                     {/* Dynamic Attributes */}

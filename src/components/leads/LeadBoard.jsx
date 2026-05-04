@@ -132,7 +132,7 @@ export const LeadBoard = ({ refreshTrigger, selectedPipelineId, setSelectedPipel
 
     return (
         <div
-            className="flex flex-col h-[calc(100vh-100px)] relative group/board"
+            className="flex flex-col h-full w-full overflow-hidden relative group/board"
             style={{ fontFamily: '"Source Sans 3", Arial, sans-serif' }}
         >
             {/* Pipeline selector toolbar */}
