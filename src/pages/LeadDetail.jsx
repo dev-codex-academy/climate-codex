@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
-import { getLeadAttributes, getLeadClientAttributes, createLead, updateLead, uploadLeadImage, getLead } from "../services/leadService";
+import { getLeadClientAttributes, createLead, updateLead, uploadLeadImage, getLead } from "../services/leadService";
+import { getPipelineAttributes } from "../services/pipelineAttributeService";
 import { getCatalogueItems } from "../services/catalogueService";
 import { getSales } from "../services/salesService";
 import { getClients } from "../services/clientService";
@@ -29,6 +30,7 @@ export const LeadDetail = () => {
 
     const [attributes, setAttributes] = useState([]);
     const [clientAttributes, setClientAttributes] = useState([]);
+    const [activePipelineId, setActivePipelineId] = useState(pipelineId || null);
     const [catalogueOptions, setCatalogueOptions] = useState([]);
     const [salesUsers, setSalesUsers] = useState([]);
     const [formData, setFormData] = useState({});
@@ -77,15 +79,19 @@ export const LeadDetail = () => {
         const init = async () => {
             setFetching(true);
             try {
-                // Fetch independently to avoid one blocking others
-                fetchAttributes().catch(e => console.error(e));
                 fetchSalesUsers().catch(e => console.error(e));
                 fetchClients().catch(e => console.error(e));
 
                 if (!isNew) {
-                    await fetchLeadData(id);
+                    // Load lead first so we know its pipeline, then fetch pipeline attrs
+                    const data = await getLead(id);
+                    const pid = data.pipeline?.id || data.pipeline || null;
+                    if (pid) setActivePipelineId(String(pid));
+                    await fetchAttributes(pid ? String(pid) : null);
+                    populateForm(data);
                 } else {
-                    // Initialize new lead defaults
+                    // For new leads pipelineId comes from navigation state
+                    await fetchAttributes(pipelineId || null);
                     setName("");
                     setPossibleClient("");
                     setMoodleCourseId("");
@@ -103,18 +109,12 @@ export const LeadDetail = () => {
         init();
     }, [id, isNew]);
 
-    const fetchLeadData = async (leadId) => {
-        try {
-            const data = await getLead(leadId);
-            populateForm(data);
-        } catch (err) {
-            console.error("Error fetching lead", err);
-            setError("Failed to load lead details.");
-        }
-    };
-
     const populateForm = (leadData) => {
         setName(leadData.name || "");
+
+        // Capture pipeline so attributes can be fetched from the right pipeline
+        const pid = leadData.pipeline?.id || leadData.pipeline || null;
+        if (pid) setActivePipelineId(String(pid));
 
         // Handle responsible
         const respId = leadData.responsible?.id || leadData.responsible || "";
@@ -181,10 +181,11 @@ export const LeadDetail = () => {
 
 
 
-    const fetchAttributes = async () => {
+    const fetchAttributes = async (resolvedPipelineId) => {
         try {
+            const pid = resolvedPipelineId || activePipelineId;
             const [leadAttrs, clientAttrs, catalogueRes] = await Promise.all([
-                getLeadAttributes(),
+                pid ? getPipelineAttributes(pid) : Promise.resolve([]),
                 getLeadClientAttributes(),
                 getCatalogueItems({ is_active: true })
             ]);

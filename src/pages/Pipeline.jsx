@@ -1,24 +1,253 @@
 import React, { useEffect, useState } from "react";
 import { getPipelines } from "../services/pipelineService";
+import { getPipelineAttributes, createPipelineAttribute, updatePipelineAttribute, deletePipelineAttribute } from "../services/pipelineAttributeService";
 import { PipelineForm } from "../components/pipelines/PipelineForm";
 import { PipelineModal } from "../components/pipelines/PipelineModal";
-import { Plus, Edit2, Columns } from "lucide-react";
+import { Plus, Edit2, Columns, ChevronDown, ChevronUp, Trash2, SlidersHorizontal } from "lucide-react";
+
+const FONT = '"Source Sans 3", Arial, sans-serif';
+const INK = "#2E2A26";
+const MUTED = "#6b6560";
+const HINT = "#9b948e";
+const LINEN = "#FBF7EF";
+const OAT = "#F2EBDD";
+const PEBBLE = "#D8D2C4";
+const OLIVE = "#5E6A43";
+
+const TYPE_LABELS = {
+    text: "Text", number: "Number", date: "Date",
+    list: "Select List", boolean: "Boolean", textarea: "Text Area",
+};
 
 const textColorForBg = (hex) => {
-    if (!hex) return "#2E2A26";
+    if (!hex) return INK;
     const c = hex.replace('#', '');
     const r = parseInt(c.substring(0, 2), 16);
     const g = parseInt(c.substring(2, 4), 16);
     const b = parseInt(c.substring(4, 6), 16);
     const lum = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-    return lum > 0.55 ? "#2E2A26" : "#FBF7EF";
+    return lum > 0.55 ? INK : LINEN;
 };
+
+const EMPTY_FORM = { label: "", name: "", type: "text", is_required: false, order: 0, list_values: [], description: "" };
+
+function AttributeManager({ pipeline }) {
+    const [attrs, setAttrs] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [saving, setSaving] = useState(false);
+    const [editingId, setEditingId] = useState(null);
+    const [form, setForm] = useState(EMPTY_FORM);
+    const [listInput, setListInput] = useState("");
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        load();
+    }, [pipeline.id]);
+
+    const load = async () => {
+        setLoading(true);
+        try {
+            const data = await getPipelineAttributes(pipeline.id);
+            setAttrs(data);
+        } catch {
+            setError("Could not load attributes.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const autoName = (label) => label.toLowerCase().replace(/\s+/g, "_").replace(/[^a-z0-9_]/g, "");
+
+    const handleLabelChange = (label) => {
+        setForm(prev => ({
+            ...prev,
+            label,
+            name: editingId ? prev.name : autoName(label),
+        }));
+    };
+
+    const startEdit = (attr) => {
+        setEditingId(attr.id);
+        setForm({
+            label: attr.label,
+            name: attr.name,
+            type: attr.type,
+            is_required: attr.is_required,
+            order: attr.order,
+            list_values: attr.list_values || [],
+            description: attr.description || "",
+        });
+        setListInput((attr.list_values || []).join(", "));
+        setError(null);
+    };
+
+    const cancelEdit = () => {
+        setEditingId(null);
+        setForm(EMPTY_FORM);
+        setListInput("");
+        setError(null);
+    };
+
+    const handleSave = async () => {
+        if (!form.label.trim() || !form.name.trim()) {
+            setError("Label and key name are required.");
+            return;
+        }
+        setSaving(true);
+        setError(null);
+        try {
+            const payload = {
+                ...form,
+                list_values: form.type === "list"
+                    ? listInput.split(",").map(s => s.trim()).filter(Boolean)
+                    : [],
+            };
+            if (editingId) {
+                await updatePipelineAttribute(pipeline.id, editingId, payload);
+            } else {
+                await createPipelineAttribute(pipeline.id, payload);
+            }
+            cancelEdit();
+            await load();
+        } catch (err) {
+            setError(err?.detail || err?.name?.[0] || "Error saving attribute.");
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const handleDelete = async (attrId) => {
+        if (!window.confirm("Delete this attribute?")) return;
+        try {
+            await deletePipelineAttribute(pipeline.id, attrId);
+            await load();
+        } catch {
+            setError("Error deleting attribute.");
+        }
+    };
+
+    const inputStyle = {
+        width: "100%", padding: "6px 10px", border: `1px solid ${PEBBLE}`,
+        borderRadius: "6px", backgroundColor: "#fff", color: INK,
+        fontFamily: FONT, fontSize: "13px", outline: "none", boxSizing: "border-box",
+    };
+
+    return (
+        <div
+            style={{ borderTop: `1px solid ${PEBBLE}`, marginTop: "16px", paddingTop: "16px" }}
+            onClick={e => e.stopPropagation()}
+        >
+            <p style={{ fontSize: "10px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: HINT, marginBottom: "12px", fontFamily: FONT }}>
+                Lead Fields
+            </p>
+
+            {loading ? (
+                <p style={{ fontSize: "13px", color: HINT, fontFamily: FONT }}>Loading...</p>
+            ) : (
+                <>
+                    {attrs.length > 0 && (
+                        <div style={{ display: "flex", flexDirection: "column", gap: "6px", marginBottom: "14px" }}>
+                            {attrs.map(attr => (
+                                <div key={attr.id} style={{ display: "flex", alignItems: "center", gap: "8px", padding: "8px 10px", backgroundColor: OAT, borderRadius: "6px", border: `1px solid ${PEBBLE}` }}>
+                                    <div style={{ flex: 1 }}>
+                                        <span style={{ fontSize: "13px", fontWeight: 600, color: INK, fontFamily: FONT }}>{attr.label}</span>
+                                        <span style={{ fontSize: "11px", color: HINT, marginLeft: "6px", fontFamily: FONT }}>{TYPE_LABELS[attr.type]}</span>
+                                        {attr.is_required && (
+                                            <span style={{ fontSize: "10px", color: OLIVE, fontWeight: 700, marginLeft: "6px", fontFamily: FONT }}>REQ</span>
+                                        )}
+                                        <span style={{ fontSize: "11px", color: PEBBLE, marginLeft: "6px", fontFamily: FONT }}>·</span>
+                                        <span style={{ fontSize: "11px", color: HINT, marginLeft: "6px", fontFamily: FONT }}>{attr.name}</span>
+                                    </div>
+                                    <button
+                                        onClick={() => startEdit(attr)}
+                                        style={{ background: "none", border: "none", cursor: "pointer", color: HINT, padding: "2px" }}
+                                    >
+                                        <Edit2 size={13} />
+                                    </button>
+                                    <button
+                                        onClick={() => handleDelete(attr.id)}
+                                        style={{ background: "none", border: "none", cursor: "pointer", color: "#dc2626", padding: "2px" }}
+                                    >
+                                        <Trash2 size={13} />
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+
+                    {/* Add / Edit form */}
+                    <div style={{ backgroundColor: "#fff", border: `1px solid ${PEBBLE}`, borderRadius: "8px", padding: "12px" }}>
+                        <p style={{ fontSize: "12px", fontWeight: 600, color: INK, marginBottom: "10px", fontFamily: FONT }}>
+                            {editingId ? "Edit Field" : "Add Field"}
+                        </p>
+
+                        {error && (
+                            <p style={{ fontSize: "12px", color: "#dc2626", marginBottom: "8px", fontFamily: FONT }}>{error}</p>
+                        )}
+
+                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", marginBottom: "8px" }}>
+                            <div>
+                                <p style={{ fontSize: "11px", fontWeight: 600, color: INK, marginBottom: "3px", fontFamily: FONT }}>Label *</p>
+                                <input style={inputStyle} value={form.label} onChange={e => handleLabelChange(e.target.value)} placeholder="e.g. First Name" />
+                            </div>
+                            <div>
+                                <p style={{ fontSize: "11px", fontWeight: 600, color: INK, marginBottom: "3px", fontFamily: FONT }}>Key name *</p>
+                                <input style={inputStyle} value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} placeholder="e.g. first_name" />
+                            </div>
+                            <div>
+                                <p style={{ fontSize: "11px", fontWeight: 600, color: INK, marginBottom: "3px", fontFamily: FONT }}>Type *</p>
+                                <select style={inputStyle} value={form.type} onChange={e => setForm(p => ({ ...p, type: e.target.value }))}>
+                                    {Object.entries(TYPE_LABELS).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+                                </select>
+                            </div>
+                            <div>
+                                <p style={{ fontSize: "11px", fontWeight: 600, color: INK, marginBottom: "3px", fontFamily: FONT }}>Order</p>
+                                <input style={inputStyle} type="number" value={form.order} onChange={e => setForm(p => ({ ...p, order: Number(e.target.value) }))} />
+                            </div>
+                        </div>
+
+                        {form.type === "list" && (
+                            <div style={{ marginBottom: "8px" }}>
+                                <p style={{ fontSize: "11px", fontWeight: 600, color: INK, marginBottom: "3px", fontFamily: FONT }}>Options (comma-separated)</p>
+                                <input style={inputStyle} value={listInput} onChange={e => setListInput(e.target.value)} placeholder="Option A, Option B, Option C" />
+                            </div>
+                        )}
+
+                        <label style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "12px", color: INK, fontFamily: FONT, cursor: "pointer", marginBottom: "10px" }}>
+                            <input type="checkbox" checked={form.is_required} onChange={e => setForm(p => ({ ...p, is_required: e.target.checked }))} style={{ accentColor: OLIVE }} />
+                            Required field
+                        </label>
+
+                        <div style={{ display: "flex", gap: "8px" }}>
+                            <button
+                                onClick={handleSave}
+                                disabled={saving}
+                                style={{ flex: 1, padding: "7px", backgroundColor: OLIVE, color: LINEN, border: "none", borderRadius: "6px", fontSize: "12px", fontWeight: 600, fontFamily: FONT, cursor: saving ? "not-allowed" : "pointer", opacity: saving ? 0.7 : 1 }}
+                            >
+                                {saving ? "Saving..." : editingId ? "Update" : "Add Field"}
+                            </button>
+                            {editingId && (
+                                <button
+                                    onClick={cancelEdit}
+                                    style={{ padding: "7px 14px", backgroundColor: "transparent", color: MUTED, border: `1px solid ${PEBBLE}`, borderRadius: "6px", fontSize: "12px", fontFamily: FONT, cursor: "pointer" }}
+                                >
+                                    Cancel
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                </>
+            )}
+        </div>
+    );
+}
 
 export const Pipeline = () => {
     const [pipelines, setPipelines] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingPipeline, setEditingPipeline] = useState(null);
+    const [expandedId, setExpandedId] = useState(null);
 
     const fetchPipelines = async () => {
         setLoading(true);
@@ -38,10 +267,15 @@ export const Pipeline = () => {
     const handleEditClick = (pipeline) => { setEditingPipeline(pipeline); setIsModalOpen(true); };
     const handleSaved = () => { setIsModalOpen(false); fetchPipelines(); };
 
+    const toggleAttributes = (e, pipelineId) => {
+        e.stopPropagation();
+        setExpandedId(prev => prev === pipelineId ? null : pipelineId);
+    };
+
     return (
         <div
             className="p-6 h-full flex flex-col"
-            style={{ backgroundColor: "#FBF7EF", fontFamily: '"Source Sans 3", Arial, sans-serif' }}
+            style={{ backgroundColor: LINEN, fontFamily: FONT }}
         >
             {/* Header */}
             <div className="flex justify-between items-start mb-6">
@@ -50,34 +284,34 @@ export const Pipeline = () => {
                         className="flex h-10 w-10 items-center justify-center rounded-lg"
                         style={{ backgroundColor: "rgba(94,106,67,0.12)", border: "1px solid rgba(94,106,67,0.3)" }}
                     >
-                        <Columns className="h-5 w-5" style={{ color: "#5E6A43" }} />
+                        <Columns className="h-5 w-5" style={{ color: OLIVE }} />
                     </div>
                     <div>
-                        <p className="text-base font-semibold" style={{ color: "#2E2A26", fontFamily: '"Source Sans 3", Arial, sans-serif' }}>Pipelines</p>
-                        <p className="text-sm" style={{ color: "#9b948e" }}>Manage your sales pipelines and stages</p>
+                        <p className="text-base font-semibold" style={{ color: INK, fontFamily: FONT }}>Pipelines</p>
+                        <p className="text-sm" style={{ color: HINT }}>Manage your sales pipelines and stages</p>
                     </div>
                 </div>
                 <button
                     onClick={handleCreateClick}
                     className="flex items-center gap-2 h-10 px-4 rounded-lg text-sm font-semibold transition-colors cursor-pointer"
-                    style={{ backgroundColor: "#5E6A43", color: "#FBF7EF" }}
+                    style={{ backgroundColor: OLIVE, color: LINEN }}
                     onMouseEnter={e => e.currentTarget.style.backgroundColor = "#4a5535"}
-                    onMouseLeave={e => e.currentTarget.style.backgroundColor = "#5E6A43"}
+                    onMouseLeave={e => e.currentTarget.style.backgroundColor = OLIVE}
                 >
                     <Plus size={16} /> New Pipeline
                 </button>
             </div>
 
             {loading ? (
-                <div className="flex-1 flex items-center justify-center" style={{ color: "#6b6560" }}>
+                <div className="flex-1 flex items-center justify-center" style={{ color: MUTED }}>
                     Loading pipelines...
                 </div>
             ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 items-start">
                     {pipelines.length === 0 ? (
                         <div
                             className="col-span-full text-center py-20 rounded-xl"
-                            style={{ border: "1.5px dashed #D8D2C4", color: "#9b948e" }}
+                            style={{ border: "1.5px dashed #D8D2C4", color: HINT }}
                         >
                             <Columns className="h-10 w-10 mx-auto mb-3 opacity-25" />
                             <p className="text-sm">No pipelines found.</p>
@@ -86,21 +320,25 @@ export const Pipeline = () => {
                     ) : pipelines.map((pipeline) => (
                         <div
                             key={pipeline.id}
-                            className="rounded-xl p-5 cursor-pointer group relative transition-all"
-                            style={{ backgroundColor: "#FBF7EF", border: "1px solid #D8D2C4" }}
-                            onClick={() => handleEditClick(pipeline)}
-                            onMouseEnter={e => { e.currentTarget.style.borderColor = "#5E6A43"; e.currentTarget.style.boxShadow = "0 4px 16px rgba(94,106,67,0.10)"; }}
-                            onMouseLeave={e => { e.currentTarget.style.borderColor = "#D8D2C4"; e.currentTarget.style.boxShadow = "none"; }}
+                            className="rounded-xl p-5 group relative transition-all"
+                            style={{ backgroundColor: LINEN, border: `1px solid ${PEBBLE}` }}
+                            onMouseEnter={e => { e.currentTarget.style.borderColor = OLIVE; e.currentTarget.style.boxShadow = "0 4px 16px rgba(94,106,67,0.10)"; }}
+                            onMouseLeave={e => { e.currentTarget.style.borderColor = PEBBLE; e.currentTarget.style.boxShadow = "none"; }}
                         >
                             {/* Edit icon */}
-                            <div className="absolute top-3.5 right-3.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button
+                                className="absolute top-3.5 right-3.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                                onClick={() => handleEditClick(pipeline)}
+                                style={{ background: "none", border: "none", cursor: "pointer", padding: 0 }}
+                                title="Edit pipeline"
+                            >
                                 <div
                                     className="h-7 w-7 flex items-center justify-center rounded-full"
                                     style={{ backgroundColor: "rgba(94,106,67,0.10)" }}
                                 >
-                                    <Edit2 size={13} style={{ color: "#5E6A43" }} />
+                                    <Edit2 size={13} style={{ color: OLIVE }} />
                                 </div>
-                            </div>
+                            </button>
 
                             {/* Pipeline title */}
                             <div className="flex items-center gap-3 mb-4">
@@ -108,24 +346,17 @@ export const Pipeline = () => {
                                     className="flex h-10 w-10 items-center justify-center rounded-lg shrink-0"
                                     style={{ backgroundColor: "rgba(94,106,67,0.10)", border: "1px solid rgba(94,106,67,0.25)" }}
                                 >
-                                    <Columns size={18} style={{ color: "#5E6A43" }} />
+                                    <Columns size={18} style={{ color: OLIVE }} />
                                 </div>
-                                <h3 className="font-semibold text-base leading-tight" style={{ color: "#2E2A26" }}>
-                                    {pipeline.name}
-                                </h3>
+                                <p className="font-semibold text-base leading-tight" style={{ color: INK }}>{pipeline.name}</p>
                             </div>
 
                             {/* Stages */}
                             <div className="space-y-2">
-                                <p
-                                    className="text-[10px] font-bold uppercase tracking-widest"
-                                    style={{ color: "#9b948e" }}
-                                >
-                                    Stages
-                                </p>
+                                <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: HINT }}>Stages</p>
                                 <div className="flex flex-wrap gap-1.5">
                                     {pipeline.stages?.sort((a, b) => a.order - b.order).map((stage) => {
-                                        const bg = stage.color || "#D8D2C4";
+                                        const bg = stage.color || PEBBLE;
                                         const fg = textColorForBg(bg);
                                         return (
                                             <div
@@ -139,6 +370,22 @@ export const Pipeline = () => {
                                     })}
                                 </div>
                             </div>
+
+                            {/* Manage Fields toggle */}
+                            <button
+                                onClick={e => toggleAttributes(e, pipeline.id)}
+                                className="flex items-center gap-1.5 mt-4 text-xs font-semibold transition-colors"
+                                style={{ background: "none", border: "none", cursor: "pointer", color: expandedId === pipeline.id ? OLIVE : HINT, fontFamily: FONT, padding: 0 }}
+                            >
+                                <SlidersHorizontal size={12} />
+                                Lead Fields
+                                {expandedId === pipeline.id ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+                            </button>
+
+                            {/* Expandable attribute manager */}
+                            {expandedId === pipeline.id && (
+                                <AttributeManager pipeline={pipeline} />
+                            )}
                         </div>
                     ))}
                 </div>
