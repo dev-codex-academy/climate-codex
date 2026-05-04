@@ -1,0 +1,334 @@
+import React, { useState, useEffect } from "react";
+import { getPublicPipelines, getPublicPipelineAttributes, createPublicLead } from "../services/publicService";
+import { 
+    Send, CheckCircle2, ChevronRight, Sparkles, 
+    MessageSquare, User, Mail, Building2, Smartphone 
+} from "lucide-react";
+import Swal from "sweetalert2";
+
+const FONT = '"Source Sans 3", Arial, sans-serif';
+const OLIVE = "#5E6A43";
+const LINEN = "#FBF7EF";
+const PEBBLE = "#D8D2C4";
+const INK = "#2E2A26";
+
+export const LandingPage = () => {
+    const [pipelines, setPipelines] = useState([]);
+    const [selectedPipelineId, setSelectedPipelineId] = useState("");
+    const [attributes, setAttributes] = useState([]);
+    const [formData, setFormData] = useState({});
+    const [clientData, setClientData] = useState({ name: "", email: "", phone: "" });
+    const [loading, setLoading] = useState(false);
+    const [fetchingAttrs, setFetchingAttrs] = useState(false);
+    const [submitted, setSubmitted] = useState(false);
+
+    useEffect(() => {
+        const fetchPipes = async () => {
+            try {
+                const data = await getPublicPipelines();
+                setPipelines(data);
+            } catch (err) {
+                console.error("Error fetching pipelines", err);
+            }
+        };
+        fetchPipes();
+    }, []);
+
+    useEffect(() => {
+        if (!selectedPipelineId) {
+            setAttributes([]);
+            return;
+        }
+        const fetchAttrs = async () => {
+            setFetchingAttrs(true);
+            try {
+                const data = await getPublicPipelineAttributes(selectedPipelineId);
+                setAttributes(data);
+                // Initialize form data with empty values for new attributes
+                const initialData = {};
+                data.forEach(attr => {
+                    initialData[attr.name] = attr.type === "boolean" ? false : "";
+                });
+                setFormData(initialData);
+            } catch (err) {
+                console.error("Error fetching attributes", err);
+            } finally {
+                setFetchingAttrs(false);
+            }
+        };
+        fetchAttrs();
+    }, [selectedPipelineId]);
+
+    const handleInputChange = (e, isClient = false) => {
+        const { name, value, type, checked } = e.target;
+        const val = type === "checkbox" ? checked : value;
+        
+        if (isClient) {
+            setClientData(prev => ({ ...prev, [name]: val }));
+        } else {
+            setFormData(prev => ({ ...prev, [name]: val }));
+        }
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+
+        try {
+            const payload = {
+                name: `Web Inquiry: ${clientData.name}`,
+                pipeline: selectedPipelineId,
+                client_attributes: {
+                    ...clientData
+                },
+                attributes: {
+                    ...formData
+                }
+            };
+
+            await createPublicLead(payload);
+            setSubmitted(true);
+            Swal.fire({
+                icon: "success",
+                title: "Thank You!",
+                text: "Your inquiry has been received. Our team will contact you soon.",
+                confirmButtonColor: OLIVE
+            });
+        } catch (err) {
+            console.error("Submit error", err);
+            let msg = "Failed to send inquiry. Please try again.";
+            try {
+                const parsed = JSON.parse(err.message);
+                msg = Object.values(parsed).flat().join(", ");
+            } catch { /* use default */ }
+            
+            Swal.fire({
+                icon: "error",
+                title: "Oops...",
+                text: msg
+            });
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    if (submitted) {
+        return (
+            <div className="min-h-screen flex items-center justify-center p-6" style={{ backgroundColor: LINEN, fontFamily: FONT }}>
+                <div className="max-w-md w-full text-center space-y-6 animate-in fade-in zoom-in duration-500">
+                    <div className="flex justify-center">
+                        <div className="h-24 w-24 rounded-full bg-olive/10 flex items-center justify-center" style={{ backgroundColor: "rgba(94,106,67,0.1)" }}>
+                            <CheckCircle2 className="h-12 w-12" style={{ color: OLIVE }} />
+                        </div>
+                    </div>
+                    <h1 className="text-3xl font-black tracking-tight" style={{ color: INK }}>Success!</h1>
+                    <p className="text-muted-foreground" style={{ color: "#6b6560" }}>
+                        We've received your information. A representative will reach out to you shortly.
+                    </p>
+                    <button 
+                        onClick={() => window.location.reload()}
+                        className="px-8 py-3 rounded-xl font-bold transition-all shadow-lg hover:shadow-xl"
+                        style={{ backgroundColor: OLIVE, color: LINEN }}
+                    >
+                        Send Another Inquiry
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <div className="min-h-screen flex flex-col md:flex-row" style={{ backgroundColor: LINEN, fontFamily: FONT }}>
+            {/* Left Side: Hero Section */}
+            <div className="md:w-1/2 p-12 md:p-24 flex flex-col justify-center bg-white border-r" style={{ borderColor: PEBBLE }}>
+                <div className="space-y-8 max-w-lg">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest" style={{ backgroundColor: "rgba(94,106,67,0.1)", color: OLIVE }}>
+                        <Sparkles size={12} /> Transform Your Business
+                    </div>
+                    <h1 className="text-5xl md:text-6xl font-black leading-[1.1] tracking-tight" style={{ color: INK }}>
+                        Empower Your <span style={{ color: OLIVE }}>Sales</span> Workflow.
+                    </h1>
+                    <p className="text-lg leading-relaxed opacity-70" style={{ color: "#2E2A26" }}>
+                        Experience the next generation of CRM. Personalizable pipelines, 
+                        dynamic attributes, and seamless automation tailored for your specific needs.
+                    </p>
+                    
+                    <div className="space-y-4 pt-4">
+                        {[
+                            "Intelligent Pipeline Management",
+                            "Dynamic Attribute Configuration",
+                            "Secure Data Governance",
+                            "Real-time Lead Tracking"
+                        ].map((item, idx) => (
+                            <div key={idx} className="flex items-center gap-3">
+                                <div className="h-5 w-5 rounded-full flex items-center justify-center" style={{ backgroundColor: "rgba(94,106,67,0.1)" }}>
+                                    <ChevronRight size={12} style={{ color: OLIVE }} />
+                                </div>
+                                <span className="text-sm font-bold" style={{ color: "#2E2A26" }}>{item}</span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
+
+            {/* Right Side: Form Section */}
+            <div className="md:w-1/2 p-8 md:p-16 flex flex-col items-center justify-center overflow-y-auto">
+                <div className="w-full max-w-md bg-white p-8 rounded-3xl shadow-2xl border" style={{ borderColor: PEBBLE }}>
+                    <div className="mb-8">
+                        <h2 className="text-2xl font-black tracking-tight mb-2" style={{ color: INK }}>Get Started Today</h2>
+                        <p className="text-sm opacity-60">Fill out the form below and we'll handle the rest.</p>
+                    </div>
+
+                    <form onSubmit={handleSubmit} className="space-y-5">
+                        {/* Pipeline Selector */}
+                        <div className="space-y-1.5">
+                            <label className="text-[10px] font-black uppercase tracking-widest" style={{ color: "#6b6560" }}>
+                                What are you interested in? *
+                            </label>
+                            <div className="relative">
+                                <select 
+                                    required
+                                    value={selectedPipelineId}
+                                    onChange={(e) => setSelectedPipelineId(e.target.value)}
+                                    className="w-full h-12 pl-10 pr-4 rounded-xl border appearance-none focus:outline-none transition-all"
+                                    style={{ borderColor: PEBBLE, backgroundColor: "#F9F8F6", color: INK }}
+                                    onFocus={e => e.target.style.borderColor = OLIVE}
+                                    onBlur={e => e.target.style.borderColor = PEBBLE}
+                                >
+                                    <option value="">Select an option</option>
+                                    {pipelines.map(p => (
+                                        <option key={p.id} value={p.id}>{p.name}</option>
+                                    ))}
+                                </select>
+                                <Building2 className="absolute left-3.5 top-1/2 -translate-y-1/2 opacity-30" size={18} />
+                            </div>
+                        </div>
+
+                        {/* Basic Info */}
+                        <div className="grid grid-cols-1 gap-4">
+                            <div className="space-y-1.5">
+                                <label className="text-[10px] font-black uppercase tracking-widest" style={{ color: "#6b6560" }}>Full Name *</label>
+                                <div className="relative">
+                                    <input 
+                                        type="text" required name="name" value={clientData.name} onChange={(e) => handleInputChange(e, true)}
+                                        placeholder="John Doe"
+                                        className="w-full h-12 pl-10 pr-4 rounded-xl border focus:outline-none transition-all"
+                                        style={{ borderColor: PEBBLE, backgroundColor: "#F9F8F6", color: INK }}
+                                        onFocus={e => e.target.style.borderColor = OLIVE}
+                                        onBlur={e => e.target.style.borderColor = PEBBLE}
+                                    />
+                                    <User className="absolute left-3.5 top-1/2 -translate-y-1/2 opacity-30" size={18} />
+                                </div>
+                            </div>
+                            <div className="space-y-1.5">
+                                <label className="text-[10px] font-black uppercase tracking-widest" style={{ color: "#6b6560" }}>Email Address *</label>
+                                <div className="relative">
+                                    <input 
+                                        type="email" required name="email" value={clientData.email} onChange={(e) => handleInputChange(e, true)}
+                                        placeholder="john@example.com"
+                                        className="w-full h-12 pl-10 pr-4 rounded-xl border focus:outline-none transition-all"
+                                        style={{ borderColor: PEBBLE, backgroundColor: "#F9F8F6", color: INK }}
+                                        onFocus={e => e.target.style.borderColor = OLIVE}
+                                        onBlur={e => e.target.style.borderColor = PEBBLE}
+                                    />
+                                    <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 opacity-30" size={18} />
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Dynamic Attributes */}
+                        {fetchingAttrs ? (
+                            <div className="py-4 flex items-center justify-center gap-2 text-xs font-bold" style={{ color: OLIVE }}>
+                                <div className="h-4 w-4 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: `${OLIVE} transparent ${OLIVE} ${OLIVE}` }} />
+                                Loading custom fields...
+                            </div>
+                        ) : (
+                            <div className="space-y-4 animate-in slide-in-from-top-2 duration-300">
+                                {attributes.map(attr => (
+                                    <div key={attr.id} className="space-y-1.5">
+                                        <label className="text-[10px] font-black uppercase tracking-widest" style={{ color: "#6b6560" }}>
+                                            {attr.label} {attr.is_required ? "*" : ""}
+                                        </label>
+                                        
+                                        {attr.type === "list" ? (
+                                            <select 
+                                                required={attr.is_required}
+                                                name={attr.name}
+                                                value={formData[attr.name] || ""}
+                                                onChange={handleInputChange}
+                                                className="w-full h-12 px-4 rounded-xl border focus:outline-none transition-all"
+                                                style={{ borderColor: PEBBLE, backgroundColor: "#F9F8F6", color: INK }}
+                                                onFocus={e => e.target.style.borderColor = OLIVE}
+                                                onBlur={e => e.target.style.borderColor = PEBBLE}
+                                            >
+                                                <option value="">Select {attr.label}</option>
+                                                {attr.list_values.map(opt => (
+                                                    <option key={opt} value={opt}>{opt}</option>
+                                                ))}
+                                            </select>
+                                        ) : attr.type === "textarea" ? (
+                                            <textarea 
+                                                required={attr.is_required}
+                                                name={attr.name}
+                                                value={formData[attr.name] || ""}
+                                                onChange={handleInputChange}
+                                                placeholder={`Enter ${attr.label}`}
+                                                className="w-full p-4 rounded-xl border focus:outline-none transition-all min-h-[100px]"
+                                                style={{ borderColor: PEBBLE, backgroundColor: "#F9F8F6", color: INK }}
+                                                onFocus={e => e.target.style.borderColor = OLIVE}
+                                                onBlur={e => e.target.style.borderColor = PEBBLE}
+                                            />
+                                        ) : attr.type === "boolean" ? (
+                                            <div className="flex items-center gap-3 p-3 rounded-xl border" style={{ borderColor: PEBBLE, backgroundColor: "#F9F8F6" }}>
+                                                <input 
+                                                    type="checkbox"
+                                                    name={attr.name}
+                                                    checked={formData[attr.name] || false}
+                                                    onChange={handleInputChange}
+                                                    className="w-5 h-5 accent-olive cursor-pointer"
+                                                />
+                                                <span className="text-sm font-medium">{attr.label}</span>
+                                            </div>
+                                        ) : (
+                                            <input 
+                                                type={attr.type === "number" ? "number" : attr.type === "date" ? "date" : "text"}
+                                                required={attr.is_required}
+                                                name={attr.name}
+                                                value={formData[attr.name] || ""}
+                                                onChange={handleInputChange}
+                                                placeholder={`Enter ${attr.label}`}
+                                                className="w-full h-12 px-4 rounded-xl border focus:outline-none transition-all"
+                                                style={{ borderColor: PEBBLE, backgroundColor: "#F9F8F6", color: INK }}
+                                                onFocus={e => e.target.style.borderColor = OLIVE}
+                                                onBlur={e => e.target.style.borderColor = PEBBLE}
+                                            />
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+
+                        <button 
+                            type="submit"
+                            disabled={loading || !selectedPipelineId}
+                            className="w-full h-14 rounded-2xl font-black uppercase tracking-widest text-sm flex items-center justify-center gap-3 transition-all shadow-xl hover:scale-[1.02] active:scale-[0.98] mt-4"
+                            style={{ 
+                                backgroundColor: loading || !selectedPipelineId ? PEBBLE : OLIVE, 
+                                color: LINEN,
+                                cursor: loading || !selectedPipelineId ? "not-allowed" : "pointer"
+                            }}
+                        >
+                            {loading ? (
+                                <div className="h-5 w-5 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: `${LINEN} transparent ${LINEN} ${LINEN}` }} />
+                            ) : (
+                                <>
+                                    <Send size={18} /> Send Inquiry
+                                </>
+                            )}
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    );
+};
