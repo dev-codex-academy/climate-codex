@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import { getSurveyService, submitSurvey } from "../services/surveyService";
+import { useParams, useSearchParams } from "react-router-dom";
+import { getSurveyService, submitSurvey, getSurveyResponse, updateSurveyResponse } from "../services/surveyService";
 
 const FONT = '"Source Sans 3", Arial, sans-serif';
 const INK = "#2E2A26";
@@ -119,10 +119,15 @@ const INTEREST_REASONS = [
 
 export const SurveyForm = () => {
     const { serviceId } = useParams();
+    const [searchParams] = useSearchParams();
+    const editId = searchParams.get("edit");
+    const isEditMode = !!editId;
+
     const [serviceName, setServiceName] = useState("");
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
     const [submitted, setSubmitted] = useState(false);
+    const [submittedId, setSubmittedId] = useState(null);
     const [errors, setErrors] = useState({});
     const [notFound, setNotFound] = useState(false);
 
@@ -140,11 +145,22 @@ export const SurveyForm = () => {
     });
 
     useEffect(() => {
-        getSurveyService(serviceId)
-            .then(data => setServiceName(data.name))
-            .catch(() => setNotFound(true))
-            .finally(() => setLoading(false));
-    }, [serviceId]);
+        const load = async () => {
+            try {
+                const svc = await getSurveyService(serviceId);
+                setServiceName(svc.name);
+                if (isEditMode) {
+                    const existing = await getSurveyResponse(editId);
+                    setForm(prev => ({ ...prev, ...existing }));
+                }
+            } catch {
+                setNotFound(true);
+            } finally {
+                setLoading(false);
+            }
+        };
+        load();
+    }, [serviceId, editId, isEditMode]);
 
     const set = (field, value) => setForm(prev => ({ ...prev, [field]: value }));
 
@@ -159,7 +175,13 @@ export const SurveyForm = () => {
                 barriers: form.barriers.filter(v => v !== "other"),
                 interest_reasons: form.interest_reasons.filter(v => v !== "other"),
             };
-            await submitSurvey(serviceId, payload);
+            if (isEditMode) {
+                await updateSurveyResponse(editId, payload);
+                setSubmittedId(editId);
+            } else {
+                const res = await submitSurvey(serviceId, payload);
+                setSubmittedId(res.survey_id);
+            }
             setSubmitted(true);
         } catch (err) {
             if (typeof err === "object") setErrors(err);
@@ -181,28 +203,42 @@ export const SurveyForm = () => {
         </div>
     );
 
-    if (submitted) return (
-        <div style={{ minHeight: "100vh", backgroundColor: LINEN, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: FONT }}>
-            <div style={{ textAlign: "center", maxWidth: "480px", padding: "40px" }}>
-                <div style={{ width: "64px", height: "64px", borderRadius: "50%", backgroundColor: "rgba(94,106,67,0.12)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px" }}>
-                    <span style={{ fontSize: "28px" }}>✓</span>
+    if (submitted) {
+        const editLink = `${window.location.origin}/survey/${serviceId}?edit=${submittedId}`;
+        return (
+            <div style={{ minHeight: "100vh", backgroundColor: LINEN, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: FONT }}>
+                <div style={{ textAlign: "center", maxWidth: "520px", padding: "40px" }}>
+                    <div style={{ width: "64px", height: "64px", borderRadius: "50%", backgroundColor: "rgba(94,106,67,0.12)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px" }}>
+                        <span style={{ fontSize: "28px" }}>✓</span>
+                    </div>
+                    <p style={{ fontFamily: '"Cormorant Garamond", Georgia, serif', fontSize: "28px", fontStyle: "italic", color: OLIVE, marginBottom: "12px" }}>
+                        {isEditMode ? "Registration Updated" : "Registration Submitted"}
+                    </p>
+                    <p style={{ color: MUTED, fontSize: "15px", lineHeight: 1.6, marginBottom: "24px" }}>
+                        Thank you for registering for <strong style={{ color: INK }}>{serviceName}</strong>. We will be in touch soon.
+                    </p>
+                    <div style={{ backgroundColor: OAT, border: `1px solid ${PEBBLE}`, borderRadius: "8px", padding: "16px", textAlign: "left" }}>
+                        <p style={{ fontSize: "12px", color: HINT, marginBottom: "6px", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+                            Save this link to edit your registration:
+                        </p>
+                        <p style={{ fontSize: "13px", color: OLIVE, wordBreak: "break-all", marginBottom: "10px" }}>{editLink}</p>
+                        <button
+                            onClick={() => navigator.clipboard.writeText(editLink)}
+                            style={{ fontSize: "12px", padding: "6px 16px", borderRadius: "6px", border: `1px solid ${OLIVE}`, backgroundColor: "transparent", color: OLIVE, cursor: "pointer", fontWeight: 600 }}>
+                            Copy Link
+                        </button>
+                    </div>
                 </div>
-                <p style={{ fontFamily: '"Cormorant Garamond", Georgia, serif', fontSize: "28px", fontStyle: "italic", color: OLIVE, marginBottom: "12px" }}>
-                    Registration Submitted
-                </p>
-                <p style={{ color: MUTED, fontSize: "15px", lineHeight: 1.6 }}>
-                    Thank you for registering for <strong style={{ color: INK }}>{serviceName}</strong>. We will be in touch soon.
-                </p>
             </div>
-        </div>
-    );
+        );
+    }
 
     return (
         <div style={{ minHeight: "100vh", backgroundColor: LINEN, fontFamily: FONT }}>
             {/* Header */}
             <div style={{ backgroundColor: OLIVE, padding: "24px 0", textAlign: "center" }}>
                 <p style={{ fontFamily: '"Cormorant Garamond", Georgia, serif', fontSize: "32px", fontStyle: "italic", color: "#FBF7EF", margin: 0 }}>
-                    Registration Form
+                    {isEditMode ? "Edit Registration" : "Registration Form"}
                 </p>
                 <p style={{ color: "rgba(251,247,239,0.8)", fontSize: "14px", marginTop: "6px", fontFamily: FONT }}>
                     {serviceName}
