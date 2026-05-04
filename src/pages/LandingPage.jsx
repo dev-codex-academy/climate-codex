@@ -75,11 +75,27 @@ export const LandingPage = () => {
         setLoading(true);
 
         try {
+            // Try to find a logical name for the lead from the dynamic fields
+            // We look for fields like 'first_name', 'name', 'full_name', etc.
+            const nameFields = ["name", "full_name", "first_name", "nombre"];
+            const foundNameKey = attributes.find(a => nameFields.includes(a.name.toLowerCase()))?.name;
+            const lastNameKey = attributes.find(a => ["last_name", "apellido"].includes(a.name.toLowerCase()))?.name;
+            
+            let leadName = "";
+            if (foundNameKey && formData[foundNameKey]) {
+                leadName = formData[foundNameKey];
+                if (lastNameKey && formData[lastNameKey]) {
+                    leadName += ` ${formData[lastNameKey]}`;
+                }
+            } else {
+                leadName = `Web Inquiry - ${new Date().toLocaleDateString()}`;
+            }
+
             const payload = {
-                name: `Web Inquiry: ${clientData.name}`,
+                name: leadName,
                 pipeline: selectedPipelineId,
                 client_attributes: {
-                    ...clientData
+                    ...formData
                 },
                 attributes: {
                     ...formData
@@ -216,107 +232,81 @@ export const LandingPage = () => {
                             </div>
                         </div>
 
-                        {/* Basic Info */}
-                        <div className="grid grid-cols-1 gap-4">
-                            <div className="space-y-1.5">
-                                <label className="text-[10px] font-black uppercase tracking-widest" style={{ color: "#6b6560" }}>Full Name *</label>
-                                <div className="relative">
-                                    <input 
-                                        type="text" required name="name" value={clientData.name} onChange={(e) => handleInputChange(e, true)}
-                                        placeholder="John Doe"
-                                        className="w-full h-12 pl-10 pr-4 rounded-xl border focus:outline-none transition-all"
-                                        style={{ borderColor: PEBBLE, backgroundColor: "#F9F8F6", color: INK }}
-                                        onFocus={e => e.target.style.borderColor = OLIVE}
-                                        onBlur={e => e.target.style.borderColor = PEBBLE}
-                                    />
-                                    <User className="absolute left-3.5 top-1/2 -translate-y-1/2 opacity-30" size={18} />
-                                </div>
-                            </div>
-                            <div className="space-y-1.5">
-                                <label className="text-[10px] font-black uppercase tracking-widest" style={{ color: "#6b6560" }}>Email Address *</label>
-                                <div className="relative">
-                                    <input 
-                                        type="email" required name="email" value={clientData.email} onChange={(e) => handleInputChange(e, true)}
-                                        placeholder="john@example.com"
-                                        className="w-full h-12 pl-10 pr-4 rounded-xl border focus:outline-none transition-all"
-                                        style={{ borderColor: PEBBLE, backgroundColor: "#F9F8F6", color: INK }}
-                                        onFocus={e => e.target.style.borderColor = OLIVE}
-                                        onBlur={e => e.target.style.borderColor = PEBBLE}
-                                    />
-                                    <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 opacity-30" size={18} />
-                                </div>
-                            </div>
-                        </div>
-
                         {/* Dynamic Attributes */}
                         {fetchingAttrs ? (
                             <div className="py-4 flex items-center justify-center gap-2 text-xs font-bold" style={{ color: OLIVE }}>
                                 <div className="h-4 w-4 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: `${OLIVE} transparent ${OLIVE} ${OLIVE}` }} />
-                                Loading custom fields...
+                                Loading form fields...
                             </div>
                         ) : (
                             <div className="space-y-4 animate-in slide-in-from-top-2 duration-300">
-                                {attributes.map(attr => (
-                                    <div key={attr.id} className="space-y-1.5">
-                                        <label className="text-[10px] font-black uppercase tracking-widest" style={{ color: "#6b6560" }}>
-                                            {attr.label} {attr.is_required ? "*" : ""}
-                                        </label>
-                                        
-                                        {attr.type === "list" ? (
-                                            <select 
-                                                required={attr.is_required}
-                                                name={attr.name}
-                                                value={formData[attr.name] || ""}
-                                                onChange={handleInputChange}
-                                                className="w-full h-12 px-4 rounded-xl border focus:outline-none transition-all"
-                                                style={{ borderColor: PEBBLE, backgroundColor: "#F9F8F6", color: INK }}
-                                                onFocus={e => e.target.style.borderColor = OLIVE}
-                                                onBlur={e => e.target.style.borderColor = PEBBLE}
-                                            >
-                                                <option value="">Select {attr.label}</option>
-                                                {attr.list_values.map(opt => (
-                                                    <option key={opt} value={opt}>{opt}</option>
-                                                ))}
-                                            </select>
-                                        ) : attr.type === "textarea" ? (
-                                            <textarea 
-                                                required={attr.is_required}
-                                                name={attr.name}
-                                                value={formData[attr.name] || ""}
-                                                onChange={handleInputChange}
-                                                placeholder={`Enter ${attr.label}`}
-                                                className="w-full p-4 rounded-xl border focus:outline-none transition-all min-h-[100px]"
-                                                style={{ borderColor: PEBBLE, backgroundColor: "#F9F8F6", color: INK }}
-                                                onFocus={e => e.target.style.borderColor = OLIVE}
-                                                onBlur={e => e.target.style.borderColor = PEBBLE}
-                                            />
-                                        ) : attr.type === "boolean" ? (
-                                            <div className="flex items-center gap-3 p-3 rounded-xl border" style={{ borderColor: PEBBLE, backgroundColor: "#F9F8F6" }}>
-                                                <input 
-                                                    type="checkbox"
+                                {attributes.length === 0 && selectedPipelineId ? (
+                                     <div className="p-6 text-center border-2 border-dashed rounded-2xl" style={{ borderColor: PEBBLE }}>
+                                        <p className="text-xs font-bold opacity-40">No additional fields required for this selection.</p>
+                                     </div>
+                                ) : (
+                                    attributes.map(attr => (
+                                        <div key={attr.id} className="space-y-1.5">
+                                            <label className="text-[10px] font-black uppercase tracking-widest" style={{ color: "#6b6560" }}>
+                                                {attr.label} {attr.is_required ? "*" : ""}
+                                            </label>
+                                            
+                                            {attr.type === "list" ? (
+                                                <select 
+                                                    required={attr.is_required}
                                                     name={attr.name}
-                                                    checked={formData[attr.name] || false}
+                                                    value={formData[attr.name] || ""}
                                                     onChange={handleInputChange}
-                                                    className="w-5 h-5 accent-olive cursor-pointer"
+                                                    className="w-full h-12 px-4 rounded-xl border focus:outline-none transition-all"
+                                                    style={{ borderColor: PEBBLE, backgroundColor: "#F9F8F6", color: INK }}
+                                                    onFocus={e => e.target.style.borderColor = OLIVE}
+                                                    onBlur={e => e.target.style.borderColor = PEBBLE}
+                                                >
+                                                    <option value="">Select {attr.label}</option>
+                                                    {attr.list_values.map(opt => (
+                                                        <option key={opt} value={opt}>{opt}</option>
+                                                    ))}
+                                                </select>
+                                            ) : attr.type === "textarea" ? (
+                                                <textarea 
+                                                    required={attr.is_required}
+                                                    name={attr.name}
+                                                    value={formData[attr.name] || ""}
+                                                    onChange={handleInputChange}
+                                                    placeholder={`Enter ${attr.label}`}
+                                                    className="w-full p-4 rounded-xl border focus:outline-none transition-all min-h-[100px]"
+                                                    style={{ borderColor: PEBBLE, backgroundColor: "#F9F8F6", color: INK }}
+                                                    onFocus={e => e.target.style.borderColor = OLIVE}
+                                                    onBlur={e => e.target.style.borderColor = PEBBLE}
                                                 />
-                                                <span className="text-sm font-medium">{attr.label}</span>
-                                            </div>
-                                        ) : (
-                                            <input 
-                                                type={attr.type === "number" ? "number" : attr.type === "date" ? "date" : "text"}
-                                                required={attr.is_required}
-                                                name={attr.name}
-                                                value={formData[attr.name] || ""}
-                                                onChange={handleInputChange}
-                                                placeholder={`Enter ${attr.label}`}
-                                                className="w-full h-12 px-4 rounded-xl border focus:outline-none transition-all"
-                                                style={{ borderColor: PEBBLE, backgroundColor: "#F9F8F6", color: INK }}
-                                                onFocus={e => e.target.style.borderColor = OLIVE}
-                                                onBlur={e => e.target.style.borderColor = PEBBLE}
-                                            />
-                                        )}
-                                    </div>
-                                ))}
+                                            ) : attr.type === "boolean" ? (
+                                                <div className="flex items-center gap-3 p-3 rounded-xl border" style={{ borderColor: PEBBLE, backgroundColor: "#F9F8F6" }}>
+                                                    <input 
+                                                        type="checkbox"
+                                                        name={attr.name}
+                                                        checked={formData[attr.name] || false}
+                                                        onChange={handleInputChange}
+                                                        className="w-5 h-5 accent-olive cursor-pointer"
+                                                    />
+                                                    <span className="text-sm font-medium">{attr.label}</span>
+                                                </div>
+                                            ) : (
+                                                <input 
+                                                    type={attr.type === "number" ? "number" : attr.type === "date" ? "date" : "text"}
+                                                    required={attr.is_required}
+                                                    name={attr.name}
+                                                    value={formData[attr.name] || ""}
+                                                    onChange={handleInputChange}
+                                                    placeholder={`Enter ${attr.label}`}
+                                                    className="w-full h-12 px-4 rounded-xl border focus:outline-none transition-all"
+                                                    style={{ borderColor: PEBBLE, backgroundColor: "#F9F8F6", color: INK }}
+                                                    onFocus={e => e.target.style.borderColor = OLIVE}
+                                                    onBlur={e => e.target.style.borderColor = PEBBLE}
+                                                />
+                                            )}
+                                        </div>
+                                    ))
+                                )}
                             </div>
                         )}
 
