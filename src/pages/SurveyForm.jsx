@@ -184,8 +184,11 @@ export const SurveyForm = () => {
             }
             setSubmitted(true);
         } catch (err) {
-            if (typeof err === "object") setErrors(err);
-            else setErrors({ detail: "Failed to submit. Please try again." });
+            if (err && typeof err === "object" && Object.keys(err).length > 0) {
+                setErrors(err);
+            } else {
+                setErrors({ detail: "Failed to submit. Please check your connection and try again." });
+            }
         } finally {
             setSubmitting(false);
         }
@@ -247,9 +250,9 @@ export const SurveyForm = () => {
 
             <form onSubmit={handleSubmit} style={{ maxWidth: "760px", margin: "0 auto", padding: "32px 24px 64px" }}>
 
-                {errors.detail && (
+                {Object.keys(errors).length > 0 && (
                     <div style={{ backgroundColor: "#fef2f2", border: "1px solid #fca5a5", borderRadius: "8px", padding: "12px 16px", marginBottom: "20px", color: "#dc2626", fontSize: "14px" }}>
-                        {errors.detail}
+                        {errors.detail || "Please review the errors below and try again."}
                     </div>
                 )}
 

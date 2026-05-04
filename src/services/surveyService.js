@@ -19,8 +19,8 @@ export const updateSurveyResponse = async (surveyId, data) => {
         body: JSON.stringify(data),
     });
     if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw err;
+        const err = await res.json().catch(() => null);
+        throw err || { detail: "Failed to update. Please check your connection and try again." };
     }
     return res.json();
 };
@@ -38,8 +38,8 @@ export const submitSurvey = async (serviceId, data) => {
         body: JSON.stringify(data),
     });
     if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw err;
+        const err = await res.json().catch(() => null);
+        throw err || { detail: "Failed to submit. Please check your connection and try again." };
     }
     return res.json();
 };
