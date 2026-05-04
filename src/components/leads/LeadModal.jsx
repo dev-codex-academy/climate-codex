@@ -50,6 +50,19 @@ export const LeadModal = ({ isOpen, onClose, onLeadCreated, responsibleId, pipel
     const [newNote, setNewNote] = useState("");
     const { user } = useAuth();
 
+    // Detect first/last name dynamic attributes (case-insensitive label match)
+    const firstNameAttr = attributes.find(a => a.label?.toLowerCase() === 'first name');
+    const lastNameAttr = attributes.find(a => a.label?.toLowerCase() === 'last name');
+    const isAutoName = !!(firstNameAttr || lastNameAttr);
+
+    // Auto-populate name from first/last name dynamic attributes
+    useEffect(() => {
+        if (!isAutoName) return;
+        const first = firstNameAttr ? (formData[firstNameAttr.name] || "").trim() : "";
+        const last = lastNameAttr ? (formData[lastNameAttr.name] || "").trim() : "";
+        setName([first, last].filter(Boolean).join(" "));
+    }, [formData, attributes]);
+
     useEffect(() => {
         if (isOpen) {
             fetchAttributes();
@@ -466,12 +479,34 @@ export const LeadModal = ({ isOpen, onClose, onLeadCreated, responsibleId, pipel
 
                     {/* Static Name Field */}
                     <div className="space-y-2">
-                        <Label htmlFor="lead-name">Opportunity Name</Label>
-                        <Input
+                        <Label htmlFor="lead-name" style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                            {"TESTMARKER_7X9Q"}
+                            Opportunity Name
+                            {isAutoName && (
+                                <span style={{ fontSize: "11px", color: "#9b948e", fontWeight: 400 }}>
+                                    (auto from First / Last Name)
+                                </span>
+                            )}
+                        </Label>
+                        <input
                             id="lead-name"
-                            placeholder="e.g. Acme Corp Deal"
+                            placeholder={isAutoName ? "Auto-filled from First / Last Name" : "e.g. Acme Corp Deal"}
                             value={name}
-                            onChange={(e) => setName(e.target.value)}
+                            onChange={isAutoName ? undefined : (e) => setName(e.target.value)}
+                            readOnly={isAutoName}
+                            style={{
+                                width: "100%",
+                                height: "36px",
+                                padding: "0 12px",
+                                borderRadius: "6px",
+                                border: "1px solid #D8D2C4",
+                                backgroundColor: isAutoName ? "#F2EBDD" : "#fff",
+                                color: isAutoName ? "#9b948e" : "#2E2A26",
+                                fontSize: "14px",
+                                cursor: isAutoName ? "default" : "text",
+                                outline: "none",
+                                boxSizing: "border-box",
+                            }}
                         />
                     </div>
 

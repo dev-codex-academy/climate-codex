@@ -30,6 +30,7 @@ import { WebhookDetail } from "../pages/Webhooks/WebhookDetail";
 import { ApiGuide } from "../pages/ApiGuide";
 import { Faq } from "../pages/Faq";
 import { Dashboard } from "../pages/Dashboard";
+import { SurveyForm } from "../pages/SurveyForm";
 import AdminLayout from "@/layout/AdminLayout"
 import { useAuth } from "@/context/AuthContext"
 import { PermissionGuard } from "../components/PermissionGuard"
@@ -61,6 +62,7 @@ export const RouterApp = () => {
 
             {/* public routes */}
             <Route path="/login" element={<RedirectIfAuth><Login /></RedirectIfAuth>} />
+            <Route path="/survey/:serviceId" element={<SurveyForm />} />
 
             {/* private routes */}
 

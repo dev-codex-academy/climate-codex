@@ -11,7 +11,7 @@ import { Button } from "../components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
 import { Checkbox } from "../components/ui/checkbox";
 import { Textarea } from "../components/ui/textarea";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Link2 } from "lucide-react";
 import { Switch } from "../components/ui/switch";
 
 export const ServiceDetail = () => {
@@ -34,6 +34,7 @@ export const ServiceDetail = () => {
     // UI state
     const [loading, setLoading] = useState(false);
     const [fetching, setFetching] = useState(!isNew);
+    const [copied, setCopied] = useState(false);
     const [error, setError] = useState(null);
 
     // File upload state
@@ -308,6 +309,19 @@ export const ServiceDetail = () => {
                     </div>
                 </div>
                 <div className="flex gap-2">
+                    {!isNew && (
+                        <button
+                            type="button"
+                            onClick={() => {
+                                navigator.clipboard.writeText(`${window.location.origin}/survey/${id}`);
+                                setCopied(true);
+                                setTimeout(() => setCopied(false), 2000);
+                            }}
+                            style={{ display: "flex", alignItems: "center", gap: "6px", height: "36px", padding: "0 14px", borderRadius: "6px", border: "1px solid #D8D2C4", backgroundColor: copied ? "#F2EBDD" : "transparent", color: copied ? "#5E6A43" : "#6b6560", fontSize: "13px", fontWeight: 500, cursor: "pointer", transition: "all 0.2s" }}>
+                            <Link2 size={14} />
+                            {copied ? "Copied!" : "Copy Survey URL"}
+                        </button>
+                    )}
                     <Button variant="outline" onClick={() => navigate(-1)}>Cancel</Button>
                     <Button onClick={handleSubmit} disabled={loading || uploading}>
                         {loading ? "Saving..." : "Save Service"}
