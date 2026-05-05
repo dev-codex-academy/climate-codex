@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useSearchParams } from "react-router-dom";
-import { getSurveyService, submitSurvey, getSurveyResponse, updateSurveyResponse } from "../services/surveyService";
+import { useParams } from "react-router-dom";
+import { submitSurvey } from "../services/surveyService";
 
 const FONT = '"Source Sans 3", Arial, sans-serif';
 const INK = "#2E2A26";
@@ -119,24 +119,17 @@ const INTEREST_REASONS = [
 
 export const SurveyForm = () => {
     const { serviceId } = useParams();
-    const [searchParams] = useSearchParams();
-    const editId = searchParams.get("edit");
-    const isEditMode = !!editId;
 
-    const [serviceName, setServiceName] = useState("");
-    const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
     const [submitted, setSubmitted] = useState(false);
-    const [submittedId, setSubmittedId] = useState(null);
     const [errors, setErrors] = useState({});
-    const [notFound, setNotFound] = useState(false);
 
     const [form, setForm] = useState({
         full_name: "", date_of_birth: "", email: "", phone: "", preferred_contact: "", home_address: "",
         age_range: "", gender_identity: "", gender_other: "", ethnicity: "", ethnicity_other: "",
         education_level: "", english_primary: "", employment_status: "",
         has_computer: "", has_internet: "", prior_tech_courses: "", prior_tech_courses_detail: "",
-        industries_worked: [], years_experience: "", can_commit_schedule: "",
+        industries_worked: [], industries_worked_other: "", years_experience: "", can_commit_schedule: "",
         barriers: [], barriers_other: "", main_barrier: "", support_services_help: "",
         support_type_needed: "", additional_challenges: "",
         has_disability: "", needs_accommodations: "", accommodation_types: "", learning_support_description: "",
@@ -144,23 +137,6 @@ export const SurveyForm = () => {
         info_accurate: false, agree_contact: false,
     });
 
-    useEffect(() => {
-        const load = async () => {
-            try {
-                const svc = await getSurveyService(serviceId);
-                setServiceName(svc.name);
-                if (isEditMode) {
-                    const existing = await getSurveyResponse(editId);
-                    setForm(prev => ({ ...prev, ...existing }));
-                }
-            } catch {
-                setNotFound(true);
-            } finally {
-                setLoading(false);
-            }
-        };
-        load();
-    }, [serviceId, editId, isEditMode]);
 
     const set = (field, value) => setForm(prev => ({ ...prev, [field]: value }));
 
@@ -172,16 +148,13 @@ export const SurveyForm = () => {
             const payload = {
                 ...form,
                 industries_worked: form.industries_worked.filter(v => v !== "other"),
+                industries_worked_other: form.industries_worked.includes("other") ? form.industries_worked_other : "",
                 barriers: form.barriers.filter(v => v !== "other"),
+                barriers_other: form.barriers.includes("other") ? form.barriers_other : "",
                 interest_reasons: form.interest_reasons.filter(v => v !== "other"),
+                interest_other: form.interest_reasons.includes("other") ? form.interest_other : "",
             };
-            if (isEditMode) {
-                await updateSurveyResponse(editId, payload);
-                setSubmittedId(editId);
-            } else {
-                const res = await submitSurvey(serviceId, payload);
-                setSubmittedId(res.survey_id);
-            }
+            await submitSurvey(serviceId, payload);
             setSubmitted(true);
         } catch (err) {
             if (err && typeof err === "object" && Object.keys(err).length > 0) {
@@ -194,20 +167,7 @@ export const SurveyForm = () => {
         }
     };
 
-    if (loading) return (
-        <div style={{ minHeight: "100vh", backgroundColor: LINEN, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: FONT }}>
-            <p style={{ color: MUTED }}>Loading...</p>
-        </div>
-    );
-
-    if (notFound) return (
-        <div style={{ minHeight: "100vh", backgroundColor: LINEN, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: FONT }}>
-            <p style={{ color: MUTED }}>Survey not found or no longer available.</p>
-        </div>
-    );
-
     if (submitted) {
-        const editLink = `${window.location.origin}/survey/${serviceId}?edit=${submittedId}`;
         return (
             <div style={{ minHeight: "100vh", backgroundColor: LINEN, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: FONT }}>
                 <div style={{ textAlign: "center", maxWidth: "520px", padding: "40px" }}>
@@ -215,22 +175,11 @@ export const SurveyForm = () => {
                         <span style={{ fontSize: "28px" }}>✓</span>
                     </div>
                     <p style={{ fontFamily: '"Cormorant Garamond", Georgia, serif', fontSize: "28px", fontStyle: "italic", color: OLIVE, marginBottom: "12px" }}>
-                        {isEditMode ? "Registration Updated" : "Registration Submitted"}
+                        Registration Submitted
                     </p>
-                    <p style={{ color: MUTED, fontSize: "15px", lineHeight: 1.6, marginBottom: "24px" }}>
-                        Thank you for registering for <strong style={{ color: INK }}>{serviceName}</strong>. We will be in touch soon.
+                    <p style={{ color: MUTED, fontSize: "15px", lineHeight: 1.6 }}>
+                        Thank you for registering. We will be in touch soon.
                     </p>
-                    <div style={{ backgroundColor: OAT, border: `1px solid ${PEBBLE}`, borderRadius: "8px", padding: "16px", textAlign: "left" }}>
-                        <p style={{ fontSize: "12px", color: HINT, marginBottom: "6px", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em" }}>
-                            Save this link to edit your registration:
-                        </p>
-                        <p style={{ fontSize: "13px", color: OLIVE, wordBreak: "break-all", marginBottom: "10px" }}>{editLink}</p>
-                        <button
-                            onClick={() => navigator.clipboard.writeText(editLink)}
-                            style={{ fontSize: "12px", padding: "6px 16px", borderRadius: "6px", border: `1px solid ${OLIVE}`, backgroundColor: "transparent", color: OLIVE, cursor: "pointer", fontWeight: 600 }}>
-                            Copy Link
-                        </button>
-                    </div>
                 </div>
             </div>
         );
@@ -241,10 +190,7 @@ export const SurveyForm = () => {
             {/* Header */}
             <div style={{ backgroundColor: OLIVE, padding: "24px 0", textAlign: "center" }}>
                 <p style={{ fontFamily: '"Cormorant Garamond", Georgia, serif', fontSize: "32px", fontStyle: "italic", color: "#FBF7EF", margin: 0 }}>
-                    {isEditMode ? "Edit Registration" : "Registration Form"}
-                </p>
-                <p style={{ color: "rgba(251,247,239,0.8)", fontSize: "14px", marginTop: "6px", fontFamily: FONT }}>
-                    {serviceName}
+                    Registration Form
                 </p>
             </div>
 
@@ -360,7 +306,8 @@ export const SurveyForm = () => {
                 </div>
 
                 <Field label="In what industries have you worked? (Select all that apply)">
-                    <CheckGroup options={INDUSTRIES} values={form.industries_worked} onChange={v => set("industries_worked", v)} allowOther />
+                    <CheckGroup options={INDUSTRIES} values={form.industries_worked} onChange={v => set("industries_worked", v)}
+                        allowOther otherValue={form.industries_worked_other} onOtherChange={v => set("industries_worked_other", v)} />
                 </Field>
 
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px" }}>
