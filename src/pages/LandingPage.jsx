@@ -167,8 +167,8 @@ export const LandingPage = () => {
 
     return (
         <div className="min-h-screen flex flex-col md:flex-row" style={{ backgroundColor: LINEN, fontFamily: FONT }}>
-            {/* Left Side: Hero Section */}
-            <div className="md:w-1/2 p-12 md:p-24 flex flex-col justify-center bg-white border-r" style={{ borderColor: PEBBLE }}>
+            {/* Left Side: Hero Section - Hidden on mobile */}
+            <div className="hidden md:flex md:w-1/2 p-12 md:p-24 flex-col justify-center bg-white border-r" style={{ borderColor: PEBBLE }}>
                 <div className="space-y-8 max-w-lg">
                     <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest" style={{ backgroundColor: "rgba(94,106,67,0.1)", color: OLIVE }}>
                         <Sparkles size={12} /> Transform Your Business
@@ -200,7 +200,7 @@ export const LandingPage = () => {
             </div>
 
             {/* Right Side: Form Section */}
-            <div className="md:w-1/2 p-8 md:p-16 flex flex-col items-center justify-center overflow-y-auto">
+            <div className="w-full md:w-1/2 p-8 md:p-16 flex flex-col items-center justify-center overflow-y-auto">
                 <div className="w-full max-w-md bg-white p-8 rounded-3xl shadow-2xl border" style={{ borderColor: PEBBLE }}>
                     <div className="mb-8">
                         <h2 className="text-2xl font-black tracking-tight mb-2" style={{ color: INK }}>Get Started Today</h2>
