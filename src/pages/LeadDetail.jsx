@@ -250,7 +250,17 @@ export const LeadDetail = () => {
             processedLeadAttrs.forEach(attr => {
                 initialData[attr.name] = attr.type === 'boolean' ? false : "";
             });
-            setFormData(initialData);
+
+            setFormData(prev => {
+                const merged = { ...initialData };
+                // Merge existing values from 'prev' (the lead data already loaded)
+                Object.keys(prev).forEach(key => {
+                    if (prev[key] !== undefined && prev[key] !== "" && prev[key] !== false) {
+                        merged[key] = prev[key];
+                    }
+                });
+                return merged;
+            });
 
             // Initialize client info keys if needed, but normally populated from lead data or empty
             // We can ensure keys exist
