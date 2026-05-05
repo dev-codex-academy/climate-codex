@@ -201,6 +201,12 @@ export const LandingPage = () => {
 
             {/* Right Side: Form Section */}
             <div className="w-full md:w-1/2 p-8 md:p-16 flex flex-col items-center justify-center overflow-y-auto">
+                {/* Mobile Title - only visible on small screens */}
+                <div className="md:hidden w-full max-w-md mb-8 text-center">
+                    <h1 className="text-3xl font-black tracking-tight" style={{ color: OLIVE }}>CodeX <span style={{ color: INK }}>Technologies</span></h1>
+                    <div className="h-1 w-12 bg-olive mx-auto mt-2 rounded-full" style={{ backgroundColor: OLIVE }}></div>
+                </div>
+
                 <div className="w-full max-w-md bg-white p-8 rounded-3xl shadow-2xl border" style={{ borderColor: PEBBLE }}>
                     <div className="mb-8">
                         <h2 className="text-2xl font-black tracking-tight mb-2" style={{ color: INK }}>Get Started Today</h2>
