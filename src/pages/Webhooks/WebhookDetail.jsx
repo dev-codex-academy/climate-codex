@@ -118,19 +118,9 @@ export const WebhookDetail = () => {
                     // Fetch extra attributes for Lead
                     if (formData.model === 'Lead') {
                         try {
-                            const [clientAttrs, serviceAttrs] = await Promise.all([
-                                getAttributes('lead_client_info'),
-                                getAttributes('lead_service_info')
-                            ]);
-
+                            const clientAttrs = await getAttributes('lead_client_info');
                             const clientOptions = (clientAttrs || []).map(a => `self.client_attributes.${a.name}`);
-                            const serviceOptions = (serviceAttrs || []).map(a => `self.service_attributes.${a.name}`); // Note: service_attributes is a list in model, but for params sometimes we want the key. 
-                            // However, since service_attributes is a list of objects, accessing `self.service_attributes.Price` might imply the Price of the *first* service or mapping logic.
-                            // But usually template substitution handles lists poorly unless it's a specific syntax. 
-                            // Given the user request "detail of those attributes", providing the keys is the best we can do for now.
-
-                            stdOptions = [...stdOptions, ...clientOptions, ...serviceOptions];
-
+                            stdOptions = [...stdOptions, ...clientOptions];
                         } catch (err) {
                             console.error("Failed to fetch extra lead attributes", err);
                         }

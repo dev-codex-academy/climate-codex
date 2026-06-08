@@ -67,6 +67,23 @@ export const getContactAttributes = async () => {
     return data.results || data;
 };
 
+export const importContactsFromExcel = async (clientId, file) => {
+    const formData = new FormData();
+    formData.append('client_id', clientId);
+    formData.append('file', file);
+
+    const token = localStorage.getItem('auth_token');
+    const res = await fetch(`${API_URL}/contacts/import_excel/`, {
+        method: 'POST',
+        headers: { ...(token && { Authorization: `Token ${token}` }) },
+        body: formData,
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Import failed');
+    return data;
+};
+
 // Atomic Updates specific to Contact
 export const updateContactTask = async (id, payload) => {
     const res = await fetch(`${url}${id}/update-task/`, {
