@@ -72,6 +72,23 @@ export const getLeadServiceAttributes = async () => {
     return data.results || data;
 };
 
+export const importLeadsFromExcel = async (pipelineId, file) => {
+    const formData = new FormData();
+    formData.append('pipeline_id', pipelineId);
+    formData.append('file', file);
+
+    const token = localStorage.getItem('auth_token');
+    const res = await fetch(`${API_URL}/leads/import_excel/`, {
+        method: 'POST',
+        headers: { ...(token && { Authorization: `Token ${token}` }) },
+        body: formData,
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Import failed');
+    return data;
+};
+
 export const uploadLeadImage = async (id, file) => {
     const formData = new FormData();
     formData.append("file", file);
