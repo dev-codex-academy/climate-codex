@@ -4,7 +4,8 @@ import { Plus, TrendingUp, Upload, X, CheckCircle, AlertCircle } from "lucide-re
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { getPipelines } from "../services/pipelineService";
-import { getLeadAttributes, importLeadsFromExcel } from "../services/leadService";
+import { importLeadsFromExcel } from "../services/leadService";
+import { getPipelineAttributes } from "../services/pipelineAttributeService";
 import Swal from "sweetalert2";
 
 const LEAD_FIXED_FIELDS = [
@@ -36,21 +37,30 @@ export const Lead = () => {
     const openImportModal = async () => {
         setImportResult(null);
         setSelectedFile(null);
+        setLeadAttributes([]);
         setShowImportModal(true);
-        // Pre-fill with the currently viewed pipeline
-        setImportPipelineId(selectedPipelineId || '');
+        const preselected = selectedPipelineId || '';
+        setImportPipelineId(preselected);
         try {
-            const [pipelinesData, attrsData] = await Promise.all([
-                getPipelines(),
-                getLeadAttributes(),
-            ]);
+            const pipelinesData = await getPipelines();
             setPipelines(pipelinesData.results || pipelinesData || []);
-            setLeadAttributes(attrsData || []);
         } catch {
             setPipelines([]);
-            setLeadAttributes([]);
         }
     };
+
+    // Re-fetch pipeline attributes whenever the selected pipeline changes inside the modal
+    useEffect(() => {
+        if (!showImportModal || !importPipelineId) {
+            setLeadAttributes([]);
+            return;
+        }
+        let cancelled = false;
+        getPipelineAttributes(importPipelineId)
+            .then(data => { if (!cancelled) setLeadAttributes(data || []); })
+            .catch(() => { if (!cancelled) setLeadAttributes([]); });
+        return () => { cancelled = true; };
+    }, [importPipelineId, showImportModal]);
 
     const closeImportModal = () => {
         if (importing) return;
