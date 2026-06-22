@@ -13,9 +13,9 @@ export const getHeaders = () => ({
 // Global fetch interceptor:
 // 1. Adds credentials: 'include' to requests aimed at our own API so the
 //    browser sends the auth cookie — scoped to API_URL, not every fetch
-//    call, since this app also calls third-party services (e.g. the n8n
-//    chat webhook in ClimateChatBot.jsx) that don't return
-//    Access-Control-Allow-Credentials and would otherwise fail CORS.
+//    call, in case a future call goes to a third-party service that
+//    doesn't return Access-Control-Allow-Credentials (which would
+//    otherwise fail CORS).
 // 2. Fires auth:token-expired on 401 so AuthContext can trigger logout.
 // Excludes /login/ (wrong-password responses aren't a session expiry) and
 // /me/ (AuthContext's own unauthenticated session probe on mount — a 401
