@@ -71,14 +71,8 @@ export const uploadCatalogueItemImage = async (id, file) => {
     const formData = new FormData();
     formData.append("file", file, file.name);
 
-    const token = localStorage.getItem('auth_token');
-    const headers = {
-        ...(token && { 'Authorization': `Token ${token}` })
-    };
-
     const res = await fetch(`${url}${id}/files/`, {
         method: "POST",
-        headers: headers,
         body: formData,
     });
 

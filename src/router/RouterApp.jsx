@@ -1,5 +1,6 @@
 import { Navigate, Route, Routes, useLocation } from "react-router-dom"
 import { Login } from "../pages/Login"
+import { ChettAI } from "../pages/ChettAI"
 import { NotFound } from "../pages/NotFound"
 import { Lead } from "../pages/Lead"
 import { Pipeline } from "../pages/Pipeline";
@@ -98,6 +99,7 @@ export const RouterApp = () => {
                 <Route path="followup" element={<PermissionGuard requiredPermission="app.add_followup"><Followup /></PermissionGuard>} />
                 <Route path="webhook" element={<PermissionGuard requiredPermission="app.add_webhook"><WebhookList /></PermissionGuard>} />
                 <Route path="webhook/:id" element={<PermissionGuard requiredPermission="app.add_webhook"><WebhookDetail /></PermissionGuard>} />
+                <Route path="chett-ai" element={<PermissionGuard requiredPermission="app.view_aiconversation"><ChettAI /></PermissionGuard>} />
             </Route>
 
             {/* Protected Documentation Routes */}

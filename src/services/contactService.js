@@ -72,10 +72,8 @@ export const importContactsFromExcel = async (clientId, file) => {
     formData.append('client_id', clientId);
     formData.append('file', file);
 
-    const token = localStorage.getItem('auth_token');
     const res = await fetch(`${API_URL}/contacts/import_excel/`, {
         method: 'POST',
-        headers: { ...(token && { Authorization: `Token ${token}` }) },
         body: formData,
     });
 

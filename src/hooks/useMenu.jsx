@@ -23,7 +23,8 @@ export const useMenu = () => {
                 const hiddenViews = [
                     "cohort", "enrollment", "enrollmentdetail",
                     "attendance", "attendancedetail", "followup",
-                    "pricetier", "invoicelineitem", "invoicepayment"
+                    "pricetier", "invoicelineitem", "invoicepayment",
+                    "aiconversation", "aimessage",
                 ];
 
                 // Dictionary of known words to separate PascalCase
@@ -102,16 +103,31 @@ export const useMenu = () => {
                     });
                 }
 
+                // Inject Chett AI if the user has view access to AI conversations.
+                // Not derived from the add_* auto-mapping above (that would generate
+                // an "Aiconversation" entry pointing at /aiconversation), so it's
+                // hidden via hiddenViews and added here with the right label/url/icon.
+                if (permissions.includes("app.view_aiconversation")) {
+                    formattedMenu.push({
+                        title: "Chett AI",
+                        url: "/chett-ai",
+                        icon: "Bot",
+                        items: [],
+                    });
+                }
+
                 // Grouping — meaningful buckets, no "Others" catch-all
                 const crmItems = ["Lead", "Clients", "Contacts", "Service", "Pipeline"];
                 const billingItems = ["Invoices", "Catalogue", "Categories", "Inventory"];
                 const assetItems = ["Assets", "Asset Assignments"];
+                const aiItems = ["Chett AI"];
                 const adminItems = ["Attribute", "Lead Fields", "Webhook"];
 
                 const groups = [
                     { label: "CRM", items: formattedMenu.filter(i => crmItems.includes(i.title)) },
                     { label: "Billing / Inventory", items: formattedMenu.filter(i => billingItems.includes(i.title)) },
                     { label: "Assets", items: formattedMenu.filter(i => assetItems.includes(i.title)) },
+                    { label: "AI", items: formattedMenu.filter(i => aiItems.includes(i.title)) },
                     { label: "Admin", items: formattedMenu.filter(i => adminItems.includes(i.title)) },
                 ].filter(g => g.items.length > 0);
 

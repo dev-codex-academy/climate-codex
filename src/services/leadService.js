@@ -77,10 +77,8 @@ export const importLeadsFromExcel = async (pipelineId, file) => {
     formData.append('pipeline_id', pipelineId);
     formData.append('file', file);
 
-    const token = localStorage.getItem('auth_token');
     const res = await fetch(`${API_URL}/leads/import_excel/`, {
         method: 'POST',
-        headers: { ...(token && { Authorization: `Token ${token}` }) },
         body: formData,
     });
 
@@ -95,9 +93,6 @@ export const uploadLeadImage = async (id, file) => {
 
     const res = await fetch(`${API_URL}/leads/${id}/files/`, {
         method: "POST",
-        headers: {
-            "Authorization": getHeaders().Authorization,
-        },
         body: formData,
     });
 

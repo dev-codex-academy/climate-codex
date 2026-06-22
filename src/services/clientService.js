@@ -68,10 +68,8 @@ export const importClientsFromExcel = async (file) => {
     const formData = new FormData();
     formData.append('file', file);
 
-    const token = localStorage.getItem('auth_token');
     const res = await fetch(`${API_URL}/clients/import_excel/`, {
         method: 'POST',
-        headers: { ...(token && { Authorization: `Token ${token}` }) },
         body: formData,
     });
 
@@ -84,15 +82,8 @@ export const uploadClientImage = async (id, file) => {
     const formData = new FormData();
     formData.append("file", file, file.name);
 
-    const token = localStorage.getItem('auth_token');
-
-    const headers = {
-        ...(token && { 'Authorization': `Token ${token}` })
-    };
-
     const res = await fetch(`${API_URL}/clients/${id}/files/`, {
         method: "POST",
-        headers: headers,
         body: formData,
     });
 
