@@ -35,8 +35,6 @@ export function Form({
   const { usuario } = useAuth();
   const empresaID = usuario?.empresa_id;
 
-  console.log(empresaID);
-
   // Keep sync if initial values change (e.g. when editing another row)
   const [initialized, setInitialized] = useState(false);
 

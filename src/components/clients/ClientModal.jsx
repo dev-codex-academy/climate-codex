@@ -105,10 +105,8 @@ export const ClientModal = ({ isOpen, onClose, onClientSaved, clientToEdit = nul
     const handleUpload = async () => {
         if (!selectedFile || !clientToEdit) return;
         setUploading(true);
-        console.log("Uploading file:", selectedFile.name, "for client:", clientToEdit.id);
         try {
             const res = await uploadClientImage(clientToEdit.id, selectedFile);
-            console.log("Upload response:", res);
             setImages(res.list_of_images || []); // Update list from response
             setSelectedFile(null);
             // Clear input
@@ -220,14 +218,12 @@ export const ClientModal = ({ isOpen, onClose, onClientSaved, clientToEdit = nul
                 savedClient = await updateClient(clientToEdit.id, payload);
                 // If we have a file selected, upload it now
                 if (selectedFile) {
-                    console.log("Uploading pending file for existing client...");
                     await uploadClientImage(clientToEdit.id, selectedFile);
                 }
             } else {
                 savedClient = await createClient(payload);
                 // If we have a file selected, upload it now using the new ID
                 if (selectedFile && savedClient && savedClient.id) {
-                    console.log("Uploading pending file for new client...");
                     await uploadClientImage(savedClient.id, selectedFile);
                 }
             }

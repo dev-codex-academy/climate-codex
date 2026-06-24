@@ -187,7 +187,6 @@ export const LeadDetail = () => {
     const fetchClients = async () => {
         try {
             const data = await getClients();
-            console.log("Fetched clients:", data);
             setClients(Array.isArray(data) ? data : []);
         } catch (err) {
             console.error("Error fetching clients", err);
@@ -433,8 +432,6 @@ export const LeadDetail = () => {
                 possible_client: (possibleClient === "new_client" || !possibleClient) ? null : possibleClient,
                 moodle_course_id: moodleCourseId || ""
             };
-
-            console.log("LEAD DETAIL PAYLOAD:", payload);
 
             if (isNew) {
                 payload.pipeline = activePipelineId;

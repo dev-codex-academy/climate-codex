@@ -282,7 +282,7 @@ export const Lead = () => {
                             </button>
                             <button
                                 onClick={handleImport}
-                                disabled={!importPipelineId || !selectedFile || importing}
+                                disabled={!importPipelineId || !selectedFile || importing || !!importResult}
                                 className="h-9 px-5 rounded-lg text-sm font-semibold text-white transition-colors cursor-pointer disabled:opacity-50"
                                 style={{ backgroundColor: "#5E6A43" }}
                             >
