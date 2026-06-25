@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { getPipelines } from "../services/pipelineService";
 import { importLeadsFromExcel } from "../services/leadService";
 import { getPipelineAttributes } from "../services/pipelineAttributeService";
+import { getClients } from "../services/clientService";
 import Swal from "sweetalert2";
 
 const LEAD_FIXED_FIELDS = [
@@ -14,9 +15,13 @@ const LEAD_FIXED_FIELDS = [
     { name: 'responsible', label: 'Responsible',  required: false, hint: 'username of the user' },
 ];
 
+const LEAD_PIPELINE_STORAGE_KEY = 'lead_selected_pipeline_id';
+
 export const Lead = () => {
     const [refreshBoard, setRefreshBoard] = useState(0);
-    const [selectedPipelineId, setSelectedPipelineId] = useState(null);
+    const [selectedPipelineId, setSelectedPipelineId] = useState(
+        () => localStorage.getItem(LEAD_PIPELINE_STORAGE_KEY) || null
+    );
     const { user } = useAuth();
     const navigate = useNavigate();
 
@@ -30,6 +35,19 @@ export const Lead = () => {
     const [importResult, setImportResult] = useState(null);
     const fileInputRef = useRef(null);
 
+    // Import modal — client selection
+    const [clients, setClients] = useState([]);
+    const [importClientId, setImportClientId] = useState('');
+    const [clientSearch, setClientSearch] = useState('');
+    const [isNewClient, setIsNewClient] = useState(false);
+    const [newClientName, setNewClientName] = useState('');
+
+    useEffect(() => {
+        if (selectedPipelineId) {
+            localStorage.setItem(LEAD_PIPELINE_STORAGE_KEY, selectedPipelineId);
+        }
+    }, [selectedPipelineId]);
+
     const handleLeadClick = (lead) => {
         navigate(`/lead/${lead.id}`);
     };
@@ -38,14 +56,23 @@ export const Lead = () => {
         setImportResult(null);
         setSelectedFile(null);
         setLeadAttributes([]);
+        setImportClientId('');
+        setClientSearch('');
+        setIsNewClient(false);
+        setNewClientName('');
         setShowImportModal(true);
         const preselected = selectedPipelineId || '';
         setImportPipelineId(preselected);
         try {
-            const pipelinesData = await getPipelines();
+            const [pipelinesData, clientsData] = await Promise.all([
+                getPipelines(),
+                getClients(),
+            ]);
             setPipelines(pipelinesData.results || pipelinesData || []);
+            setClients(clientsData || []);
         } catch {
             setPipelines([]);
+            setClients([]);
         }
     };
 
@@ -67,14 +94,25 @@ export const Lead = () => {
         setShowImportModal(false);
         setImportResult(null);
         setSelectedFile(null);
+        setImportClientId('');
+        setClientSearch('');
+        setIsNewClient(false);
+        setNewClientName('');
     };
 
     const handleImport = async () => {
         if (!importPipelineId || !selectedFile) return;
+        if (!isNewClient && !importClientId) return;
+        if (isNewClient && !newClientName.trim()) return;
         setImporting(true);
         setImportResult(null);
         try {
-            const result = await importLeadsFromExcel(importPipelineId, selectedFile);
+            const result = await importLeadsFromExcel(
+                importPipelineId,
+                selectedFile,
+                isNewClient ? null : importClientId,
+                isNewClient ? newClientName.trim() : null
+            );
             setImportResult(result);
             if (result.created > 0) setRefreshBoard(r => r + 1);
         } catch (error) {
@@ -88,6 +126,10 @@ export const Lead = () => {
         ...LEAD_FIXED_FIELDS,
         ...leadAttributes.map(a => ({ name: a.name, label: a.label, required: a.is_required, hint: null })),
     ];
+
+    const filteredClients = clients.filter(c =>
+        c.name.toLowerCase().includes(clientSearch.toLowerCase())
+    );
 
     return (
         <div
@@ -140,7 +182,7 @@ export const Lead = () => {
                 </div>
             </div>
 
-            <div className="flex-1 min-h-0">
+            <div className="flex-1 min-h-0 min-w-0">
                 <LeadBoard
                     refreshTrigger={refreshBoard}
                     selectedPipelineId={selectedPipelineId}
@@ -185,6 +227,71 @@ export const Lead = () => {
                                     Column headers must match exactly. &nbsp;·&nbsp;
                                     Leads without a <code className="bg-gray-100 px-1 rounded">stage</code> value will be placed in the first stage of the pipeline.
                                 </p>
+                            </div>
+
+                            {/* Client selector */}
+                            <div>
+                                <label className="block text-sm font-semibold text-gray-700 mb-1">
+                                    Select Client <span className="text-red-500">*</span>
+                                </label>
+                                <p className="text-xs text-gray-400 mb-2">All leads in the file will be linked to this client as their possible client.</p>
+
+                                {!isNewClient ? (
+                                    <>
+                                        <input
+                                            type="text"
+                                            placeholder="Search clients..."
+                                            value={clientSearch}
+                                            onChange={e => setClientSearch(e.target.value)}
+                                            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm mb-2 focus:outline-none focus:border-[#5E6A43]"
+                                        />
+                                        <div className="border border-gray-200 rounded-lg max-h-36 overflow-y-auto">
+                                            {filteredClients.length === 0 ? (
+                                                <p className="text-xs text-gray-400 p-3">No clients found</p>
+                                            ) : filteredClients.map(c => (
+                                                <button
+                                                    key={c.id}
+                                                    onClick={() => setImportClientId(c.id)}
+                                                    className={`w-full text-left px-4 py-2 text-sm cursor-pointer transition-colors ${
+                                                        importClientId === c.id
+                                                            ? 'bg-[#5E6A43] text-white'
+                                                            : 'hover:bg-gray-50 text-gray-700'
+                                                    }`}
+                                                >
+                                                    {c.name}
+                                                </button>
+                                            ))}
+                                        </div>
+                                        <button
+                                            onClick={() => { setIsNewClient(true); setImportClientId(''); }}
+                                            className="mt-2 text-sm font-semibold text-[#5E6A43] hover:underline cursor-pointer"
+                                        >
+                                            + New Client
+                                        </button>
+                                    </>
+                                ) : (
+                                    <>
+                                        <input
+                                            type="text"
+                                            placeholder="New client name..."
+                                            value={newClientName}
+                                            onChange={e => setNewClientName(e.target.value)}
+                                            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm mb-2 focus:outline-none focus:border-[#5E6A43]"
+                                        />
+                                        <div className="flex items-start gap-2 bg-yellow-50 border border-yellow-200 rounded-lg px-3 py-2">
+                                            <AlertCircle className="h-4 w-4 text-yellow-600 shrink-0 mt-0.5" />
+                                            <p className="text-xs text-yellow-700">
+                                                This will create a new client{newClientName.trim() ? ` named "${newClientName.trim()}"` : ''}, and all leads in this file will be linked to it.
+                                            </p>
+                                        </div>
+                                        <button
+                                            onClick={() => { setIsNewClient(false); setNewClientName(''); }}
+                                            className="mt-2 text-sm font-semibold text-gray-500 hover:underline cursor-pointer"
+                                        >
+                                            ← Choose existing client instead
+                                        </button>
+                                    </>
+                                )}
                             </div>
 
                             {/* Pipeline selector */}
@@ -282,7 +389,14 @@ export const Lead = () => {
                             </button>
                             <button
                                 onClick={handleImport}
-                                disabled={!importPipelineId || !selectedFile || importing || !!importResult}
+                                disabled={
+                                    !importPipelineId ||
+                                    !selectedFile ||
+                                    importing ||
+                                    !!importResult ||
+                                    (!isNewClient && !importClientId) ||
+                                    (isNewClient && !newClientName.trim())
+                                }
                                 className="h-9 px-5 rounded-lg text-sm font-semibold text-white transition-colors cursor-pointer disabled:opacity-50"
                                 style={{ backgroundColor: "#5E6A43" }}
                             >

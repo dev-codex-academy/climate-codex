@@ -1,7 +1,7 @@
 import React from "react";
 import { Calendar, Building } from "lucide-react";
 
-export const LeadCard = ({ lead, salesUsers = [], onDragStart, onClick }) => {
+export const LeadCard = ({ lead, salesUsers = [], clientsById = {}, onDragStart, onClick }) => {
 
     const getResponsibleName = () => {
         const resp = lead.responsible;
@@ -16,7 +16,7 @@ export const LeadCard = ({ lead, salesUsers = [], onDragStart, onClick }) => {
         const client = lead.possible_client;
         if (!client) return null;
         if (typeof client === 'object') return client.name || "Unknown Client";
-        return "Client #" + client;
+        return clientsById[String(client)] || ("Client #" + String(client).slice(0, 8));
     };
 
     const responsibleName = getResponsibleName();

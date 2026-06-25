@@ -72,10 +72,15 @@ export const getLeadServiceAttributes = async () => {
     return data.results || data;
 };
 
-export const importLeadsFromExcel = async (pipelineId, file) => {
+export const importLeadsFromExcel = async (pipelineId, file, clientId, newClientName) => {
     const formData = new FormData();
     formData.append('pipeline_id', pipelineId);
     formData.append('file', file);
+    if (clientId) {
+        formData.append('client_id', clientId);
+    } else if (newClientName) {
+        formData.append('new_client_name', newClientName);
+    }
 
     const res = await fetch(`${API_URL}/leads/import_excel/`, {
         method: 'POST',
