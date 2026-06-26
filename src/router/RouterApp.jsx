@@ -33,6 +33,7 @@ import { ApiGuide } from "../pages/ApiGuide";
 import { Faq } from "../pages/Faq";
 import { Dashboard } from "../pages/Dashboard";
 import { SurveyForm } from "../pages/SurveyForm";
+import { EnrollmentForm } from "../pages/EnrollmentForm";
 import { LandingPage } from "../pages/LandingPage";
 import AdminLayout from "@/layout/AdminLayout"
 import { useAuth } from "@/context/AuthContext"
@@ -66,6 +67,7 @@ export const RouterApp = () => {
             {/* public routes */}
             <Route path="/login" element={<RedirectIfAuth><Login /></RedirectIfAuth>} />
             <Route path="/survey/:serviceId" element={<SurveyForm />} />
+            <Route path="/enrollment/:leadId" element={<EnrollmentForm />} />
             <Route path="/landing" element={<LandingPage />} />
 
             {/* private routes */}

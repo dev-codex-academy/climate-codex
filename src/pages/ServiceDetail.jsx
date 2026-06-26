@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { createService, updateService, uploadServiceImage, getServiceById, getServiceAttributes } from "../services/serviceService";
 import { getServiceSurveys } from "../services/surveyService";
+import { getServiceEnrollment } from "../services/enrollmentService";
 import { getClients } from "../services/clientService";
 import { useAuth } from "../context/AuthContext";
 
@@ -106,6 +107,8 @@ export const ServiceDetail = () => {
     const [copied, setCopied] = useState(false);
     const [surveys, setSurveys] = useState([]);
     const [selectedSurvey, setSelectedSurvey] = useState(null);
+    const [enrollment, setEnrollment] = useState(null);
+    const [showSignature, setShowSignature] = useState(false);
     const [error, setError] = useState(null);
 
     // File upload state
@@ -130,6 +133,10 @@ export const ServiceDetail = () => {
                 if (!isNew) {
                     await fetchServiceData(id);
                     getServiceSurveys(id).then(data => setSurveys(Array.isArray(data) ? data : (data.results || []))).catch(() => {});
+                    getServiceEnrollment(id).then(data => {
+                        const list = Array.isArray(data) ? data : (data.results || []);
+                        setEnrollment(list[0] || null);
+                    }).catch(() => {});
                 } else {
                     setName("");
                     setClientId(preSelectedClientId ? String(preSelectedClientId) : "");
@@ -615,6 +622,53 @@ export const ServiceDetail = () => {
                                             ))}
                                         </tbody>
                                     </table>
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    {/* Enrollment Agreement */}
+                    {!isNew && (
+                        <div className="bg-card p-6 rounded-lg border shadow-sm space-y-4">
+                            <div className="flex items-center justify-between border-b pb-2">
+                                <h3 className="font-medium text-lg">Enrollment Agreement</h3>
+                                {enrollment && (
+                                    <span style={{ fontSize: "12px", backgroundColor: "#F2EBDD", color: "#5E6A43", border: "1px solid rgba(94,106,67,0.3)", borderRadius: "12px", padding: "2px 10px", fontWeight: 600 }}>
+                                        Signed
+                                    </span>
+                                )}
+                            </div>
+                            {!enrollment ? (
+                                <p className="text-sm text-muted-foreground italic">No enrollment agreement on file for this service.</p>
+                            ) : (
+                                <div style={{ fontSize: 13, fontFamily: '"Source Sans 3", Arial, sans-serif' }}>
+                                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "12px 24px", marginBottom: 16 }}>
+                                        {[
+                                            ["Student", enrollment.student_name],
+                                            ["Email", enrollment.email],
+                                            ["Telephone", enrollment.telephone || "—"],
+                                            ["Program", enrollment.program_name || "—"],
+                                            ["Start Date", enrollment.enrollment_start_date || "—"],
+                                            ["Student Type", enrollment.student_type?.replace("_", " ") || "—"],
+                                            ["Signed On", enrollment.signed_at ? new Date(enrollment.signed_at).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }) : "—"],
+                                            ["Disability Accommodation", enrollment.has_disability === true ? "Yes" : enrollment.has_disability === false ? "No" : "Not specified"],
+                                        ].map(([label, val]) => (
+                                            <div key={label}>
+                                                <p style={{ color: "#9b948e", fontWeight: 600, marginBottom: 2 }}>{label}</p>
+                                                <p style={{ color: "#2E2A26" }}>{val}</p>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <button
+                                        onClick={() => setShowSignature((v) => !v)}
+                                        style={{ fontSize: 12, padding: "4px 14px", borderRadius: 6, border: "1px solid #D8D2C4", backgroundColor: "transparent", color: "#5E6A43", cursor: "pointer", fontWeight: 500 }}>
+                                        {showSignature ? "Hide Signature" : "View Signature"}
+                                    </button>
+                                    {showSignature && enrollment.student_signature && (
+                                        <div style={{ marginTop: 12, border: "1px solid #D8D2C4", borderRadius: 6, padding: 12, backgroundColor: "#fff", display: "inline-block" }}>
+                                            <img src={enrollment.student_signature} alt="Student signature" style={{ maxWidth: 340, display: "block" }} />
+                                        </div>
+                                    )}
                                 </div>
                             )}
                         </div>

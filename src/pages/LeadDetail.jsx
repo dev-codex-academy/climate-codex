@@ -15,7 +15,7 @@ import { Button } from "../components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
 import { Checkbox } from "../components/ui/checkbox";
 import { Textarea } from "../components/ui/textarea";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Link2 } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../components/ui/table";
 import { Switch } from "../components/ui/switch";
 
@@ -53,6 +53,10 @@ export const LeadDetail = () => {
     const [uploading, setUploading] = useState(false);
     const [images, setImages] = useState([]);
     const [selectedFile, setSelectedFile] = useState(null);
+    const [copiedEnrollment, setCopiedEnrollment] = useState(false);
+    const [showLostModal, setShowLostModal] = useState(false);
+    const [lostReason, setLostReason] = useState("");
+    const [movingToLost, setMovingToLost] = useState(false);
 
     // Task state
     const [tasks, setTasks] = useState([]);
@@ -463,6 +467,19 @@ export const LeadDetail = () => {
         }
     };
 
+    const handleMoveToLost = async () => {
+        if (!lostReason.trim()) return;
+        setMovingToLost(true);
+        try {
+            await updateLead(id, { stage: "Lost", lost_reason: lostReason.trim() });
+            navigate(-1);
+        } catch (err) {
+            console.error("Error moving lead to lost", err);
+        } finally {
+            setMovingToLost(false);
+        }
+    };
+
     if (fetching) {
         return <div className="p-10 flex justify-center">Loading...</div>;
     }
@@ -485,6 +502,27 @@ export const LeadDetail = () => {
                     </div>
                 </div>
                 <div className="flex gap-2">
+                    {!isNew && (
+                        <button
+                            type="button"
+                            onClick={() => {
+                                navigator.clipboard.writeText(`${window.location.origin}/enrollment/${id}`);
+                                setCopiedEnrollment(true);
+                                setTimeout(() => setCopiedEnrollment(false), 2000);
+                            }}
+                            style={{ display: "flex", alignItems: "center", gap: "6px", height: "36px", padding: "0 14px", borderRadius: "6px", border: "1px solid #D8D2C4", backgroundColor: copiedEnrollment ? "#F2EBDD" : "transparent", color: copiedEnrollment ? "#5E6A43" : "#6b6560", fontSize: "13px", fontWeight: 500, cursor: "pointer", transition: "all 0.2s" }}>
+                            <Link2 size={14} />
+                            {copiedEnrollment ? "Copied!" : "Copy Enrollment URL"}
+                        </button>
+                    )}
+                    {!isNew && (
+                        <button
+                            type="button"
+                            onClick={() => { setLostReason(""); setShowLostModal(true); }}
+                            style={{ display: "flex", alignItems: "center", gap: "6px", height: "36px", padding: "0 14px", borderRadius: "6px", border: "1px solid #f9a8a8", backgroundColor: "transparent", color: "#b91c1c", fontSize: "13px", fontWeight: 500, cursor: "pointer", transition: "all 0.2s" }}>
+                            Move to Lost
+                        </button>
+                    )}
                     <Button variant="outline" onClick={() => navigate(-1)}>Cancel</Button>
                     <Button onClick={handleSubmit} disabled={loading || uploading}>
                         {loading ? "Saving..." : "Save Opportunity"}
@@ -929,6 +967,41 @@ export const LeadDetail = () => {
                     )}
                 </div>
             </div>
+
+            {/* Move to Lost modal */}
+            {showLostModal && (
+                <div style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.45)", zIndex: 50, display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
+                    <div style={{ backgroundColor: "#fff", borderRadius: 8, padding: 32, width: "100%", maxWidth: 440, boxShadow: "0 8px 32px rgba(0,0,0,0.18)" }}>
+                        <p style={{ fontSize: 18, fontWeight: 700, color: "#1a1a1a", marginBottom: 8 }}>Move to Lost</p>
+                        <p style={{ fontSize: 13, color: "#6b6560", marginBottom: 20 }}>
+                            Please provide a reason for marking <strong>{name}</strong> as lost.
+                        </p>
+                        <textarea
+                            autoFocus
+                            rows={4}
+                            placeholder="e.g. Not interested, budget constraints, chose a competitor…"
+                            value={lostReason}
+                            onChange={(e) => setLostReason(e.target.value)}
+                            style={{ width: "100%", padding: "8px 10px", border: "1px solid #D8D2C4", borderRadius: 4, fontSize: 14, fontFamily: "inherit", resize: "vertical", boxSizing: "border-box", outline: "none" }}
+                        />
+                        <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 20 }}>
+                            <button
+                                type="button"
+                                onClick={() => setShowLostModal(false)}
+                                style={{ height: 36, padding: "0 16px", borderRadius: 6, border: "1px solid #D8D2C4", background: "transparent", color: "#6b6560", fontSize: 13, fontWeight: 500, cursor: "pointer" }}>
+                                Cancel
+                            </button>
+                            <button
+                                type="button"
+                                onClick={handleMoveToLost}
+                                disabled={!lostReason.trim() || movingToLost}
+                                style={{ height: 36, padding: "0 16px", borderRadius: 6, border: "none", backgroundColor: !lostReason.trim() || movingToLost ? "#f5a0a0" : "#b91c1c", color: "#fff", fontSize: 13, fontWeight: 600, cursor: !lostReason.trim() || movingToLost ? "not-allowed" : "pointer" }}>
+                                {movingToLost ? "Saving…" : "Confirm"}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

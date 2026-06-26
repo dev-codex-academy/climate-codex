@@ -280,6 +280,92 @@ const TaskCalendar = ({ tasks, navigate }) => {
     );
 };
 
+// ─── Pipeline report ────────────────────────────────────────────────────────
+
+const STAGE_PALETTE = ["#5E6A43", "#F29B6B", "#B8C76A", "#6b8560", "#9b948e", "#D8D2C4", "#a0856a"];
+
+const PipelineReportCard = ({ pipeline }) => {
+    const maxCount = Math.max(...pipeline.orderedStages.map(s => pipeline.byStage[s] || 0), 1);
+    return (
+        <div style={{ backgroundColor: "#F2EBDD", border: "1px solid #D8D2C4", borderRadius: 8, overflow: "hidden", boxShadow: "0 1px 3px rgba(46,42,38,0.06)" }}>
+            <div style={{ borderBottom: "1px solid #D8D2C4", padding: "12px 20px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                <p style={{ fontSize: 14, fontWeight: 700, color: "#2E2A26", fontFamily: '"Source Sans 3", Arial, sans-serif', margin: 0 }}>
+                    {pipeline.name}
+                </p>
+                <span style={{ fontSize: 11, fontWeight: 600, color: "#5E6A43", backgroundColor: "#e8edde", border: "1px solid #B8C76A", borderRadius: 99, padding: "2px 10px" }}>
+                    {pipeline.total} lead{pipeline.total !== 1 ? "s" : ""}
+                </span>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr" }}>
+                {/* By stage */}
+                <div style={{ padding: "16px 20px", borderRight: "1px solid #D8D2C4" }}>
+                    <p style={{ fontSize: 10, fontWeight: 700, color: "#9b948e", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 12, fontFamily: '"Source Sans 3", Arial, sans-serif' }}>
+                        By Stage
+                    </p>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                        {pipeline.orderedStages.map((stage, i) => {
+                            const count = pipeline.byStage[stage] || 0;
+                            const pct = Math.round((count / maxCount) * 100);
+                            const color = STAGE_PALETTE[i % STAGE_PALETTE.length];
+                            return (
+                                <div key={stage}>
+                                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
+                                        <span style={{ fontSize: 12, color: "#2E2A26", fontFamily: '"Source Sans 3", Arial, sans-serif' }}>{stage}</span>
+                                        <span style={{ fontSize: 12, fontWeight: 700, color: "#2E2A26", fontFamily: '"Source Sans 3", Arial, sans-serif' }}>{count}</span>
+                                    </div>
+                                    <div style={{ height: 7, backgroundColor: "#E8E3DA", borderRadius: 4 }}>
+                                        <div style={{ height: 7, width: `${pct}%`, backgroundColor: color, borderRadius: 4, transition: "width 0.5s ease" }} />
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+                {/* By responsible */}
+                <div style={{ padding: "16px 20px" }}>
+                    <p style={{ fontSize: 10, fontWeight: 700, color: "#9b948e", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 12, fontFamily: '"Source Sans 3", Arial, sans-serif' }}>
+                        By Responsible
+                    </p>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                        {pipeline.orderedUsers.map(([userName, data]) => (
+                            <div key={userName} style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
+                                <div style={{ width: 26, height: 26, borderRadius: "50%", backgroundColor: "#5E6A43", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 1 }}>
+                                    <span style={{ fontSize: 11, fontWeight: 700, color: "#FBF7EF" }}>
+                                        {userName.charAt(0).toUpperCase()}
+                                    </span>
+                                </div>
+                                <div style={{ flex: 1, minWidth: 0 }}>
+                                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
+                                        <span style={{ fontSize: 12, color: "#2E2A26", fontFamily: '"Source Sans 3", Arial, sans-serif', overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                                            {userName}
+                                        </span>
+                                        <span style={{ fontSize: 12, fontWeight: 700, color: "#2E2A26", fontFamily: '"Source Sans 3", Arial, sans-serif', marginLeft: 8, flexShrink: 0 }}>
+                                            {data.total}
+                                        </span>
+                                    </div>
+                                    <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
+                                        {Object.entries(data.stages).sort((a, b) => b[1] - a[1]).map(([stage, count]) => {
+                                            const idx = pipeline.orderedStages.indexOf(stage);
+                                            const color = idx >= 0 ? STAGE_PALETTE[idx % STAGE_PALETTE.length] : "#9b948e";
+                                            return (
+                                                <span key={stage} style={{ fontSize: 10, color: "#fff", backgroundColor: color, borderRadius: 3, padding: "1px 6px", fontFamily: '"Source Sans 3", Arial, sans-serif', whiteSpace: "nowrap" }}>
+                                                    {stage} · {count}
+                                                </span>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+// ────────────────────────────────────────────────────────────────────────────
+
 export const Dashboard = () => {
     const { user } = useAuth();
     const navigate = useNavigate();
@@ -287,6 +373,8 @@ export const Dashboard = () => {
     const [loading, setLoading] = useState(true);
     const [taskData, setTaskData] = useState({ totals: { leads: 0, clients: 0, services: 0 }, tasks: [] });
     const [tasksLoading, setTasksLoading] = useState(true);
+    const [pipelineReport, setPipelineReport] = useState([]);
+    const [reportLoading, setReportLoading] = useState(true);
 
     useEffect(() => {
         const load = async () => {
@@ -302,6 +390,73 @@ export const Dashboard = () => {
             setLoading(false);
         };
         load();
+    }, []);
+
+    useEffect(() => {
+        const loadReport = async () => {
+            try {
+                const [pipelinesRes, leadsRes, usersRes] = await Promise.all([
+                    fetch(`${API_URL}/pipelines/?page_size=100`, { headers: getHeaders() }),
+                    fetch(`${API_URL}/leads/?page_size=500`, { headers: getHeaders() }),
+                    fetch(`${API_URL}/sales/?page_size=100`, { headers: getHeaders() }),
+                ]);
+                const [pipelinesData, leadsData, usersData] = await Promise.all([
+                    pipelinesRes.json(), leadsRes.json(), usersRes.json(),
+                ]);
+                const pipelines = pipelinesData.results || pipelinesData;
+                const leads = leadsData.results || leadsData;
+                const users = usersData.results || usersData;
+
+                const userMap = {};
+                users.forEach(u => {
+                    userMap[u.id] = (u.first_name || u.last_name)
+                        ? `${u.first_name} ${u.last_name}`.trim()
+                        : u.username;
+                });
+
+                const report = pipelines.map(pipeline => {
+                    const pipelineLeads = leads.filter(l => {
+                        const pId = typeof l.pipeline === "object" ? l.pipeline?.id : l.pipeline;
+                        return String(pId) === String(pipeline.id);
+                    });
+                    if (pipelineLeads.length === 0) return null;
+
+                    const stageOrder = [...(pipeline.stages || [])].sort((a, b) => a.order - b.order).map(s => s.name);
+
+                    const byStage = {};
+                    const byUser = {};
+                    pipelineLeads.forEach(l => {
+                        byStage[l.stage] = (byStage[l.stage] || 0) + 1;
+
+                        const resp = l.responsible;
+                        let userName = "Unassigned";
+                        if (typeof resp === "object" && resp) {
+                            userName = resp.name || resp.username || "Unassigned";
+                        } else if (resp && userMap[resp]) {
+                            userName = userMap[resp];
+                        }
+                        if (!byUser[userName]) byUser[userName] = { total: 0, stages: {} };
+                        byUser[userName].total++;
+                        byUser[userName].stages[l.stage] = (byUser[userName].stages[l.stage] || 0) + 1;
+                    });
+
+                    const orderedStages = [
+                        ...stageOrder.filter(s => byStage[s]),
+                        ...Object.keys(byStage).filter(s => !stageOrder.includes(s)),
+                    ];
+                    const orderedUsers = Object.entries(byUser).sort((a, b) => b[1].total - a[1].total);
+
+                    return { id: pipeline.id, name: pipeline.name, total: pipelineLeads.length, orderedStages, byStage, orderedUsers };
+                }).filter(Boolean);
+
+                setPipelineReport(report);
+            } catch (e) {
+                console.error("Error loading pipeline report", e);
+            } finally {
+                setReportLoading(false);
+            }
+        };
+        loadReport();
     }, []);
 
     useEffect(() => {
@@ -385,6 +540,28 @@ export const Dashboard = () => {
                         ))}
                     </div>
                 </section>
+
+                {/* Leads by Pipeline */}
+                {(reportLoading || pipelineReport.length > 0) && (
+                    <section className="space-y-4">
+                        <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: "#9b948e", fontFamily: '"Source Sans 3", Arial, sans-serif' }}>
+                            Leads by Pipeline
+                        </p>
+                        {reportLoading ? (
+                            <div className="space-y-3">
+                                {[1, 2].map(i => (
+                                    <div key={i} className="h-40 rounded-xl animate-pulse" style={{ backgroundColor: "#E8E3DA" }} />
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="space-y-4">
+                                {pipelineReport.map(pipeline => (
+                                    <PipelineReportCard key={pipeline.id} pipeline={pipeline} />
+                                ))}
+                            </div>
+                        )}
+                    </section>
+                )}
 
                 {/* My Pending Tasks KPIs */}
                 <section className="space-y-4">
