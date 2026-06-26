@@ -93,6 +93,7 @@ export function EnrollmentForm() {
           telephone: data.telephone || "",
           program_name: data.program_name || "",
           enrollment_start_date: data.initial_date || "",
+          projected_end_date: data.projected_end_date || "",
         }));
       })
       .catch(() => {})
