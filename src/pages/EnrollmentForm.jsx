@@ -79,7 +79,7 @@ export function EnrollmentForm() {
     student_type: "",
     other_student_type: "",
     total_tuition: "",
-    has_disability: null,
+    has_disability: "",
   });
 
   useEffect(() => {
@@ -120,7 +120,12 @@ export function EnrollmentForm() {
 
     setSubmitting(true);
     try {
-      await submitEnrollment(leadId, { ...form, student_signature: signature });
+      const payload = {
+        ...form,
+        student_signature: signature,
+        has_disability: form.has_disability === true ? true : form.has_disability === false ? false : null,
+      };
+      await submitEnrollment(leadId, payload);
       setSubmitted(true);
     } catch (err) {
       if (err && typeof err === "object" && Object.keys(err).length > 0) {
@@ -236,18 +241,15 @@ export function EnrollmentForm() {
               </div>
               <div style={fieldRow}>
                 <label style={labelStyle}>Program Duration</label>
-                <select style={inputStyle} value={form.program_duration} onChange={set("program_duration")}>
-                  <option value="Part-Time">Part-Time</option>
-                  <option value="Full-Time">Full-Time</option>
-                </select>
+                <input style={{ ...inputStyle, backgroundColor: BRAND.oat }} value={form.program_duration} readOnly />
               </div>
               <div style={fieldRow}>
                 <label style={labelStyle}>Enrollment Start Date</label>
-                <input style={{ ...inputStyle, backgroundColor: BRAND.oat }} type="date" value={form.enrollment_start_date} readOnly />
+                <input style={{ ...inputStyle, backgroundColor: BRAND.oat }} type="text" value={form.enrollment_start_date} readOnly />
               </div>
               <div style={fieldRow}>
                 <label style={labelStyle}>Projected End Date</label>
-                <input style={inputStyle} type="date" value={form.projected_end_date} onChange={set("projected_end_date")} />
+                <input style={{ ...inputStyle, backgroundColor: BRAND.oat }} type="text" value={form.projected_end_date} readOnly />
               </div>
               <div style={{ ...fieldRow, gridColumn: "1 / -1" }}>
                 <label style={labelStyle}>Student Type *</label>
@@ -340,8 +342,8 @@ export function EnrollmentForm() {
             <p style={{ fontSize: 13, color: BRAND.ink, fontFamily: '"Source Sans 3", Arial, sans-serif', marginBottom: 12 }}>
               Do you have a disability that may require reasonable accommodations to support your success in this course?
             </p>
-            <div style={{ display: "flex", gap: 24 }}>
-              {[{ label: "Yes", value: true }, { label: "No", value: false }].map((opt) => (
+            <div style={{ display: "flex", gap: 24, marginBottom: 10 }}>
+              {[{ label: "Yes", value: true }, { label: "No", value: false }, { label: "Prefer not to say", value: "prefer_not" }].map((opt) => (
                 <label key={String(opt.value)} style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", fontFamily: '"Source Sans 3", Arial, sans-serif', fontSize: 14, color: BRAND.ink }}>
                   <input
                     type="radio"
@@ -354,6 +356,9 @@ export function EnrollmentForm() {
                 </label>
               ))}
             </div>
+            <p style={{ fontSize: 12, color: "#6b6560", fontFamily: '"Source Sans 3", Arial, sans-serif', fontStyle: "italic", margin: 0 }}>
+              If yes, a member of our support team will follow up to discuss available accommodations. Disclosure is voluntary and confidential, and will not affect your enrollment status.
+            </p>
 
             {/* Signatures */}
             <p style={{ ...sectionTitleStyle, marginTop: 32 }}>Signatures</p>
