@@ -409,9 +409,7 @@ export const Dashboard = () => {
 
                 const userMap = {};
                 users.forEach(u => {
-                    userMap[u.id] = (u.first_name || u.last_name)
-                        ? `${u.first_name} ${u.last_name}`.trim()
-                        : u.username;
+                    userMap[u.id] = u.name || u.username || "Unassigned";
                 });
 
                 const report = pipelines.map(pipeline => {
