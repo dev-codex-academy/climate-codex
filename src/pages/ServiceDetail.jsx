@@ -5,6 +5,7 @@ import { getServiceSurveys } from "../services/surveyService";
 import { getServiceEnrollment } from "../services/enrollmentService";
 import { getClients } from "../services/clientService";
 import { useAuth } from "../context/AuthContext";
+import { formatDate } from "../utils/date";
 
 // UI Components
 import { Input } from "../components/ui/input";
@@ -602,7 +603,7 @@ export const ServiceDetail = () => {
                                                         <td style={{ padding: "10px 12px", color: "#2E2A26", fontWeight: 500 }}>{s.full_name}</td>
                                                         <td style={{ padding: "10px 12px", color: "#6b6560" }}>{s.email}</td>
                                                         <td style={{ padding: "10px 12px", color: "#6b6560" }}>{s.phone}</td>
-                                                        <td style={{ padding: "10px 12px", color: "#9b948e", whiteSpace: "nowrap" }}>{new Date(s.created_at).toLocaleDateString()}</td>
+                                                        <td style={{ padding: "10px 12px", color: "#9b948e", whiteSpace: "nowrap" }}>{formatDate(s.created_at)}</td>
                                                         <td style={{ padding: "10px 12px" }}>
                                                             <button
                                                                 onClick={() => setSelectedSurvey(selectedSurvey?.id === s.id ? null : s)}
@@ -648,9 +649,9 @@ export const ServiceDetail = () => {
                                             ["Email", enrollment.email],
                                             ["Telephone", enrollment.telephone || "—"],
                                             ["Program", enrollment.program_name || "—"],
-                                            ["Start Date", enrollment.enrollment_start_date || "—"],
+                                            ["Start Date", formatDate(enrollment.enrollment_start_date) || "—"],
                                             ["Student Type", enrollment.student_type?.replace("_", " ") || "—"],
-                                            ["Signed On", enrollment.signed_at ? new Date(enrollment.signed_at).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }) : "—"],
+                                            ["Signed On", formatDate(enrollment.signed_at) || "—"],
                                             ["Disability Accommodation", enrollment.has_disability === true ? "Yes" : enrollment.has_disability === false ? "No" : "Not specified"],
                                         ].map(([label, val]) => (
                                             <div key={label}>

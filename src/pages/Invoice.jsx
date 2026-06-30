@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Table } from "../components/Table";
+import { formatDate } from "../utils/date";
 import { Button } from "../components/ui/button";
 import { Plus, Download } from "lucide-react";
 import { getInvoices, deleteInvoice, getInvoiceAttributes } from "../services/invoiceService";
@@ -51,7 +52,7 @@ export const Invoice = () => {
             label: "Balance Due",
             render: (value, row) => `${row.currency || 'USD'} ${Number(value).toFixed(2)}`
         },
-        { key: "due_date", label: "Due Date" },
+        { key: "due_date", label: "Due Date", render: (value) => formatDate(value) },
     ];
 
     const [columns, setColumns] = useState(staticColumns);
@@ -78,7 +79,8 @@ export const Invoice = () => {
             // Dynamic columns from attributes
             const dynamicColumns = attributesData.map(attr => ({
                 key: attr.name,
-                label: attr.label
+                label: attr.label,
+                ...(attr.type === 'date' ? { render: (value) => formatDate(value) } : {})
             }));
 
             setColumns([...staticColumns, ...dynamicColumns]);

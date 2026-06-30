@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { getPublicPipelines, getPublicPipelineAttributes, createPublicLead } from "../services/publicService";
+import { formatDate } from "../utils/date";
 import { 
     Send, CheckCircle2, ChevronRight, Sparkles, 
     MessageSquare, User, Mail, Building2, Smartphone 
@@ -97,7 +98,7 @@ export const LandingPage = () => {
                     leadName += ` ${formData[lastNameKey]}`;
                 }
             } else {
-                leadName = `Web Inquiry - ${new Date().toLocaleDateString()}`;
+                leadName = `Web Inquiry - ${formatDate(new Date())}`;
             }
 
             const payload = {

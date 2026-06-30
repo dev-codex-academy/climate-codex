@@ -5,6 +5,7 @@ import { Button } from "../components/ui/button";
 import { Plus, ArrowLeft } from "lucide-react";
 import { getFollowups, deleteFollowup, getFollowupAttributes } from "../services/followupService";
 import { FollowupModal } from "../components/followups/FollowupModal";
+import { formatDate } from "../utils/date";
 import Swal from "sweetalert2";
 
 export const Followup = () => {
@@ -20,7 +21,7 @@ export const Followup = () => {
 
     // Dynamic columns support
     const staticColumns = [
-        { key: "follow_up_date", label: "Date" },
+        { key: "follow_up_date", label: "Date", render: (value) => formatDate(value) },
         { key: "comment", label: "Comment" },
     ];
     const [columns, setColumns] = useState(staticColumns);
@@ -35,7 +36,8 @@ export const Followup = () => {
 
                 const dynamicCols = attrs.map(attr => ({
                     key: attr.name,
-                    label: attr.label
+                    label: attr.label,
+                    ...(attr.type === 'date' ? { render: (value) => formatDate(value) } : {})
                 }));
                 setColumns([...staticColumns, ...dynamicCols]);
             } catch (err) {

@@ -4,6 +4,7 @@ import { Table } from "../components/Table";
 import { Button } from "../components/ui/button";
 import { Plus } from "lucide-react";
 import { getAssetAssignments, deleteAssetAssignment, getAssetAssignmentAttributes } from "../services/assetAssignmentService";
+import { formatDate } from "../utils/date";
 import Swal from "sweetalert2";
 
 export const AssetAssignment = () => {
@@ -15,8 +16,8 @@ export const AssetAssignment = () => {
     const staticColumns = [
         { key: "asset_name", label: "Asset" },
         { key: "name", label: "Borrower" },
-        { key: "borrow_date", label: "Borrow Date" },
-        { key: "return_date", label: "Return Date", render: (value) => value || <span className="text-yellow-600 font-medium">Active</span> },
+        { key: "borrow_date", label: "Borrow Date", render: (value) => formatDate(value) },
+        { key: "return_date", label: "Return Date", render: (value) => value ? formatDate(value) : <span className="text-yellow-600 font-medium">Active</span> },
         { key: "lending_amount", label: "Amount" }
     ];
 
@@ -45,7 +46,8 @@ export const AssetAssignment = () => {
             // Dynamic columns from attributes
             const dynamicColumns = attributesData.map(attr => ({
                 key: attr.name,
-                label: attr.label
+                label: attr.label,
+                ...(attr.type === 'date' ? { render: (value) => formatDate(value) } : {})
             }));
 
             setColumns([...staticColumns, ...dynamicColumns]);

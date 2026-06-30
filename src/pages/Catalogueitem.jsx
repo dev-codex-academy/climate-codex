@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Table } from "../components/Table";
+import { formatDate } from "../utils/date";
 import { Button } from "../components/ui/button";
 import { Plus, Download } from "lucide-react";
 import { getCatalogueItems, deleteCatalogueItem, getCatalogueItemAttributes } from "../services/catalogueService";
@@ -63,7 +64,8 @@ export const Catalogueitem = () => {
             // Dynamic columns from attributes
             const dynamicColumns = attributesData.map(attr => ({
                 key: attr.name,
-                label: attr.label
+                label: attr.label,
+                ...(attr.type === 'date' ? { render: (value) => formatDate(value) } : {})
             }));
 
             setColumns([...staticColumns, ...dynamicColumns]);

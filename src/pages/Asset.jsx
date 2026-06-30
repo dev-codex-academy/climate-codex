@@ -4,6 +4,7 @@ import { Table } from "../components/Table";
 import { Button } from "../components/ui/button";
 import { Plus } from "lucide-react";
 import { getAssets, deleteAsset, getAssetAttributes } from "../services/assetService";
+import { formatDate } from "../utils/date";
 import Swal from "sweetalert2";
 
 export const Asset = () => {
@@ -16,7 +17,8 @@ export const Asset = () => {
         { key: "name", label: "Name" },
         {
             key: "bought_date",
-            label: "Bought Date"
+            label: "Bought Date",
+            render: (value) => formatDate(value)
         },
         {
             key: "price",
@@ -50,7 +52,8 @@ export const Asset = () => {
             // Dynamic columns from attributes
             const dynamicColumns = attributesData.map(attr => ({
                 key: attr.name,
-                label: attr.label
+                label: attr.label,
+                ...(attr.type === 'date' ? { render: (value) => formatDate(value) } : {})
             }));
 
             setColumns([...staticColumns, ...dynamicColumns]);

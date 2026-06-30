@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Table } from "../components/Table";
+import { formatDate } from "../utils/date";
 import { Button } from "../components/ui/button";
 import { Plus, Download, Upload, X, CheckCircle, AlertCircle } from "lucide-react";
 import { getClients, deleteClient, getClientAttributes, importClientsFromExcel } from "../services/clientService";
@@ -47,7 +48,8 @@ export const Client = () => {
 
             const dynamicColumns = attributesData.map(attr => ({
                 key: attr.name,
-                label: attr.label
+                label: attr.label,
+                ...(attr.type === 'date' ? { render: (value) => formatDate(value) } : {})
             }));
             setColumns([...staticColumns, ...dynamicColumns]);
 

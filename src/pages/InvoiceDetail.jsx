@@ -10,6 +10,7 @@ import { getClients } from "../services/clientService";
 import { getContacts } from "../services/contactService";
 import { getCatalogueItems } from "../services/catalogueService";
 import { Table } from "../components/Table";
+import { formatDate } from "../utils/date";
 import Swal from "sweetalert2";
 
 // UI Components
@@ -367,7 +368,7 @@ export const InvoiceDetail = () => {
         {
             key: "paid_at",
             label: "Date",
-            render: (value) => new Date(value).toLocaleDateString()
+            render: (value) => formatDate(value)
         },
         {
             key: "method",
