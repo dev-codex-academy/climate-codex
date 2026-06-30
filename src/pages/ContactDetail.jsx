@@ -6,6 +6,7 @@ import { useAuth } from "../context/AuthContext";
 
 // UI Components
 import { Input } from "../components/ui/input";
+import { DateInput } from "../components/ui/date-input";
 import { Label } from "../components/ui/label";
 import { Button } from "../components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
@@ -370,10 +371,16 @@ export const ContactDetail = () => {
                                                     {dynamicData[attr.name] ? 'Yes' : 'No'}
                                                 </Label>
                                             </div>
+                                        ) : attr.type === 'date' ? (
+                                            <DateInput
+                                                id={attr.name}
+                                                value={dynamicData[attr.name] || ""}
+                                                onChange={(e) => handleDynamicChange(attr.name, e.target.value)}
+                                            />
                                         ) : (
                                             <Input
                                                 id={attr.name}
-                                                type={attr.type === 'number' ? 'number' : attr.type === 'date' ? 'date' : 'text'}
+                                                type={attr.type === 'number' ? 'number' : 'text'}
                                                 placeholder={attr.label}
                                                 value={dynamicData[attr.name] || ""}
                                                 onChange={(e) => handleDynamicChange(attr.name, e.target.value)}
@@ -403,7 +410,7 @@ export const ContactDetail = () => {
                                     <div className="flex gap-2">
                                         <div className="w-1/2 space-y-1">
                                             <Label className="text-xs">Date</Label>
-                                            <Input type="date" value={newTaskDate} onChange={(e) => setNewTaskDate(e.target.value)} />
+                                            <DateInput value={newTaskDate} onChange={(e) => setNewTaskDate(e.target.value)} />
                                         </div>
                                         <div className="w-full flex items-center justify-end gap-2 pt-6">
                                             <Checkbox id="new-completed" checked={newTaskCompleted} onCheckedChange={setNewTaskCompleted} />

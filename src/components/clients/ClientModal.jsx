@@ -5,6 +5,7 @@ import { useAuth } from "../../context/AuthContext";
 
 // UI Components
 import { Input } from "../ui/input";
+import { DateInput } from "../ui/date-input";
 import { Label } from "../ui/label";
 import { Button } from "../ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select"; // Import Select components
@@ -371,11 +372,9 @@ export const ClientModal = ({ isOpen, onClose, onClientSaved, clientToEdit = nul
                                     </div>
                                     <div className="w-32">
                                         <Label className="text-xs">Date</Label>
-                                        <Input
-                                            type="date"
+                                        <DateInput
                                             value={newTaskDate}
                                             onChange={(e) => setNewTaskDate(e.target.value)}
-                                            className="h-8"
                                         />
                                     </div>
                                     <div className="flex items-center space-x-2 pb-2">

@@ -10,6 +10,7 @@ import { useAuth } from "../context/AuthContext";
 
 // UI Components
 import { Input } from "../components/ui/input";
+import { DateInput } from "../components/ui/date-input";
 import { Label } from "../components/ui/label";
 import { Button } from "../components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
@@ -677,10 +678,16 @@ export const LeadDetail = () => {
                                                 {formData[attr.name] ? 'Yes' : 'No'}
                                             </Label>
                                         </div>
+                                    ) : attr.type === 'date' ? (
+                                        <DateInput
+                                            id={attr.name}
+                                            value={formData[attr.name] || ""}
+                                            onChange={(e) => handleAttributeChange(attr.name, e.target.value)}
+                                        />
                                     ) : (
                                         <Input
                                             id={attr.name}
-                                            type={attr.type === 'number' ? 'number' : attr.type === 'date' ? 'date' : 'text'}
+                                            type={attr.type === 'number' ? 'number' : 'text'}
                                             placeholder={attr.label}
                                             value={formData[attr.name] || ""}
                                             onChange={(e) => handleAttributeChange(attr.name, e.target.value)}
@@ -726,10 +733,16 @@ export const LeadDetail = () => {
                                                     {clientInfoData[attr.name] ? 'Yes' : 'No'}
                                                 </Label>
                                             </div>
+                                        ) : attr.type === 'date' ? (
+                                            <DateInput
+                                                id={`client-${attr.name}`}
+                                                value={clientInfoData[attr.name] || ""}
+                                                onChange={(e) => handleClientAttributeChange(attr.name, e.target.value)}
+                                            />
                                         ) : (
                                             <Input
                                                 id={`client-${attr.name}`}
-                                                type={attr.type === 'number' ? 'number' : attr.type === 'date' ? 'date' : 'text'}
+                                                type={attr.type === 'number' ? 'number' : 'text'}
                                                 placeholder={attr.label}
                                                 value={clientInfoData[attr.name] || ""}
                                                 onChange={(e) => handleClientAttributeChange(attr.name, e.target.value)}
@@ -838,8 +851,7 @@ export const LeadDetail = () => {
                                     <div className="flex gap-2">
                                         <div className="w-1/2 space-y-1">
                                             <Label className="text-xs">Date</Label>
-                                            <Input
-                                                type="date"
+                                            <DateInput
                                                 value={newTaskDate}
                                                 onChange={(e) => setNewTaskDate(e.target.value)}
                                             />

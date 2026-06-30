@@ -3,6 +3,7 @@ import { Modal } from "../Modal";
 import { useAuth } from "../../context/AuthContext";
 import { createFollowup, updateFollowup, getFollowupAttributes } from "../../services/followupService";
 import { Input } from "../ui/input";
+import { DateInput } from "../ui/date-input";
 import { Label } from "../ui/label";
 import { Button } from "../ui/button";
 import { Textarea } from "../ui/textarea";
@@ -183,10 +184,16 @@ export const FollowupModal = ({ isOpen, onClose, onFollowupSaved, followupToEdit
                                     {formData[attr.name] ? 'Yes' : 'No'}
                                 </Label>
                             </div>
+                        ) : attr.type === 'date' ? (
+                            <DateInput
+                                id={attr.name}
+                                value={formData[attr.name] || ""}
+                                onChange={(e) => handleAttributeChange(attr.name, e.target.value)}
+                            />
                         ) : (
                             <Input
                                 id={attr.name}
-                                type={attr.type === 'number' ? 'number' : attr.type === 'date' ? 'date' : 'text'}
+                                type={attr.type === 'number' ? 'number' : 'text'}
                                 placeholder={attr.label}
                                 value={formData[attr.name] || ""}
                                 onChange={(e) => handleAttributeChange(attr.name, e.target.value)}
@@ -197,9 +204,8 @@ export const FollowupModal = ({ isOpen, onClose, onFollowupSaved, followupToEdit
 
                 <div className="space-y-2">
                     <Label htmlFor="date">Date</Label>
-                    <Input
+                    <DateInput
                         id="date"
-                        type="date"
                         value={followUpDate}
                         onChange={(e) => setFollowUpDate(e.target.value)}
                     />

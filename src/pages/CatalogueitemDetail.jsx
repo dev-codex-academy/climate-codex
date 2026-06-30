@@ -12,6 +12,7 @@ import Swal from "sweetalert2";
 
 // UI Components
 import { Input } from "../components/ui/input";
+import { DateInput } from "../components/ui/date-input";
 import { Label } from "../components/ui/label";
 import { Button } from "../components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
@@ -506,10 +507,16 @@ export const CatalogueitemDetail = () => {
                                                     {dynamicData[attr.name] ? 'Yes' : 'No'}
                                                 </Label>
                                             </div>
+                                        ) : attr.type === 'date' ? (
+                                            <DateInput
+                                                id={attr.name}
+                                                value={dynamicData[attr.name] || ""}
+                                                onChange={(e) => handleDynamicChange(attr.name, e.target.value)}
+                                            />
                                         ) : (
                                             <Input
                                                 id={attr.name}
-                                                type={attr.type === 'number' ? 'number' : attr.type === 'date' ? 'date' : 'text'}
+                                                type={attr.type === 'number' ? 'number' : 'text'}
                                                 placeholder={attr.label}
                                                 value={dynamicData[attr.name] || ""}
                                                 onChange={(e) => handleDynamicChange(attr.name, e.target.value)}

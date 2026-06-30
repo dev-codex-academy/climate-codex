@@ -6,6 +6,7 @@ import { useAuth } from "../../context/AuthContext";
 
 // UI Components
 import { Input } from "../ui/input";
+import { DateInput } from "../ui/date-input";
 import { Label } from "../ui/label";
 import { Button } from "../ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
@@ -289,10 +290,16 @@ export const ServiceModal = ({ isOpen, onClose, onServiceSaved, serviceToEdit = 
                                                 )) || <SelectItem value="no-options">No options available</SelectItem>}
                                             </SelectContent>
                                         </Select>
+                                    ) : attr.type === 'date' ? (
+                                        <DateInput
+                                            id={attr.name}
+                                            value={dynamicData[attr.name] || ""}
+                                            onChange={(e) => handleDynamicChange(attr.name, e.target.value)}
+                                        />
                                     ) : (
                                         <Input
                                             id={attr.name}
-                                            type={attr.type === 'number' ? 'number' : attr.type === 'date' ? 'date' : 'text'}
+                                            type={attr.type === 'number' ? 'number' : 'text'}
                                             placeholder={attr.label}
                                             value={dynamicData[attr.name] || ""}
                                             onChange={(e) => handleDynamicChange(attr.name, e.target.value)}
@@ -323,11 +330,9 @@ export const ServiceModal = ({ isOpen, onClose, onServiceSaved, serviceToEdit = 
                                     </div>
                                     <div className="w-32">
                                         <Label className="text-xs">Date</Label>
-                                        <Input
-                                            type="date"
+                                        <DateInput
                                             value={newTaskDate}
                                             onChange={(e) => setNewTaskDate(e.target.value)}
-                                            className="h-8"
                                         />
                                     </div>
                                     <div className="flex items-center space-x-2 pb-2">

@@ -1,5 +1,6 @@
 import React from "react";
 import { Calendar, Building } from "lucide-react";
+import { formatDate } from "../../utils/date";
 
 export const LeadCard = ({ lead, salesUsers = [], clientsById = {}, onDragStart, onClick }) => {
 
@@ -76,7 +77,7 @@ export const LeadCard = ({ lead, salesUsers = [], clientsById = {}, onDragStart,
                     <div className="flex items-center gap-1" style={{ color: "#9b948e" }}>
                         <Calendar className="w-2.5 h-2.5" />
                         <span className="text-[9px] font-medium">
-                            {lead.created_at?.split('T')[0] || lead.date || "No date"}
+                            {formatDate(lead.created_at || lead.date) || "No date"}
                         </span>
                     </div>
                     {clientName && (

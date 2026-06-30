@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { getPublicPipelines, getPublicPipelineAttributes, createPublicLead } from "../services/publicService";
 import { formatDate } from "../utils/date";
+import { DateInput } from "../components/ui/date-input";
 import { 
     Send, CheckCircle2, ChevronRight, Sparkles, 
     MessageSquare, User, Mail, Building2, Smartphone 
@@ -307,9 +308,16 @@ export const LandingPage = () => {
                                                     />
                                                     <span className="text-sm font-medium">{attr.label}</span>
                                                 </div>
+                                            ) : attr.type === "date" ? (
+                                                <DateInput
+                                                    required={attr.is_required}
+                                                    name={attr.name}
+                                                    value={formData[attr.name] || ""}
+                                                    onChange={handleInputChange}
+                                                />
                                             ) : (
-                                                <input 
-                                                    type={attr.type === "number" ? "number" : attr.type === "date" ? "date" : "text"}
+                                                <input
+                                                    type={attr.type === "number" ? "number" : "text"}
                                                     required={attr.is_required}
                                                     name={attr.name}
                                                     value={formData[attr.name] || ""}

@@ -2,6 +2,8 @@ import { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
 import SignatureCanvas from "react-signature-canvas";
 import { getEnrollmentPrefill, submitEnrollment } from "../services/enrollmentService";
+import { DateInput } from "../components/ui/date-input";
+import { formatDate } from "../utils/date";
 
 const BRAND = {
   linen: "#FBF7EF",
@@ -228,7 +230,7 @@ export function EnrollmentForm() {
               </div>
               <div style={fieldRow}>
                 <label style={labelStyle}>Date of Birth</label>
-                <input style={inputStyle} type="date" value={form.date_of_birth} onChange={set("date_of_birth")} />
+                <DateInput value={form.date_of_birth} onChange={set("date_of_birth")} />
               </div>
             </div>
 
@@ -245,11 +247,11 @@ export function EnrollmentForm() {
               </div>
               <div style={fieldRow}>
                 <label style={labelStyle}>Enrollment Start Date</label>
-                <input style={{ ...inputStyle, backgroundColor: BRAND.oat }} type="text" value={form.enrollment_start_date} readOnly />
+                <input style={{ ...inputStyle, backgroundColor: BRAND.oat }} type="text" value={formatDate(form.enrollment_start_date)} readOnly />
               </div>
               <div style={fieldRow}>
                 <label style={labelStyle}>Projected End Date</label>
-                <input style={{ ...inputStyle, backgroundColor: BRAND.oat }} type="text" value={form.projected_end_date} readOnly />
+                <input style={{ ...inputStyle, backgroundColor: BRAND.oat }} type="text" value={formatDate(form.projected_end_date)} readOnly />
               </div>
               <div style={{ ...fieldRow, gridColumn: "1 / -1" }}>
                 <label style={labelStyle}>Student Type *</label>

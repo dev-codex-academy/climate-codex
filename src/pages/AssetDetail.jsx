@@ -7,6 +7,7 @@ import {
 
 // UI Components
 import { Input } from "../components/ui/input";
+import { DateInput } from "../components/ui/date-input";
 import { Label } from "../components/ui/label";
 import { Button } from "../components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
@@ -205,7 +206,7 @@ export const AssetDetail = () => {
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="bought_date">Purchase Date</Label>
-                                <Input id="bought_date" type="date" value={boughtDate} onChange={(e) => setBoughtDate(e.target.value)} />
+                                <DateInput id="bought_date" value={boughtDate} onChange={(e) => setBoughtDate(e.target.value)} />
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="qty">Total Stock Quantity</Label>
@@ -258,10 +259,16 @@ export const AssetDetail = () => {
                                                     {dynamicData[attr.name] ? 'Yes' : 'No'}
                                                 </Label>
                                             </div>
+                                        ) : attr.type === 'date' ? (
+                                            <DateInput
+                                                id={attr.name}
+                                                value={dynamicData[attr.name] || ""}
+                                                onChange={(e) => handleDynamicChange(attr.name, e.target.value)}
+                                            />
                                         ) : (
                                             <Input
                                                 id={attr.name}
-                                                type={attr.type === 'number' ? 'number' : attr.type === 'date' ? 'date' : 'text'}
+                                                type={attr.type === 'number' ? 'number' : 'text'}
                                                 placeholder={attr.label}
                                                 value={dynamicData[attr.name] || ""}
                                                 onChange={(e) => handleDynamicChange(attr.name, e.target.value)}

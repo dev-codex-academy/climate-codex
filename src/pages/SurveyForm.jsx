@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { submitSurvey } from "../services/surveyService";
+import { DateInput } from "../components/ui/date-input";
 
 const FONT = '"Source Sans 3", Arial, sans-serif';
 const INK = "#2E2A26";
@@ -211,7 +212,7 @@ export const SurveyForm = () => {
                         {errors.full_name && <p style={{ color: "#dc2626", fontSize: "14px" }}>{errors.full_name}</p>}
                     </Field>
                     <Field label="Date of Birth">
-                        <input style={inputStyle} type="date" value={form.date_of_birth} onChange={e => set("date_of_birth", e.target.value)} />
+                        <DateInput value={form.date_of_birth} onChange={e => set("date_of_birth", e.target.value)} />
                     </Field>
                     <Field label="Email Address *">
                         <input style={inputStyle} type="email" value={form.email} onChange={e => set("email", e.target.value)} required />
