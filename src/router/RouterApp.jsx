@@ -3,6 +3,7 @@ import { Login } from "../pages/Login"
 import { ChettAI } from "../pages/ChettAI"
 import { NotFound } from "../pages/NotFound"
 import { Lead } from "../pages/Lead"
+import { LeadReassignment } from "../pages/LeadReassignment"
 import { Pipeline } from "../pages/Pipeline";
 import { Attributes } from "../pages/Attributes";
 import { PipelineAttributesAdmin } from "../pages/PipelineAttributesAdmin";
@@ -102,6 +103,7 @@ export const RouterApp = () => {
                 <Route path="webhook" element={<PermissionGuard requiredPermission="app.add_webhook"><WebhookList /></PermissionGuard>} />
                 <Route path="webhook/:id" element={<PermissionGuard requiredPermission="app.add_webhook"><WebhookDetail /></PermissionGuard>} />
                 <Route path="chett-ai" element={<PermissionGuard requiredPermission="app.view_aiconversation"><ChettAI /></PermissionGuard>} />
+                <Route path="lead-reassignment" element={<PermissionGuard requireSuperuser><LeadReassignment /></PermissionGuard>} />
             </Route>
 
             {/* Protected Documentation Routes */}

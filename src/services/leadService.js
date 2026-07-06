@@ -92,6 +92,17 @@ export const importLeadsFromExcel = async (pipelineId, file, clientId, newClient
     return data;
 };
 
+export const reassignLeads = async (fromUserId, toUserId) => {
+    const res = await fetch(`${API_URL}/leads/reassign/`, {
+        method: "POST",
+        headers: getHeaders(),
+        body: JSON.stringify({ from_user_id: fromUserId, to_user_id: toUserId }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Error reassigning leads");
+    return data;
+};
+
 export const uploadLeadImage = async (id, file) => {
     const formData = new FormData();
     formData.append("file", file);

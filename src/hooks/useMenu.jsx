@@ -116,12 +116,31 @@ export const useMenu = () => {
                     });
                 }
 
+                // Inject Lead Reassignment for superusers only — bulk operation
+                // gated by is_superuser (see PermissionGuard's requireSuperuser),
+                // not a regular Django permission, so it isn't in `permissions`.
+                let isSuperuser = false;
+                try {
+                    const storedUser = localStorage.getItem("user_data");
+                    isSuperuser = storedUser ? JSON.parse(storedUser).is_superuser : false;
+                } catch {
+                    isSuperuser = false;
+                }
+                if (isSuperuser) {
+                    formattedMenu.push({
+                        title: "Lead Reassignment",
+                        url: "/lead-reassignment",
+                        icon: "Users",
+                        items: [],
+                    });
+                }
+
                 // Grouping — meaningful buckets, no "Others" catch-all
                 const crmItems = ["Lead", "Clients", "Contacts", "Service", "Pipeline"];
                 const billingItems = ["Invoices", "Catalogue", "Categories", "Inventory"];
                 const assetItems = ["Assets", "Asset Assignments"];
                 const aiItems = ["Chett AI"];
-                const adminItems = ["Attribute", "Lead Fields", "Webhook"];
+                const adminItems = ["Attribute", "Lead Fields", "Webhook", "Lead Reassignment"];
 
                 const groups = [
                     { label: "CRM", items: formattedMenu.filter(i => crmItems.includes(i.title)) },
