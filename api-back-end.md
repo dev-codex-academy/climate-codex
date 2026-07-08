@@ -19,6 +19,32 @@ Token Authentication is required for all requests.
 ```json
 { "token": "<your_token>" }
 ```
+> Single-step, no 2FA. Used by external integrations and service accounts (`automationpipeline`/`website` groups), not the SPA login form below.
+
+### SPA Login (Two-Step, 2FA)
+The SPA does **not** use `/api-token-auth/` above. Login is two steps: credentials, then a one-time email code.
+
+**Step 1 — POST** `/api/login/`
+```json
+{
+    "username": "your_username",
+    "password": "your_password"
+}
+```
+**Response `202 Accepted`:**
+```json
+{ "detail": "verification_code_sent", "username": "your_username" }
+```
+Emails a 6-digit code (expires in 60s, max 5 attempts). `403` if the user has no email on file.
+
+**Step 2 — POST** `/api/login/verify/`
+```json
+{
+    "username": "your_username",
+    "code": "482913"
+}
+```
+**Response `200 OK`:** same shape as `GET /api/me/` below, plus an `HttpOnly` auth cookie (no token to store manually). `401` with `{ "detail": "Invalid or expired code." }` for a wrong/expired code or exhausted attempts.
 
 ### Get User Context
 **GET** `/api/me/`
@@ -195,6 +221,24 @@ Avoid race conditions by using these atomic endpoints instead of updating the fu
 ### Delete Client
 **DELETE** `/api/clients/<uuid>/`
 
+### Export Clients to Excel
+**GET** `/api/clients/export_excel/`
+Streams an `.xlsx` file of every client matching the current query params, generated server-side (`openpyxl`) — `attributes` flattened into columns. The same `export_excel` action exists on **Contacts**, **Categories**, **Catalogue Items**, and **Invoices**.
+
+### Import Clients from Excel
+**POST** `/api/clients/import_excel/`
+Bulk-creates clients from a `.xlsx` file (`multipart/form-data`, field `file`, first row = headers). Required column: `name`. All other columns are matched against defined client `Attributes`.
+
+**Response:**
+```json
+{
+    "created": 2,
+    "errors": [
+        { "row": 3, "reason": "Missing required field(s): name" }
+    ]
+}
+```
+
 #### Client Fields Reference
 | Field Name | Type | Description |
 | :--- | :--- | :--- |
@@ -286,6 +330,20 @@ Similar to Clients and Leads, Services support task and note management.
 ### Delete Service
 **DELETE** `/api/services/<uuid>/`
 
+### Import Services from Excel
+**POST** `/api/services/import_excel/`
+Bulk-creates services for a specific client from a `.xlsx` file (`multipart/form-data`, fields `client_id` + `file`, first row = headers). Required column: `name`. Optional column: `status` (defaults to `active`). All other columns are matched against defined service `Attributes`.
+
+**Response:**
+```json
+{
+    "created": 5,
+    "errors": [
+        { "row": 4, "reason": "Invalid status 'inactive'. Must be one of: active, cancelled, paused" }
+    ]
+}
+```
+
 #### Service Fields Reference
 | Field Name | Type | Description |
 | :--- | :--- | :--- |
@@ -354,6 +412,48 @@ Similar to Clients and Leads, Services support task and note management.
 | `name` | String | Name of the pipeline |
 | `description` | Text | Optional description |
 | `stages` | JSONB | List of initial stages. "Won" and "Lost" are auto-appended. Custom stages must not use these reserved names. |
+
+### Stage Validation Rules
+Blocks moving a Lead's `stage` into a configured `target_stage` unless conditions on the lead's attributes are met. Same condition schema as Webhooks (Section 9) — reuses the same `field`/`operator`/`value`/`condition_logic` engine, including the unary operators.
+
+**GET / POST** `/api/stage-validation-rules/`
+*Query Params: ?pipeline=<uuid>&target_stage=<string>&is_active=true*
+
+**Payload:**
+```json
+{
+    "name": "Require Moodle ID before First Class",
+    "pipeline": "<pipeline_id>",
+    "target_stage": "First Class",
+    "conditions": [
+        { "field": "attributes.moodle_course_id", "operator": "is_not_empty" }
+    ],
+    "condition_logic": "AND",
+    "error_message": "Set a Moodle course ID before moving this lead to First Class.",
+    "is_active": true
+}
+```
+
+**GET/PUT/PATCH/DELETE** `/api/stage-validation-rules/<uuid>/`
+
+> Applies to **any** origin stage → the configured `target_stage`, not a specific from→to pair. Only fires on an actual stage change (not on create or a no-op save).
+
+**Blocked transition — `PATCH /api/leads/<uuid>/` returns `400`:**
+```json
+{ "stage": ["Set a Moodle course ID before moving this lead to First Class."] }
+```
+
+#### Stage Validation Rule Fields Reference
+| Field Name | Type | Description |
+| :--- | :--- | :--- |
+| `id` | UUID | Unique identifier |
+| `name` | String | Rule name, used in the fallback error message |
+| `pipeline` | UUID (FK) | Pipeline this rule applies to |
+| `target_stage` | String | Stage name that triggers this rule |
+| `conditions` | JSONB | Array of `{ field, operator, value }` |
+| `condition_logic` | String | `AND` or `OR` |
+| `error_message` | String | Shown to the user when blocked (optional) |
+| `is_active` | Boolean | Inactive rules are ignored |
 
 ---
 
@@ -462,6 +562,8 @@ To add a task, you append it to the list.
 }
 ```
 
+> Any `stage` change can be blocked with a `400` if an active [Stage Validation Rule](#stage-validation-rules) targeting the new stage has unmet conditions (Pipelines section).
+
 ### ⚡ Lead Won Automation (Services & Invoices)
 When a Lead's `stage` is updated to **"Won"**, the system triggers an automatic generation of operational and billing records based on the `items` attached to the Lead:
 
@@ -488,6 +590,41 @@ When a Lead's `stage` is updated to **"Won"**, the system triggers an automatic 
     "id": "uuid-of-note"
 }
 ```
+
+### Import Leads from Excel
+**POST** `/api/leads/import_excel/`
+*Content-Type: multipart/form-data*
+
+Bulk-creates leads under a single **pipeline** and **client**. Required column: `name`. Optional fixed columns: `stage`, `responsible` (matched by `username`). Other columns must match a Pipeline Attribute of the target pipeline — unknown columns are rejected.
+
+**Form fields:** `pipeline_id` (required), `client_id` **or** `new_client_name` (exactly one required — `new_client_name` creates the client immediately, unlike manual Lead creation which waits for stage "Won"), `file` (`.xlsx`).
+
+**Response:**
+```json
+{
+    "created": 2,
+    "errors": [
+        { "row": 4, "reason": "User 'jane.smith' not found" }
+    ]
+}
+```
+
+### Reassign Leads
+**POST** `/api/leads/reassign/`
+**Superuser only.** Bulk-reassigns every lead owned by `from_user_id` to `to_user_id` (e.g. offboarding). Leads are saved one at a time so audit history and webhooks on `responsible` still fire.
+
+**Payload:**
+```json
+{
+    "from_user_id": 7,
+    "to_user_id": 5
+}
+```
+**Response:**
+```json
+{ "reassigned_count": 34 }
+```
+`403` if not superuser, `400` if `from_user_id`/`to_user_id` missing or identical, `404` if `to_user_id` doesn't exist.
 
 ### Delete Lead
 **DELETE** `/api/leads/<uuid>/`
@@ -636,7 +773,7 @@ Webhooks allow you to configure HTTP callbacks triggered by events (CREATE, UPDA
 **Conditional Execution:**
 You can define a list of `conditions` that must be met for the webhook to trigger.
 - **Fields**: Supports dot notation for nested fields (e.g., `self.stage`, `self.attributes.industry`).
-- **Operators**: `=`, `!=`, `>`, `<`, `>=`, `<=`, `in`, `contains`.
+- **Operators**: `=`, `!=`, `>`, `<`, `>=`, `<=`, `in`, `contains`, plus the unary `is_null`, `is_not_null`, `is_empty`, `is_not_empty` (these ignore `value`). This same condition engine is also used by [Stage Validation Rules](#stage-validation-rules) (Pipelines section).
 - **Logic**: 
     - `AND`: All conditions must be true.
     - `OR`: At least one condition must be true.
@@ -722,6 +859,19 @@ Contacts represent individual people at a Client (company). A client can have ma
 ### Delete Contact
 **DELETE** `/api/contacts/<uuid>/`
 
+### Export Contacts to Excel
+**GET** `/api/contacts/export_excel/` — same pattern as [Export Clients to Excel](#export-clients-to-excel).
+
+### Import Contacts from Excel
+**POST** `/api/contacts/import_excel/`
+*Content-Type: multipart/form-data*
+
+Bulk-creates contacts under a single existing client. Required columns: `first_name`, `last_name`. Optional fixed columns: `email`, `phone`, `job_title`, `is_primary`. Other columns must match a Contact `Attribute`.
+
+**Form fields:** `client_id` (required), `file` (`.xlsx`).
+
+**Response:** same shape as Lead import — `{ "created": <int>, "errors": [{ "row": <int>, "reason": "<string>" }] }`.
+
 #### Contact Fields Reference
 | Field Name | Type | Description |
 | :--- | :--- | :--- |
@@ -782,6 +932,9 @@ Dynamic, user-defined categories with unlimited subcategory depth.
 
 #### Delete Category
 **DELETE** `/api/categories/<uuid>/`
+
+#### Export Categories to Excel
+**GET** `/api/categories/export_excel/` — same pattern as [Export Clients to Excel](#export-clients-to-excel).
 
 #### Category Fields Reference
 | Field Name | Type | Description |
@@ -844,6 +997,9 @@ Reusable product, service, or subscription definitions with pricing.
 
 #### Delete Catalogue Item
 **DELETE** `/api/catalogue/<uuid>/`
+
+#### Export Catalogue Items to Excel
+**GET** `/api/catalogue/export_excel/` — same pattern as [Export Clients to Excel](#export-clients-to-excel).
 
 #### Catalogue Item Fields Reference
 | Field Name | Type | Description |
@@ -981,6 +1137,9 @@ Recalculates `subtotal`, `tax_amount`, and `total` from all active line items. C
 
 #### Delete Invoice
 **DELETE** `/api/invoices/<uuid>/`
+
+#### Export Invoices to Excel
+**GET** `/api/invoices/export_excel/` — same pattern as [Export Clients to Excel](#export-clients-to-excel), plus a resolved `client_name` column.
 
 #### Invoice Fields Reference
 | Field Name | Type | Description |

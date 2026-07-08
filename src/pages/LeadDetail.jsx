@@ -19,6 +19,7 @@ import { Textarea } from "../components/ui/textarea";
 import { ArrowLeft, Link2 } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../components/ui/table";
 import { Switch } from "../components/ui/switch";
+import Swal from "sweetalert2";
 
 export const LeadDetail = () => {
     const { id } = useParams();
@@ -58,6 +59,8 @@ export const LeadDetail = () => {
     const [showLostModal, setShowLostModal] = useState(false);
     const [lostReason, setLostReason] = useState("");
     const [movingToLost, setMovingToLost] = useState(false);
+    const [currentStage, setCurrentStage] = useState("");
+    const [changingStage, setChangingStage] = useState(false);
 
     // Task state
     const [tasks, setTasks] = useState([]);
@@ -131,6 +134,7 @@ export const LeadDetail = () => {
 
     const populateForm = (leadData) => {
         setName(leadData.name || "");
+        setCurrentStage(leadData.stage || "");
 
         // Capture pipeline so attributes can be fetched from the right pipeline
         const pid = leadData.pipeline?.id || leadData.pipeline || null;
@@ -468,6 +472,22 @@ export const LeadDetail = () => {
         }
     };
 
+    const handleStageChange = async (newStage) => {
+        if (!newStage || newStage === currentStage) return;
+        const previousStage = currentStage;
+        setCurrentStage(newStage);
+        setChangingStage(true);
+        try {
+            await updateLead(id, { stage: newStage });
+        } catch (err) {
+            console.error("Failed to update stage", err);
+            setCurrentStage(previousStage);
+            Swal.fire('Cannot move lead', err.message || 'The stage change was rejected.', 'error');
+        } finally {
+            setChangingStage(false);
+        }
+    };
+
     const handleMoveToLost = async () => {
         if (!lostReason.trim()) return;
         setMovingToLost(true);
@@ -484,6 +504,11 @@ export const LeadDetail = () => {
     if (fetching) {
         return <div className="p-10 flex justify-center">Loading...</div>;
     }
+
+    const activePipeline = pipelines.find(p => String(p.id) === String(activePipelineId));
+    const availableStages = (activePipeline?.stages || [])
+        .filter(s => (s.name || '').toLowerCase() !== 'lost')
+        .sort((a, b) => (a.order || 0) - (b.order || 0));
 
     return (
         <div className="min-h-screen bg-background flex flex-col">
@@ -503,6 +528,27 @@ export const LeadDetail = () => {
                     </div>
                 </div>
                 <div className="flex gap-2">
+                    {!isNew && availableStages.length > 0 && (
+                        <Select
+                            value={currentStage}
+                            onValueChange={handleStageChange}
+                            disabled={changingStage}
+                        >
+                            <SelectTrigger className="h-9 w-[180px]" style={{ backgroundColor: "#fff", borderColor: "#D8D2C4", color: "#2E2A26" }}>
+                                <SelectValue placeholder="Stage" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {currentStage && !availableStages.some(s => s.name === currentStage) && (
+                                    <SelectItem value={currentStage}>{currentStage}</SelectItem>
+                                )}
+                                {availableStages.map(s => (
+                                    <SelectItem key={s.id || s.name} value={s.name}>
+                                        {s.name}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    )}
                     {!isNew && (
                         <button
                             type="button"

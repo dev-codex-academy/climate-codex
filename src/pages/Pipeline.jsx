@@ -14,6 +14,7 @@ const LINEN = "#FBF7EF";
 const OAT = "#F2EBDD";
 const PEBBLE = "#D8D2C4";
 const OLIVE = "#5E6A43";
+const APRICOT = "#F29B6B";
 
 const TYPE_LABELS = {
     text: "Text", number: "Number", date: "Date",
@@ -30,7 +31,7 @@ const textColorForBg = (hex) => {
     return lum > 0.55 ? INK : LINEN;
 };
 
-const EMPTY_FORM = { label: "", name: "", type: "text", is_required: false, order: 0, list_values: [], description: "" };
+const EMPTY_FORM = { label: "", name: "", type: "text", is_required: false, is_unique: false, order: 0, list_values: [], description: "" };
 
 function AttributeManager({ pipeline }) {
     const [attrs, setAttrs] = useState([]);
@@ -74,6 +75,7 @@ function AttributeManager({ pipeline }) {
             name: attr.name,
             type: attr.type,
             is_required: attr.is_required,
+            is_unique: attr.is_unique,
             order: attr.order,
             list_values: attr.list_values || [],
             description: attr.description || "",
@@ -156,6 +158,9 @@ function AttributeManager({ pipeline }) {
                                         {attr.is_required && (
                                             <span style={{ fontSize: "10px", color: OLIVE, fontWeight: 700, marginLeft: "6px", fontFamily: FONT }}>REQ</span>
                                         )}
+                                        {attr.is_unique && (
+                                            <span style={{ fontSize: "10px", color: APRICOT, fontWeight: 700, marginLeft: "6px", fontFamily: FONT }}>UNIQUE</span>
+                                        )}
                                         <span style={{ fontSize: "11px", color: PEBBLE, marginLeft: "6px", fontFamily: FONT }}>·</span>
                                         <span style={{ fontSize: "11px", color: HINT, marginLeft: "6px", fontFamily: FONT }}>{attr.name}</span>
                                     </div>
@@ -214,9 +219,14 @@ function AttributeManager({ pipeline }) {
                             </div>
                         )}
 
-                        <label style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "12px", color: INK, fontFamily: FONT, cursor: "pointer", marginBottom: "10px" }}>
+                        <label style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "12px", color: INK, fontFamily: FONT, cursor: "pointer", marginBottom: "8px" }}>
                             <input type="checkbox" checked={form.is_required} onChange={e => setForm(p => ({ ...p, is_required: e.target.checked }))} style={{ accentColor: OLIVE }} />
                             Required field
+                        </label>
+
+                        <label style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "12px", color: INK, fontFamily: FONT, cursor: "pointer", marginBottom: "10px" }}>
+                            <input type="checkbox" checked={form.is_unique} onChange={e => setForm(p => ({ ...p, is_unique: e.target.checked }))} style={{ accentColor: OLIVE }} />
+                            Unique — no two leads can share this value
                         </label>
 
                         <div style={{ display: "flex", gap: "8px" }}>

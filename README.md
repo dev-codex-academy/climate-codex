@@ -57,7 +57,7 @@ npm run preview
 
 The Codex CRM frontend includes robust built-in web documentation components directly accessible within the application:
 
-1. **Interactive API Guide**: Navigating to the `/api` route provides a comprehensive, interactive layout (similar to Postman/Swagger overlays) where developers can find up-to-date cURL commands, payload structures, and base field guides for all supported endpoints (Leads, Clients, Invoices, Catalogue, etc.).
+1. **Interactive API Guide**: Navigating to the `/apidocs` route provides a comprehensive, interactive layout (similar to Postman/Swagger overlays) where developers can find up-to-date cURL commands, payload structures, and base field guides for all supported endpoints (Leads, Clients, Invoices, Catalogue, etc.).
 2. **End-User FAQ**: Navigating to the `/faq` route offers an interactive frequently asked questions interface tailored for end-users. It explains the core concepts (Leads vs. Clients), the sales pipelines dynamically, billing semantics, and system capabilities like webhooks.
 3. **Internal Architecture**: The `api-back-end.md` file located in the root repository contains the static developer documentation for all endpoints, webhook setups, and dynamic schemas required to integrate correctly.
 
