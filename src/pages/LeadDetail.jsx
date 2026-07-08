@@ -6,7 +6,9 @@ import { getPipelines } from "../services/pipelineService";
 import { getCatalogueItems } from "../services/catalogueService";
 import { getSales } from "../services/salesService";
 import { getClients } from "../services/clientService";
+import { getLeadEnrollment } from "../services/enrollmentService";
 import { useAuth } from "../context/AuthContext";
+import { formatDate } from "../utils/date";
 
 // UI Components
 import { Input } from "../components/ui/input";
@@ -56,6 +58,8 @@ export const LeadDetail = () => {
     const [images, setImages] = useState([]);
     const [selectedFile, setSelectedFile] = useState(null);
     const [copiedEnrollment, setCopiedEnrollment] = useState(false);
+    const [enrollment, setEnrollment] = useState(null);
+    const [showSignature, setShowSignature] = useState(false);
     const [showLostModal, setShowLostModal] = useState(false);
     const [lostReason, setLostReason] = useState("");
     const [movingToLost, setMovingToLost] = useState(false);
@@ -100,6 +104,10 @@ export const LeadDetail = () => {
                     if (pid) setActivePipelineId(String(pid));
                     // fetchAttributes will be triggered by useEffect on activePipelineId
                     populateForm(data);
+                    getLeadEnrollment(id).then(res => {
+                        const list = Array.isArray(res) ? res : (res.results || []);
+                        setEnrollment(list[0] || null);
+                    }).catch(() => {});
                 } else {
                     // For new leads pipelineId comes from navigation state
                     if (pipelineId) {
@@ -981,6 +989,63 @@ export const LeadDetail = () => {
                             </div>
                         </div>
                     </div>
+
+                    {/* Enrollment Agreement */}
+                    {!isNew && (
+                        <div className="bg-card p-6 rounded-lg border shadow-sm space-y-4">
+                            <div className="flex items-center justify-between border-b pb-2">
+                                <h3 className="font-medium text-lg">Enrollment Agreement</h3>
+                                {enrollment && (
+                                    <span style={{ fontSize: "12px", backgroundColor: "#F2EBDD", color: "#5E6A43", border: "1px solid rgba(94,106,67,0.3)", borderRadius: "12px", padding: "2px 10px", fontWeight: 600 }}>
+                                        Signed
+                                    </span>
+                                )}
+                            </div>
+                            {!enrollment ? (
+                                <p className="text-sm text-muted-foreground italic">No enrollment agreement on file for this lead yet.</p>
+                            ) : (
+                                <div style={{ fontSize: 13, fontFamily: '"Source Sans 3", Arial, sans-serif' }}>
+                                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "12px 24px", marginBottom: 16 }}>
+                                        {[
+                                            ["Student", enrollment.student_name],
+                                            ["Email", enrollment.email],
+                                            ["Telephone", enrollment.telephone || "—"],
+                                            ["Program", enrollment.program_name || "—"],
+                                            ["Start Date", formatDate(enrollment.enrollment_start_date) || "—"],
+                                            ["Signed On", formatDate(enrollment.signed_at) || "—"],
+                                        ].map(([label, val]) => (
+                                            <div key={label}>
+                                                <p style={{ color: "#9b948e", fontWeight: 600, marginBottom: 2 }}>{label}</p>
+                                                <p style={{ color: "#2E2A26" }}>{val}</p>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <div className="flex items-center gap-3">
+                                        {enrollment.pdf_url && (
+                                            <a
+                                                href={enrollment.pdf_url}
+                                                target="_blank"
+                                                rel="noreferrer"
+                                                style={{ fontSize: 12, padding: "4px 14px", borderRadius: 6, border: "1px solid #D8D2C4", backgroundColor: "transparent", color: "#5E6A43", cursor: "pointer", fontWeight: 500, textDecoration: "none" }}>
+                                                View Signed PDF
+                                            </a>
+                                        )}
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowSignature((v) => !v)}
+                                            style={{ fontSize: 12, padding: "4px 14px", borderRadius: 6, border: "1px solid #D8D2C4", backgroundColor: "transparent", color: "#5E6A43", cursor: "pointer", fontWeight: 500 }}>
+                                            {showSignature ? "Hide Signature" : "View Signature"}
+                                        </button>
+                                    </div>
+                                    {showSignature && enrollment.student_signature && (
+                                        <div style={{ marginTop: 12, border: "1px solid #D8D2C4", borderRadius: 6, padding: 12, backgroundColor: "#fff", display: "inline-block" }}>
+                                            <img src={enrollment.student_signature} alt="Student signature" style={{ maxWidth: 340, display: "block" }} />
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+                    )}
 
                     {/* Files Section */}
                     {!isNew && (

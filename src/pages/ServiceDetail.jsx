@@ -667,11 +667,22 @@ export const ServiceDetail = () => {
                                             </div>
                                         ))}
                                     </div>
-                                    <button
-                                        onClick={() => setShowSignature((v) => !v)}
-                                        style={{ fontSize: 12, padding: "4px 14px", borderRadius: 6, border: "1px solid #D8D2C4", backgroundColor: "transparent", color: "#5E6A43", cursor: "pointer", fontWeight: 500 }}>
-                                        {showSignature ? "Hide Signature" : "View Signature"}
-                                    </button>
+                                    <div className="flex items-center gap-3">
+                                        {enrollment.pdf_url && (
+                                            <a
+                                                href={enrollment.pdf_url}
+                                                target="_blank"
+                                                rel="noreferrer"
+                                                style={{ fontSize: 12, padding: "4px 14px", borderRadius: 6, border: "1px solid #D8D2C4", backgroundColor: "transparent", color: "#5E6A43", cursor: "pointer", fontWeight: 500, textDecoration: "none" }}>
+                                                View Signed PDF
+                                            </a>
+                                        )}
+                                        <button
+                                            onClick={() => setShowSignature((v) => !v)}
+                                            style={{ fontSize: 12, padding: "4px 14px", borderRadius: 6, border: "1px solid #D8D2C4", backgroundColor: "transparent", color: "#5E6A43", cursor: "pointer", fontWeight: 500 }}>
+                                            {showSignature ? "Hide Signature" : "View Signature"}
+                                        </button>
+                                    </div>
                                     {showSignature && enrollment.student_signature && (
                                         <div style={{ marginTop: 12, border: "1px solid #D8D2C4", borderRadius: 6, padding: 12, backgroundColor: "#fff", display: "inline-block" }}>
                                             <img src={enrollment.student_signature} alt="Student signature" style={{ maxWidth: 340, display: "block" }} />

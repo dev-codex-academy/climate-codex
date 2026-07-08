@@ -31,3 +31,11 @@ export async function getServiceEnrollment(serviceId) {
   if (!res.ok) return [];
   return res.json();
 }
+
+export async function getLeadEnrollment(leadId) {
+  const res = await fetch(`${BASE_URL}/leads/${leadId}/enrollment/`, {
+    headers: { 'Content-Type': 'application/json' },
+  });
+  if (!res.ok) return [];
+  return res.json();
+}
