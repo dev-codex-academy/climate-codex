@@ -1,13 +1,13 @@
-import { API_URL, getHeaders } from "./api";
+import { API_URL, getHeaders, fetchAllPages, extractErrorMessage } from "./api";
 
+// Follows pagination (`next`) so callers always get every lead matching the
+// filters, not just the first 250 (DRF PAGE_SIZE) — see plan.md #57.
 export const getLeads = async (filters = {}) => {
     const query = new URLSearchParams(filters).toString();
-    const res = await fetch(`${API_URL}/leads/?${query}`, {
+    return fetchAllPages(`${API_URL}/leads/?${query}`, {
         method: "GET",
         headers: getHeaders(),
     });
-    if (!res.ok) throw new Error("Error fetching leads");
-    return res.json();
 };
 
 export const createLead = async (data) => {
@@ -17,8 +17,8 @@ export const createLead = async (data) => {
         body: JSON.stringify(data),
     });
     if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(JSON.stringify(errorData));
+        const errorData = await res.json().catch(() => null);
+        throw new Error(extractErrorMessage(errorData, "Error creating lead"));
     }
     return res.json();
 };
@@ -31,11 +31,10 @@ export const updateLead = async (id, data) => {
     });
     if (!res.ok) {
         // Surface the actual validation detail (e.g. a blocked stage move from
-        // a StageValidationRule) instead of a generic message.
+        // a StageValidationRule, or a nested attributes.* uniqueness error)
+        // instead of a generic message — see plan.md #58.
         const errorData = await res.json().catch(() => null);
-        const firstError = errorData && Object.values(errorData)[0];
-        const message = Array.isArray(firstError) ? firstError[0] : (firstError || "Error updating lead");
-        throw new Error(message);
+        throw new Error(extractErrorMessage(errorData, "Error updating lead"));
     }
     return res.json();
 };
