@@ -451,7 +451,7 @@ export const WebhookDetail = () => {
             Swal.fire({
                 icon: 'error',
                 title: 'Error',
-                text: 'Failed to save webhook',
+                text: error.message || 'Failed to save webhook',
                 toast: true,
                 position: 'top-end',
                 showConfirmButton: false,

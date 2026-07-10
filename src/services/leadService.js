@@ -49,33 +49,24 @@ export const getLead = async (id) => {
 };
 
 export const getLeadAttributes = async () => {
-    const res = await fetch(`${API_URL}/attributes/lead/`, {
+    return fetchAllPages(`${API_URL}/attributes/lead/`, {
         method: "GET",
         headers: getHeaders(),
     });
-    if (!res.ok) throw new Error("Error fetching lead attributes");
-    const data = await res.json();
-    return data.results || data;
 }
 
 export const getLeadClientAttributes = async () => {
-    const res = await fetch(`${API_URL}/attributes/client/`, {
+    return fetchAllPages(`${API_URL}/attributes/client/`, {
         method: "GET",
         headers: getHeaders(),
     });
-    if (!res.ok) throw new Error("Error fetching lead client attributes");
-    const data = await res.json();
-    return data.results || data;
 };
 
 export const getLeadServiceAttributes = async () => {
-    const res = await fetch(`${API_URL}/attributes/service/`, {
+    return fetchAllPages(`${API_URL}/attributes/service/`, {
         method: "GET",
         headers: getHeaders(),
     });
-    if (!res.ok) throw new Error("Error fetching lead service attributes");
-    const data = await res.json();
-    return data.results || data;
 };
 
 export const importLeadsFromExcel = async (pipelineId, file, clientId, newClientName) => {

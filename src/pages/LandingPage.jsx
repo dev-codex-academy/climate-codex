@@ -123,16 +123,10 @@ export const LandingPage = () => {
             });
         } catch (err) {
             console.error("Submit error", err);
-            let msg = "Failed to send inquiry. Please try again.";
-            try {
-                const parsed = JSON.parse(err.message);
-                msg = Object.values(parsed).flat().join(", ");
-            } catch { /* use default */ }
-            
             Swal.fire({
                 icon: "error",
                 title: "Oops...",
-                text: msg
+                text: err.message || "Failed to send inquiry. Please try again."
             });
         } finally {
             setLoading(false);

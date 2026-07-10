@@ -1,17 +1,13 @@
+import { fetchAllPages, extractErrorMessage } from "./api";
+
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api";
 
 export const getPublicPipelines = async () => {
-    const response = await fetch(`${API_BASE_URL}/public/pipelines/`);
-    if (!response.ok) throw new Error("Failed to fetch pipelines");
-    const data = await response.json();
-    return data.results || data;
+    return fetchAllPages(`${API_BASE_URL}/public/pipelines/`);
 };
 
 export const getPublicPipelineAttributes = async (pipelineId) => {
-    const response = await fetch(`${API_BASE_URL}/public/pipelines/${pipelineId}/attributes/`);
-    if (!response.ok) throw new Error("Failed to fetch attributes");
-    const data = await response.json();
-    return data.results || data;
+    return fetchAllPages(`${API_BASE_URL}/public/pipelines/${pipelineId}/attributes/`);
 };
 
 export const createPublicLead = async (payload) => {
@@ -21,8 +17,8 @@ export const createPublicLead = async (payload) => {
         body: JSON.stringify(payload),
     });
     if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(JSON.stringify(errorData) || "Failed to create lead");
+        const errorData = await response.json().catch(() => null);
+        throw new Error(extractErrorMessage(errorData, "Failed to create lead"));
     }
     return response.json();
 };
