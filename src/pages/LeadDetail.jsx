@@ -65,6 +65,7 @@ export const LeadDetail = () => {
     const [movingToLost, setMovingToLost] = useState(false);
     const [currentStage, setCurrentStage] = useState("");
     const [changingStage, setChangingStage] = useState(false);
+    const [isDirty, setIsDirty] = useState(false);
 
     // Task state
     const [tasks, setTasks] = useState([]);
@@ -92,6 +93,7 @@ export const LeadDetail = () => {
     useEffect(() => {
         const init = async () => {
             setFetching(true);
+            setIsDirty(false);
             try {
                 fetchSalesUsers().catch(e => console.error(e));
                 fetchClients().catch(e => console.error(e));
@@ -301,6 +303,7 @@ export const LeadDetail = () => {
             ...prev,
             [name]: value
         }));
+        setIsDirty(true);
     };
 
     const handleClientAttributeChange = (name, value) => {
@@ -308,21 +311,25 @@ export const LeadDetail = () => {
             ...prev,
             [name]: value
         }));
+        setIsDirty(true);
     };
 
     // Items list management
     const addItem = () => {
         setItemsList([...itemsList, { catalogue_item: "", quantity: 1, custom_price: "" }]);
+        setIsDirty(true);
     };
 
     const removeItem = (index) => {
         setItemsList(itemsList.filter((_, i) => i !== index));
+        setIsDirty(true);
     };
 
     const handleItemChange = (index, field, value) => {
         const updatedList = [...itemsList];
         updatedList[index] = { ...updatedList[index], [field]: value };
         setItemsList(updatedList);
+        setIsDirty(true);
     };
 
     // --- File Management ---
@@ -462,6 +469,7 @@ export const LeadDetail = () => {
                 if (selectedFile && newLead && newLead.id) {
                     await uploadLeadImage(newLead.id, selectedFile);
                 }
+                setIsDirty(false);
                 navigate(-1); // Go back
             } else {
                 payload.list_of_tasks = tasks;
@@ -470,6 +478,7 @@ export const LeadDetail = () => {
                 if (selectedFile) {
                     await uploadLeadImage(id, selectedFile);
                 }
+                setIsDirty(false);
                 navigate(-1); // Go back
             }
         } catch (err) {
@@ -482,6 +491,14 @@ export const LeadDetail = () => {
 
     const handleStageChange = async (newStage) => {
         if (!newStage || newStage === currentStage) return;
+        if (isDirty) {
+            Swal.fire(
+                'Unsaved changes',
+                'This lead has unsaved changes. Please save it first before changing the stage.',
+                'warning'
+            );
+            return;
+        }
         const previousStage = currentStage;
         setCurrentStage(newStage);
         setChangingStage(true);
@@ -535,7 +552,12 @@ export const LeadDetail = () => {
                         </p>
                     </div>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex items-center gap-2">
+                    {!isNew && isDirty && (
+                        <span style={{ fontSize: "12px", backgroundColor: "#FFDCC8", color: "#9a4b1f", border: "1px solid rgba(242,155,107,0.4)", borderRadius: "12px", padding: "2px 10px", fontWeight: 600 }}>
+                            Unsaved changes
+                        </span>
+                    )}
                     {!isNew && availableStages.length > 0 && (
                         <Select
                             value={currentStage}
@@ -601,7 +623,7 @@ export const LeadDetail = () => {
                             <Label htmlFor="responsible">Responsible</Label>
                             <Select
                                 value={selectedResponsible}
-                                onValueChange={setSelectedResponsible}
+                                onValueChange={(val) => { setSelectedResponsible(val); setIsDirty(true); }}
                             >
                                 <SelectTrigger id="responsible" className="w-full">
                                     <SelectValue placeholder="Select a responsible person" />
@@ -621,7 +643,7 @@ export const LeadDetail = () => {
                             <Label htmlFor="possible-client">Possible Client</Label>
                             <Select
                                 value={possibleClient}
-                                onValueChange={setPossibleClient}
+                                onValueChange={(val) => { setPossibleClient(val); setIsDirty(true); }}
                             >
                                 <SelectTrigger id="possible-client" className="w-full">
                                     <SelectValue placeholder="Select a client (optional)" />
@@ -651,7 +673,7 @@ export const LeadDetail = () => {
                                 id="lead-name"
                                 placeholder={isAutoName ? "Auto-filled from First / Last Name" : "e.g. Acme Corp Deal"}
                                 value={name}
-                                onChange={isAutoName ? undefined : (e) => setName(e.target.value)}
+                                onChange={isAutoName ? undefined : (e) => { setName(e.target.value); setIsDirty(true); }}
                                 readOnly={isAutoName}
                                 style={{
                                     width: "100%", height: "36px", padding: "0 12px",
@@ -671,7 +693,7 @@ export const LeadDetail = () => {
                                 id="moodle-id"
                                 placeholder="e.g. 123456"
                                 value={moodleCourseId}
-                                onChange={(e) => setMoodleCourseId(e.target.value)}
+                                onChange={(e) => { setMoodleCourseId(e.target.value); setIsDirty(true); }}
                             />
                         </div>
 
