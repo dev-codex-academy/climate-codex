@@ -13,6 +13,8 @@ import Swal from "sweetalert2";
 const FIXED_FIELDS = [
     { name: 'name',   label: 'Name',   required: true },
     { name: 'status', label: 'Status', required: false, hint: 'active / paused / cancelled' },
+    { name: 'origin_cohort', label: 'Origin Cohort', required: false, hint: 'Cohort name, not id' },
+    { name: 'actual_cohort', label: 'Actual Cohort', required: false, hint: 'Cohort name, not id' },
 ];
 
 export const Service = () => {
