@@ -6,6 +6,7 @@ import { Button } from "../components/ui/button";
 import { Plus, Search, Upload, X, CheckCircle, AlertCircle } from "lucide-react";
 import { getServices, deleteService, getServiceAttributes, importServicesFromExcel } from "../services/serviceService";
 import { getClients } from "../services/clientService";
+import { getCohorts } from "../services/cohortService";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
 import Swal from "sweetalert2";
 
@@ -43,19 +44,28 @@ export const Service = () => {
 
     const fetchInitialData = async () => {
         try {
-            const [attributesData, clientsData] = await Promise.all([
+            const [attributesData, clientsData, cohortsData] = await Promise.all([
                 getServiceAttributes(),
-                getClients()
+                getClients(),
+                getCohorts(),
             ]);
             setAttributes(attributesData);
             setClients(clientsData);
+            const cohortsList = Array.isArray(cohortsData) ? cohortsData : (cohortsData.results || []);
+
+            const cohortsById = {};
+            cohortsList.forEach(c => { cohortsById[String(c.id)] = c.name; });
 
             const dynamicColumns = attributesData.map(attr => ({
                 key: attr.name,
                 label: attr.label,
                 ...(attr.type === 'date' ? { render: (value) => formatDate(value) } : {})
             }));
-            setColumns([...staticColumns, ...dynamicColumns]);
+            const cohortColumns = [
+                { key: "origin_cohort", label: "Origin Cohort", render: (value) => cohortsById[String(value)] || "—" },
+                { key: "actual_cohort", label: "Actual Cohort", render: (value) => cohortsById[String(value)] || "—" },
+            ];
+            setColumns([...staticColumns, ...cohortColumns, ...dynamicColumns]);
         } catch (error) {
             console.error("Error fetching initial data", error);
         }

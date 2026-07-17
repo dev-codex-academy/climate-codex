@@ -4,6 +4,7 @@ import { createService, updateService, uploadServiceImage, getServiceById, getSe
 import { getServiceSurveys } from "../services/surveyService";
 import { getServiceEnrollment } from "../services/enrollmentService";
 import { getClients } from "../services/clientService";
+import { getCohorts } from "../services/cohortService";
 import { useAuth } from "../context/AuthContext";
 import { formatDate } from "../utils/date";
 
@@ -99,8 +100,11 @@ export const ServiceDetail = () => {
 
     const [attributes, setAttributes] = useState([]);
     const [clients, setClients] = useState([]);
+    const [cohorts, setCohorts] = useState([]);
     const [name, setName] = useState("");
     const [clientId, setClientId] = useState("");
+    const [originCohortId, setOriginCohortId] = useState("");
+    const [actualCohortId, setActualCohortId] = useState("");
     const [dynamicData, setDynamicData] = useState({});
 
     // UI state
@@ -130,7 +134,7 @@ export const ServiceDetail = () => {
         const init = async () => {
             setFetching(true);
             try {
-                await Promise.all([fetchAttributes(), fetchClients()]);
+                await Promise.all([fetchAttributes(), fetchClients(), fetchCohorts()]);
 
                 if (!isNew) {
                     await fetchServiceData(id);
@@ -142,6 +146,8 @@ export const ServiceDetail = () => {
                 } else {
                     setName("");
                     setClientId(preSelectedClientId ? String(preSelectedClientId) : "");
+                    setOriginCohortId("");
+                    setActualCohortId("");
                     setDynamicData({});
                 }
             } catch (err) {
@@ -195,6 +201,15 @@ export const ServiceDetail = () => {
         }
     };
 
+    const fetchCohorts = async () => {
+        try {
+            const data = await getCohorts();
+            setCohorts(Array.isArray(data) ? data : (data.results || []));
+        } catch (err) {
+            console.error("Error fetching cohorts", err);
+        }
+    };
+
     const fetchServiceData = async (serviceId) => {
         try {
             const data = await getServiceById(serviceId);
@@ -208,6 +223,8 @@ export const ServiceDetail = () => {
     const populateForm = (data) => {
         setName(data.name || "");
         setClientId(data.client ? (typeof data.client === 'object' ? String(data.client.id) : String(data.client)) : "");
+        setOriginCohortId(data.origin_cohort ? (typeof data.origin_cohort === 'object' ? String(data.origin_cohort.id) : String(data.origin_cohort)) : "");
+        setActualCohortId(data.actual_cohort ? (typeof data.actual_cohort === 'object' ? String(data.actual_cohort.id) : String(data.actual_cohort)) : "");
 
         setDynamicData(prev => {
             const updated = { ...prev };
@@ -342,6 +359,8 @@ export const ServiceDetail = () => {
             const payload = {
                 name,
                 client: clientId,
+                origin_cohort: originCohortId || null,
+                actual_cohort: actualCohortId || null,
                 attributes: formattedAttributes
             };
 
@@ -438,6 +457,40 @@ export const ServiceDetail = () => {
                                     </SelectTrigger>
                                     <SelectContent>
                                         {clients.map(c => (
+                                            <SelectItem key={c.id} value={String(c.id)}>{c.name}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="origin-cohort">Origin Cohort</Label>
+                                <Select
+                                    value={originCohortId || "none"}
+                                    onValueChange={(val) => setOriginCohortId(val === "none" ? "" : val)}
+                                >
+                                    <SelectTrigger id="origin-cohort">
+                                        <SelectValue placeholder="Select Cohort" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="none">— None —</SelectItem>
+                                        {cohorts.map(c => (
+                                            <SelectItem key={c.id} value={String(c.id)}>{c.name}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="actual-cohort">Actual Cohort</Label>
+                                <Select
+                                    value={actualCohortId || "none"}
+                                    onValueChange={(val) => setActualCohortId(val === "none" ? "" : val)}
+                                >
+                                    <SelectTrigger id="actual-cohort">
+                                        <SelectValue placeholder="Select Cohort" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="none">— None —</SelectItem>
+                                        {cohorts.map(c => (
                                             <SelectItem key={c.id} value={String(c.id)}>{c.name}</SelectItem>
                                         ))}
                                     </SelectContent>
