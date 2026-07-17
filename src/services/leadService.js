@@ -10,6 +10,24 @@ export const getLeads = async (filters = {}) => {
     });
 };
 
+// Unlike getLeads() (which follows every page via fetchAllPages), this does a
+// single fetch and returns DRF's raw {results, next, count} shape — used by
+// the board to load one stage/column at a time, page by page (see plan.md #64).
+export const getLeadsPage = async (urlOrFilters) => {
+    const url = typeof urlOrFilters === "string"
+        ? urlOrFilters
+        : `${API_URL}/leads/?${new URLSearchParams(urlOrFilters).toString()}`;
+    const res = await fetch(url, {
+        method: "GET",
+        headers: getHeaders(),
+    });
+    if (!res.ok) {
+        const errorData = await res.json().catch(() => null);
+        throw new Error(extractErrorMessage(errorData, "Error fetching leads"));
+    }
+    return res.json();
+};
+
 export const createLead = async (data) => {
     const res = await fetch(`${API_URL}/leads/`, {
         method: "POST",

@@ -7,6 +7,7 @@ import { getCatalogueItems } from "../services/catalogueService";
 import { getSales } from "../services/salesService";
 import { getClients } from "../services/clientService";
 import { getLeadEnrollment } from "../services/enrollmentService";
+import { getCohorts } from "../services/cohortService";
 import { useAuth } from "../context/AuthContext";
 import { formatDate } from "../utils/date";
 
@@ -33,6 +34,11 @@ export const LeadDetail = () => {
     // Check if we passed state via navigation (e.g. pipelineId for new lead)
     const pipelineId = location.state?.pipelineId;
 
+    // Cohort-driven Lead attributes: only the "New Students" pipeline defines these
+    // PipelineAttribute keys today, but detection is by key presence, not by
+    // hardcoding that pipeline's name (survives a future rename).
+    const COHORT_DATE_ATTRIBUTE_KEYS = ['initial_date', 'projected_end_date'];
+
     const [attributes, setAttributes] = useState([]);
     const [clientAttributes, setClientAttributes] = useState([]);
     const [activePipelineId, setActivePipelineId] = useState(pipelineId || null);
@@ -52,6 +58,8 @@ export const LeadDetail = () => {
     const [possibleClient, setPossibleClient] = useState("");
     const [moodleCourseId, setMoodleCourseId] = useState("");
     const [clients, setClients] = useState([]);
+    const [cohorts, setCohorts] = useState([]);
+    const [selectedCohortId, setSelectedCohortId] = useState("");
 
     // File upload state
     const [uploading, setUploading] = useState(false);
@@ -82,6 +90,35 @@ export const LeadDetail = () => {
     const lastNameAttr = attributes.find(a => a.label?.toLowerCase() === 'last name');
     const isAutoName = !!(firstNameAttr || lastNameAttr);
 
+    // The Cohort selector (and the read-only dates it drives) only makes sense
+    // when this lead's pipeline actually defines both PipelineAttribute keys
+    // (today, only "New Students" does) — detected by key presence, not pipeline name.
+    const showCohortSelector = COHORT_DATE_ATTRIBUTE_KEYS.every(
+        key => attributes.some(a => a.name === key)
+    );
+
+    // Preselect the Cohort whose moodle_course_id matches the lead's saved value
+    // (there's no Cohort FK on Lead, this is the only link available). Also keeps
+    // the selector in sync if moodle_course_id is edited manually elsewhere.
+    useEffect(() => {
+        if (!cohorts.length) return;
+        const match = cohorts.find(c => c.moodle_course_id && c.moodle_course_id === moodleCourseId);
+        setSelectedCohortId(match ? String(match.id) : "");
+    }, [cohorts, moodleCourseId]);
+
+    const handleCohortChange = (cohortId) => {
+        setSelectedCohortId(cohortId);
+        const cohort = cohorts.find(c => String(c.id) === cohortId);
+        if (!cohort) return;
+        setMoodleCourseId(cohort.moodle_course_id || "");
+        setFormData(prev => ({
+            ...prev,
+            initial_date: cohort.start_date || "",
+            projected_end_date: cohort.end_date || "",
+        }));
+        setIsDirty(true);
+    };
+
     // Auto-populate name from first/last name dynamic attributes
     useEffect(() => {
         if (!isAutoName) return;
@@ -98,6 +135,7 @@ export const LeadDetail = () => {
                 fetchSalesUsers().catch(e => console.error(e));
                 fetchClients().catch(e => console.error(e));
                 fetchPipelines().catch(e => console.error(e));
+                fetchCohorts().catch(e => console.error(e));
 
                 if (!isNew) {
                     // Load lead first so we know its pipeline
@@ -218,6 +256,15 @@ export const LeadDetail = () => {
             setPipelines(Array.isArray(data) ? data : (data.results || []));
         } catch (err) {
             console.error("Error fetching pipelines", err);
+        }
+    };
+
+    const fetchCohorts = async () => {
+        try {
+            const data = await getCohorts();
+            setCohorts(Array.isArray(data) ? data : (data.results || []));
+        } catch (err) {
+            console.error("Error fetching cohorts", err);
         }
     };
 
@@ -531,8 +578,11 @@ export const LeadDetail = () => {
     }
 
     const activePipeline = pipelines.find(p => String(p.id) === String(activePipelineId));
+    // "Lost" requires the dedicated Move to Lost flow (lost_reason); "New" is
+    // an entry-only stage assigned automatically on creation — neither makes
+    // sense as a manual destination from this dropdown.
     const availableStages = (activePipeline?.stages || [])
-        .filter(s => (s.name || '').toLowerCase() !== 'lost')
+        .filter(s => !['lost', 'new'].includes((s.name || '').toLowerCase()))
         .sort((a, b) => (a.order || 0) - (b.order || 0));
 
     return (
@@ -686,6 +736,25 @@ export const LeadDetail = () => {
                             />
                         </div>
 
+                        {/* Cohort Selection (New Students pipeline only) */}
+                        {showCohortSelector && (
+                            <div className="space-y-2">
+                                <Label htmlFor="cohort-select">Cohort</Label>
+                                <Select value={selectedCohortId} onValueChange={handleCohortChange}>
+                                    <SelectTrigger id="cohort-select" className="w-full">
+                                        <SelectValue placeholder="Select a cohort" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {cohorts.map((c) => (
+                                            <SelectItem key={c.id} value={String(c.id)}>
+                                                {c.name}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        )}
+
                         {/* Moodle Course ID */}
                         <div className="space-y-2">
                             <Label htmlFor="moodle-id">Moodle Course ID</Label>
@@ -724,9 +793,18 @@ export const LeadDetail = () => {
                     <div className="bg-card p-6 rounded-lg border shadow-sm space-y-4">
                         <h3 className="font-medium text-lg border-b pb-2">Details</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            {attributes.map((attr) => (
+                            {attributes.map((attr) => {
+                                const isCohortDate = COHORT_DATE_ATTRIBUTE_KEYS.includes(attr.name);
+                                return (
                                 <div key={attr.name} className="space-y-2">
-                                    <Label htmlFor={attr.name}>{attr.label}</Label>
+                                    <Label htmlFor={attr.name} style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                                        {attr.label}
+                                        {isCohortDate && (
+                                            <span style={{ fontSize: "11px", color: "#9b948e", fontWeight: 400 }}>
+                                                (from Cohort)
+                                            </span>
+                                        )}
+                                    </Label>
                                     {attr.type === 'list' ? (
                                         <Select
                                             onValueChange={(val) => handleAttributeChange(attr.name, val)}
@@ -759,6 +837,7 @@ export const LeadDetail = () => {
                                             id={attr.name}
                                             value={formData[attr.name] || ""}
                                             onChange={(e) => handleAttributeChange(attr.name, e.target.value)}
+                                            disabled={isCohortDate}
                                         />
                                     ) : (
                                         <Input
@@ -770,7 +849,8 @@ export const LeadDetail = () => {
                                         />
                                     )}
                                 </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     </div>
 

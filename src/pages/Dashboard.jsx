@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { API_URL, getHeaders } from "@/services/api";
 import { getMyTasks } from "@/services/taskService";
+import { Modal } from "../components/Modal";
 import { Magnet, Building2, Receipt, Laptop, ArrowUpRight, ClipboardList, ChevronLeft, ChevronRight } from "lucide-react";
 
 const fetchCount = async (endpoint) => {
@@ -26,6 +27,74 @@ const TASK_COLORS = {
 };
 
 const ENTITY_PATHS = { lead: "/lead", client: "/client", service: "/service" };
+
+// Single source of truth for a task row — used by both the calendar's
+// "Selected day" panel and the Tasks-KPI modals (#65), so the two never
+// visually drift apart. `navigate` decides what a click does; the modal
+// version wraps it to also close the modal.
+const TaskRow = ({ task, navigate }) => {
+    const colors = TASK_COLORS[task.entity_type];
+    const path = `${ENTITY_PATHS[task.entity_type]}/${task.entity_id}`;
+    return (
+        <div
+            onClick={() => navigate(path)}
+            className="px-4 py-3 flex items-start gap-3 cursor-pointer hover:bg-gray-50 transition-colors"
+            style={{ backgroundColor: "#FAFAF8" }}
+        >
+            <span
+                className="mt-0.5 shrink-0 text-xs font-semibold px-2 py-0.5 rounded-full"
+                style={{ backgroundColor: colors.bg, color: colors.text }}
+            >
+                {colors.label}
+            </span>
+            <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium truncate" style={{ color: "#2E2A26" }}>{task.task}</p>
+                <p className="text-xs mt-0.5" style={{ color: "#9b948e" }}>{task.entity_name}</p>
+            </div>
+            <ArrowUpRight className="h-3.5 w-3.5 shrink-0 mt-0.5" style={{ color: "#9b948e" }} />
+        </div>
+    );
+};
+
+// Opens from a Tasks-KPI card — shows every pending task for that entity
+// type assigned to the logged-in user (same data already loaded via
+// getMyTasks(), just filtered by entity_type — no new request), same row
+// style as the calendar's day panel but without the date filter.
+const TaskListModal = ({ isOpen, entityType, tasks, onClose, navigate }) => {
+    const colors = TASK_COLORS[entityType];
+    const title = colors ? `${colors.label} Tasks` : "Tasks";
+
+    const goToTask = (path) => {
+        onClose();
+        navigate(path);
+    };
+
+    return (
+        <Modal isOpen={isOpen} onClose={onClose} title={title}>
+            {tasks.length === 0 ? (
+                <p className="text-sm text-center py-6" style={{ color: "#9b948e" }}>
+                    No pending tasks assigned to you.
+                </p>
+            ) : (
+                <div className="rounded-lg overflow-hidden divide-y divide-gray-100" style={{ border: "1px solid #D8D2C4" }}>
+                    {tasks.map(task => (
+                        <TaskRow key={task.id} task={task} navigate={goToTask} />
+                    ))}
+                </div>
+            )}
+            {entityType && ENTITY_PATHS[entityType] && (
+                <button
+                    onClick={() => goToTask(ENTITY_PATHS[entityType])}
+                    className="mt-4 flex items-center gap-1.5 text-xs font-semibold hover:gap-2.5 transition-all cursor-pointer"
+                    style={{ color: colors?.text ?? "#5E6A43" }}
+                >
+                    <span>View all {colors?.label}s</span>
+                    <ArrowUpRight className="h-3.5 w-3.5" />
+                </button>
+            )}
+        </Modal>
+    );
+};
 
 const StatCard = ({ title, count, icon: Icon, href, loading, navigate }) => {
     const accent = CARD_ACCENTS[title] ?? CARD_ACCENTS.Assets;
@@ -70,13 +139,13 @@ const StatCard = ({ title, count, icon: Icon, href, loading, navigate }) => {
     );
 };
 
-const TaskKpiCard = ({ title, count, color, href, loading, navigate }) => (
+const TaskKpiCard = ({ title, count, color, entityKey, onOpenModal, loading }) => (
     <div
         className="group relative overflow-hidden cursor-pointer transition-all duration-300 hover:-translate-y-0.5"
         style={{ backgroundColor: "#F2EBDD", border: "1px solid #D8D2C4", borderRadius: "8px", boxShadow: "0 1px 3px rgba(46,42,38,0.06)" }}
         onMouseEnter={e => e.currentTarget.style.boxShadow = "0 8px 24px rgba(46,42,38,0.12)"}
         onMouseLeave={e => e.currentTarget.style.boxShadow = "0 1px 3px rgba(46,42,38,0.06)"}
-        onClick={() => navigate(href)}
+        onClick={() => onOpenModal(entityKey)}
     >
         <div className="absolute top-0 left-0 right-0 h-1" style={{ backgroundColor: color.dot }} />
         <div className="relative p-5 flex flex-col gap-4 pt-6">
@@ -239,30 +308,9 @@ const TaskCalendar = ({ tasks, navigate }) => {
                         <button onClick={() => setSelectedDay(null)} className="text-xs text-gray-400 hover:text-gray-600 cursor-pointer">✕</button>
                     </div>
                     <div className="divide-y divide-gray-100">
-                        {selectedTasks.map(task => {
-                            const colors = TASK_COLORS[task.entity_type];
-                            const path = `${ENTITY_PATHS[task.entity_type]}/${task.entity_id}`;
-                            return (
-                                <div
-                                    key={task.id}
-                                    onClick={() => navigate(path)}
-                                    className="px-4 py-3 flex items-start gap-3 cursor-pointer hover:bg-gray-50 transition-colors"
-                                    style={{ backgroundColor: "#FAFAF8" }}
-                                >
-                                    <span
-                                        className="mt-0.5 shrink-0 text-xs font-semibold px-2 py-0.5 rounded-full"
-                                        style={{ backgroundColor: colors.bg, color: colors.text }}
-                                    >
-                                        {colors.label}
-                                    </span>
-                                    <div className="flex-1 min-w-0">
-                                        <p className="text-sm font-medium truncate" style={{ color: "#2E2A26" }}>{task.task}</p>
-                                        <p className="text-xs mt-0.5" style={{ color: "#9b948e" }}>{task.entity_name}</p>
-                                    </div>
-                                    <ArrowUpRight className="h-3.5 w-3.5 shrink-0 mt-0.5" style={{ color: "#9b948e" }} />
-                                </div>
-                            );
-                        })}
+                        {selectedTasks.map(task => (
+                            <TaskRow key={task.id} task={task} navigate={navigate} />
+                        ))}
                     </div>
                 </div>
             )}
@@ -375,6 +423,7 @@ export const Dashboard = () => {
     const [tasksLoading, setTasksLoading] = useState(true);
     const [pipelineReport, setPipelineReport] = useState([]);
     const [reportLoading, setReportLoading] = useState(true);
+    const [openTaskModal, setOpenTaskModal] = useState(null); // 'lead' | 'client' | 'service' | null
 
     useEffect(() => {
         const load = async () => {
@@ -479,9 +528,9 @@ export const Dashboard = () => {
     ];
 
     const taskCards = [
-        { title: "Tasks in Leads",    count: taskData.totals.leads,    color: TASK_COLORS.lead,    href: "/lead" },
-        { title: "Tasks in Clients",  count: taskData.totals.clients,  color: TASK_COLORS.client,  href: "/client" },
-        { title: "Tasks in Services", count: taskData.totals.services, color: TASK_COLORS.service, href: "/service" },
+        { title: "Tasks in Leads",    count: taskData.totals.leads,    color: TASK_COLORS.lead,    entityKey: "lead" },
+        { title: "Tasks in Clients",  count: taskData.totals.clients,  color: TASK_COLORS.client,  entityKey: "client" },
+        { title: "Tasks in Services", count: taskData.totals.services, color: TASK_COLORS.service, entityKey: "service" },
     ];
 
     const hour = new Date().getHours();
@@ -568,7 +617,7 @@ export const Dashboard = () => {
                     </p>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
                         {taskCards.map(card => (
-                            <TaskKpiCard key={card.title} {...card} loading={tasksLoading} navigate={navigate} />
+                            <TaskKpiCard key={card.title} {...card} loading={tasksLoading} onOpenModal={setOpenTaskModal} />
                         ))}
                     </div>
                 </section>
@@ -586,6 +635,14 @@ export const Dashboard = () => {
                 </section>
 
             </div>
+
+            <TaskListModal
+                isOpen={!!openTaskModal}
+                entityType={openTaskModal}
+                tasks={taskData.tasks.filter(t => t.entity_type === openTaskModal)}
+                onClose={() => setOpenTaskModal(null)}
+                navigate={navigate}
+            />
         </div>
     );
 };

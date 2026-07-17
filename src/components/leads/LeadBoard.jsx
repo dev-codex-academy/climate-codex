@@ -1,7 +1,7 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import { LeadCard } from "./LeadCard";
 import { getPipelines } from "../../services/pipelineService";
-import { getLeads, updateLead } from "../../services/leadService";
+import { getLeadsPage, updateLead } from "../../services/leadService";
 import { getSales } from "../../services/salesService";
 import { getClients } from "../../services/clientService";
 import { useAuth } from "../../context/AuthContext";
@@ -15,11 +15,105 @@ import Swal from "sweetalert2";
 
 const LEAD_MY_LEADS_STORAGE_KEY = 'lead_my_leads_only';
 const LEAD_SEARCH_STORAGE_KEY = 'lead_search_term';
+const STAGE_PAGE_SIZE = 30;
+const SEARCH_DEBOUNCE_MS = 400;
+
+// Each column fetches and paginates its own leads independently (see
+// plan.md #64) — no more loading every lead in the pipeline up front. "My
+// Leads" and the search box are query params sent with every column's
+// request instead of a client-side filter, so a match past what's already
+// scrolled into view is never silently invisible (the exact failure mode
+// of bug #57).
+const StageColumn = ({ stage, data, onLoadMore, onDragOver, onDrop, salesUsers, clientsById, onDragStart, onLeadClick }) => {
+    // Plain refs don't work here: the sentinel div only renders once
+    // `hasMore` is true (after the first fetch resolves), so it doesn't
+    // exist yet on the render where a ref-based effect would normally set up
+    // the observer, and a `[]`/`[stage.name]` dependency array never re-runs
+    // to pick it up once it does appear. State-backed callback refs make the
+    // effect re-run exactly when the node actually mounts.
+    const [sentinelNode, setSentinelNode] = useState(null);
+    const [scrollNode, setScrollNode] = useState(null);
+    const onLoadMoreRef = useRef(onLoadMore);
+    onLoadMoreRef.current = onLoadMore;
+
+    useEffect(() => {
+        if (!sentinelNode || !scrollNode) return;
+        const observer = new IntersectionObserver(
+            (entries) => { if (entries[0].isIntersecting) onLoadMoreRef.current(); },
+            { root: scrollNode, threshold: 0.1 }
+        );
+        observer.observe(sentinelNode);
+        return () => observer.disconnect();
+    }, [sentinelNode, scrollNode]);
+
+    const stageColor = stage.color || "#5E6A43";
+    const leads = data?.leads || [];
+    const loading = !!data?.loading;
+    const hasMore = !!data?.hasMore;
+    const initialLoad = leads.length === 0 && loading;
+
+    return (
+        <div
+            className="flex-shrink-0 w-72 flex flex-col rounded-xl h-full transition-all"
+            style={{ border: "1px solid #D8D2C4", borderTop: `4px solid ${stageColor}`, backgroundColor: "#FBF7EF" }}
+            onDragOver={onDragOver}
+            onDrop={(e) => onDrop(e, stage.name)}
+        >
+            <div
+                className="px-4 py-3 flex items-center justify-between shrink-0 rounded-t-lg"
+                style={{ backgroundColor: "#F2EBDD", borderBottom: "1px solid #D8D2C4" }}
+            >
+                <div className="flex items-center gap-2">
+                    <div className="h-2 w-2 rounded-full shrink-0" style={{ backgroundColor: stageColor }} />
+                    <h3 className="font-black text-[10px] uppercase tracking-widest" style={{ color: "#2E2A26" }}>
+                        {stage.name}
+                    </h3>
+                </div>
+                <span
+                    className="text-[10px] font-bold px-2 py-0.5 rounded-full tabular-nums"
+                    style={{ backgroundColor: "rgba(94,106,67,0.12)", border: "1px solid rgba(94,106,67,0.25)", color: "#5E6A43" }}
+                >
+                    {data?.count ?? leads.length}
+                </span>
+            </div>
+
+            <div ref={setScrollNode} className="flex-1 p-2.5 overflow-y-auto space-y-2.5 min-h-[80px]">
+                {initialLoad && (
+                    <div className="h-20 flex items-center justify-center text-[10px] uppercase tracking-widest font-bold" style={{ color: "#9b948e" }}>
+                        Loading...
+                    </div>
+                )}
+                {leads.map((lead) => (
+                    <LeadCard
+                        key={lead.id}
+                        lead={lead}
+                        salesUsers={salesUsers}
+                        clientsById={clientsById}
+                        onDragStart={onDragStart}
+                        onClick={() => onLeadClick?.(lead)}
+                    />
+                ))}
+                {!initialLoad && leads.length === 0 && (
+                    <div className="h-20 flex flex-col items-center justify-center rounded-lg mx-1" style={{ border: "1.5px dashed #D8D2C4" }}>
+                        <p className="text-[9px] uppercase tracking-widest font-bold" style={{ color: "#9b948e" }}>Empty Stage</p>
+                        <p className="text-[8px] mt-0.5 opacity-60" style={{ color: "#9b948e" }}>Drop cards here</p>
+                    </div>
+                )}
+                {hasMore && <div ref={setSentinelNode} className="h-4" />}
+                {loading && leads.length > 0 && (
+                    <div className="text-center py-2 text-[10px] uppercase tracking-widest font-bold" style={{ color: "#9b948e" }}>
+                        Loading more...
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+};
 
 export const LeadBoard = ({ refreshTrigger, selectedPipelineId, setSelectedPipelineId, onLeadClick }) => {
     const [pipelines, setPipelines] = useState([]);
-    const [leads, setLeads] = useState([]);
     const [stages, setStages] = useState([]);
+    const [stageData, setStageData] = useState({});
     const [salesUsers, setSalesUsers] = useState([]);
     const [clientsById, setClientsById] = useState({});
     const [loading, setLoading] = useState(true);
@@ -29,12 +123,16 @@ export const LeadBoard = ({ refreshTrigger, selectedPipelineId, setSelectedPipel
     const [searchTerm, setSearchTerm] = useState(
         () => localStorage.getItem(LEAD_SEARCH_STORAGE_KEY) || ""
     );
+    const [debouncedSearchTerm, setDebouncedSearchTerm] = useState(searchTerm);
     const scrollContainerRef = useRef(null);
+    const stageDataRef = useRef(stageData);
     const { user } = useAuth();
 
     const [lostModalOpen, setLostModalOpen] = useState(false);
     const [lostReason, setLostReason] = useState("");
     const [pendingLostLeadId, setPendingLostLeadId] = useState(null);
+
+    useEffect(() => { stageDataRef.current = stageData; }, [stageData]);
 
     const scrollLeft = () => scrollContainerRef.current?.scrollBy({ left: -320, behavior: 'smooth' });
     const scrollRight = () => scrollContainerRef.current?.scrollBy({ left: 320, behavior: 'smooth' });
@@ -72,44 +170,16 @@ export const LeadBoard = ({ refreshTrigger, selectedPipelineId, setSelectedPipel
     }, []);
 
     useEffect(() => {
-        const fetchLeads = async () => {
-            if (!selectedPipelineId) return;
-            setLoading(true);
-            try {
-                const leadsData = await getLeads({ pipeline_id: selectedPipelineId });
-                setLeads(leadsData.results || leadsData || []);
-            } catch (error) {
-                console.error("Error loading leads", error);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchLeads();
-    }, [selectedPipelineId, refreshTrigger]);
-
-    useEffect(() => {
         if (!selectedPipelineId || !pipelines.length) return;
         const activePipeline = pipelines.find(p => p.id == selectedPipelineId);
-        if (activePipeline?.stages) {
-            setStages([...activePipeline.stages].sort((a, b) => a.order - b.order));
-        } else {
-            setStages([]);
-        }
+        setStages(activePipeline?.stages ? [...activePipeline.stages].sort((a, b) => a.order - b.order) : []);
     }, [selectedPipelineId, pipelines]);
 
-    const getResponsibleId = (lead) => {
-        const resp = lead.responsible;
-        if (!resp) return null;
-        if (typeof resp === 'object') return resp.id ?? null;
-        const parsed = parseInt(resp, 10);
-        return isNaN(parsed) ? null : parsed;
-    };
-
-    const filteredLeads = leads.filter(lead => {
-        if (myLeadsOnly && user && getResponsibleId(lead) !== user.id) return false;
-        if (searchTerm.trim() && !lead.name?.toLowerCase().includes(searchTerm.trim().toLowerCase())) return false;
-        return true;
-    });
+    // Debounce the search box so typing doesn't fire a request per column per keystroke.
+    useEffect(() => {
+        const t = setTimeout(() => setDebouncedSearchTerm(searchTerm), SEARCH_DEBOUNCE_MS);
+        return () => clearTimeout(t);
+    }, [searchTerm]);
 
     useEffect(() => {
         localStorage.setItem(LEAD_MY_LEADS_STORAGE_KEY, String(myLeadsOnly));
@@ -118,6 +188,76 @@ export const LeadBoard = ({ refreshTrigger, selectedPipelineId, setSelectedPipel
     useEffect(() => {
         localStorage.setItem(LEAD_SEARCH_STORAGE_KEY, searchTerm);
     }, [searchTerm]);
+
+    // Loads the first page of every stage/column, in parallel, whenever the
+    // pipeline, its stages, or any server-side filter changes.
+    useEffect(() => {
+        if (!selectedPipelineId || !stages.length) {
+            setLoading(false);
+            return;
+        }
+        let cancelled = false;
+        setLoading(true);
+
+        setStageData(() => {
+            const initial = {};
+            stages.forEach(s => { initial[s.name] = { leads: [], nextUrl: null, loading: true, hasMore: false, count: 0 }; });
+            return initial;
+        });
+
+        const loadStage = async (stage) => {
+            const params = {
+                pipeline_id: selectedPipelineId,
+                stage: stage.name,
+                page_size: STAGE_PAGE_SIZE,
+            };
+            if (myLeadsOnly && user?.id) params.responsible = user.id;
+            if (debouncedSearchTerm.trim()) params.search = debouncedSearchTerm.trim();
+
+            try {
+                const data = await getLeadsPage(params);
+                if (cancelled) return;
+                setStageData(prev => ({
+                    ...prev,
+                    [stage.name]: { leads: data.results || [], nextUrl: data.next, loading: false, hasMore: !!data.next, count: data.count ?? (data.results || []).length },
+                }));
+            } catch (err) {
+                console.error(`Error loading leads for stage "${stage.name}"`, err);
+                if (cancelled) return;
+                setStageData(prev => ({
+                    ...prev,
+                    [stage.name]: { leads: [], nextUrl: null, loading: false, hasMore: false, count: 0 },
+                }));
+            }
+        };
+
+        Promise.all(stages.map(loadStage)).finally(() => { if (!cancelled) setLoading(false); });
+
+        return () => { cancelled = true; };
+    }, [selectedPipelineId, stages, myLeadsOnly, debouncedSearchTerm, refreshTrigger, user?.id]);
+
+    const loadMoreForStage = useCallback(async (stageName) => {
+        const current = stageDataRef.current[stageName];
+        if (!current || current.loading || !current.hasMore || !current.nextUrl) return;
+
+        setStageData(prev => ({ ...prev, [stageName]: { ...prev[stageName], loading: true } }));
+        try {
+            const data = await getLeadsPage(current.nextUrl);
+            setStageData(prev => ({
+                ...prev,
+                [stageName]: {
+                    leads: [...prev[stageName].leads, ...(data.results || [])],
+                    nextUrl: data.next,
+                    loading: false,
+                    hasMore: !!data.next,
+                    count: data.count ?? prev[stageName].count,
+                },
+            }));
+        } catch (err) {
+            console.error(`Error loading more leads for stage "${stageName}"`, err);
+            setStageData(prev => ({ ...prev, [stageName]: { ...prev[stageName], loading: false } }));
+        }
+    }, []);
 
     const handleDragOver = (e) => e.preventDefault();
 
@@ -134,13 +274,34 @@ export const LeadBoard = ({ refreshTrigger, selectedPipelineId, setSelectedPipel
     };
 
     const performStageUpdate = async (leadId, targetStageName, additionalPayload = {}) => {
-        const originalLeads = [...leads];
-        setLeads(leads.map(l => l.id.toString() === leadId ? { ...l, stage: targetStageName } : l));
+        const previousStageData = stageDataRef.current;
+        let movedLead = null;
+        let sourceStageName = null;
+        for (const [name, data] of Object.entries(previousStageData)) {
+            const found = (data.leads || []).find(l => l.id.toString() === leadId);
+            if (found) { movedLead = found; sourceStageName = name; break; }
+        }
+        if (!movedLead || sourceStageName === targetStageName) return;
+
+        setStageData(prev => ({
+            ...prev,
+            [sourceStageName]: {
+                ...prev[sourceStageName],
+                leads: prev[sourceStageName].leads.filter(l => l.id.toString() !== leadId),
+                count: Math.max(0, (prev[sourceStageName].count || 1) - 1),
+            },
+            [targetStageName]: {
+                ...prev[targetStageName],
+                leads: [{ ...movedLead, stage: targetStageName }, ...(prev[targetStageName]?.leads || [])],
+                count: (prev[targetStageName]?.count || 0) + 1,
+            },
+        }));
+
         try {
             await updateLead(leadId, { stage: targetStageName, ...additionalPayload });
         } catch (error) {
             console.error("Failed to update stage", error);
-            setLeads(originalLeads);
+            setStageData(previousStageData);
             // A StageValidationRule (or other backend validation) blocked the
             // move — revert the optimistic update above and tell the user why.
             Swal.fire('Cannot move lead', error.message || 'The stage change was rejected.', 'error');
@@ -154,7 +315,7 @@ export const LeadBoard = ({ refreshTrigger, selectedPipelineId, setSelectedPipel
         setPendingLostLeadId(null);
     };
 
-    if (loading) {
+    if (loading && !Object.keys(stageData).length) {
         return (
             <div className="p-10 text-center" style={{ color: "#6b6560", fontFamily: '"Source Sans 3", Arial, sans-serif' }}>
                 Loading board...
@@ -269,84 +430,20 @@ export const LeadBoard = ({ refreshTrigger, selectedPipelineId, setSelectedPipel
                 className="flex gap-4 overflow-x-auto pb-4 px-4 h-full mt-3 scroll-smooth"
                 style={{ scrollbarWidth: "thin", scrollbarColor: "#D8D2C4 transparent" }}
             >
-                {stages.map((stage, index) => {
-                    const stageColor = stage.color || "#5E6A43";
-                    const stageLeads = filteredLeads.filter(l => {
-                        const matchesStage = l.stage === stage.name || l.stage_id === stage.id;
-                        if (index === 0 && !l.stage && !l.stage_id) return true;
-                        return matchesStage;
-                    });
-
-                    return (
-                        <div
-                            key={stage.name}
-                            className="flex-shrink-0 w-72 flex flex-col rounded-xl h-full transition-all"
-                            style={{
-                                border: "1px solid #D8D2C4",
-                                borderTop: `4px solid ${stageColor}`,
-                                backgroundColor: "#FBF7EF",
-                            }}
-                            onDragOver={handleDragOver}
-                            onDrop={(e) => handleDrop(e, stage.name)}
-                        >
-                            {/* Column header */}
-                            <div
-                                className="px-4 py-3 flex items-center justify-between shrink-0 rounded-t-lg"
-                                style={{ backgroundColor: "#F2EBDD", borderBottom: "1px solid #D8D2C4" }}
-                            >
-                                <div className="flex items-center gap-2">
-                                    <div
-                                        className="h-2 w-2 rounded-full shrink-0"
-                                        style={{ backgroundColor: stageColor }}
-                                    />
-                                    <h3
-                                        className="font-black text-[10px] uppercase tracking-widest"
-                                        style={{ color: "#2E2A26" }}
-                                    >
-                                        {stage.name}
-                                    </h3>
-                                </div>
-                                <span
-                                    className="text-[10px] font-bold px-2 py-0.5 rounded-full tabular-nums"
-                                    style={{
-                                        backgroundColor: "rgba(94,106,67,0.12)",
-                                        border: "1px solid rgba(94,106,67,0.25)",
-                                        color: "#5E6A43",
-                                    }}
-                                >
-                                    {stageLeads.length}
-                                </span>
-                            </div>
-
-                            {/* Cards list */}
-                            <div className="flex-1 p-2.5 overflow-y-auto space-y-2.5 min-h-[80px]">
-                                {stageLeads.map((lead) => (
-                                    <LeadCard
-                                        key={lead.id}
-                                        lead={lead}
-                                        salesUsers={salesUsers}
-                                        clientsById={clientsById}
-                                        onDragStart={(e, l) => e.dataTransfer.setData("leadId", l.id)}
-                                        onClick={() => onLeadClick?.(lead)}
-                                    />
-                                ))}
-                                {stageLeads.length === 0 && (
-                                    <div
-                                        className="h-20 flex flex-col items-center justify-center rounded-lg mx-1"
-                                        style={{ border: "1.5px dashed #D8D2C4" }}
-                                    >
-                                        <p className="text-[9px] uppercase tracking-widest font-bold" style={{ color: "#9b948e" }}>
-                                            Empty Stage
-                                        </p>
-                                        <p className="text-[8px] mt-0.5 opacity-60" style={{ color: "#9b948e" }}>
-                                            Drop cards here
-                                        </p>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    );
-                })}
+                {stages.map((stage) => (
+                    <StageColumn
+                        key={stage.name}
+                        stage={stage}
+                        data={stageData[stage.name]}
+                        onLoadMore={() => loadMoreForStage(stage.name)}
+                        onDragOver={handleDragOver}
+                        onDrop={handleDrop}
+                        salesUsers={salesUsers}
+                        clientsById={clientsById}
+                        onDragStart={(e, l) => e.dataTransfer.setData("leadId", l.id)}
+                        onLeadClick={onLeadClick}
+                    />
+                ))}
             </div>
 
             {/* Lost reason modal */}

@@ -133,7 +133,15 @@ export const Lead = () => {
 
     return (
         <div
-            className="h-full flex flex-col w-full overflow-hidden"
+            // `h-full` alone never resolves: AdminLayout's ancestor chain uses
+            // `min-h-svh` (a minimum, not a cap), so nothing above this page
+            // actually has a bounded height for `h-full`/`overflow-hidden` to
+            // clip against — the whole page grows with content instead of
+            // each Kanban column scrolling on its own. Anchoring to the
+            // viewport directly (header 3rem + this page's own bottom
+            // padding 1rem) is what actually bounds it, independent of that
+            // ancestor chain — see plan.md #64.
+            className="h-[calc(100vh-4rem)] flex flex-col w-full overflow-hidden"
             style={{ backgroundColor: "#FBF7EF", fontFamily: '"Source Sans 3", Arial, sans-serif' }}
         >
             {/* Page header */}
