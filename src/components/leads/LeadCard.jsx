@@ -1,5 +1,5 @@
 import React from "react";
-import { Calendar, Building, FileCheck2 } from "lucide-react";
+import { Calendar, Building, FileCheck2, Phone } from "lucide-react";
 import { formatDate } from "../../utils/date";
 
 export const LeadCard = ({ lead, salesUsers = [], clientsById = {}, onDragStart, onClick }) => {
@@ -56,13 +56,25 @@ export const LeadCard = ({ lead, salesUsers = [], clientsById = {}, onDragStart,
                     >
                         {lead.name}
                     </p>
-                    {lead.has_enrollment_agreement && (
-                        <FileCheck2
-                            className="w-3.5 h-3.5 shrink-0"
-                            style={{ color: "#5E6A43" }}
-                            title="Enrollment Agreement on file"
-                        />
-                    )}
+                    <div className="flex items-center gap-1 shrink-0">
+                        {lead.calls_count > 0 && (
+                            <div
+                                className="flex items-center gap-0.5"
+                                style={{ color: "#5E6A43" }}
+                                title={`${lead.calls_count} call${lead.calls_count === 1 ? "" : "s"} on file`}
+                            >
+                                <Phone className="w-3.5 h-3.5" />
+                                <span className="text-[9px] font-bold">{lead.calls_count}</span>
+                            </div>
+                        )}
+                        {lead.has_enrollment_agreement && (
+                            <FileCheck2
+                                className="w-3.5 h-3.5"
+                                style={{ color: "#5E6A43" }}
+                                title="Enrollment Agreement on file"
+                            />
+                        )}
+                    </div>
                 </div>
 
                 {/* Responsible */}
