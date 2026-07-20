@@ -23,6 +23,7 @@ import { ArrowLeft, Link2 } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../components/ui/table";
 import { Switch } from "../components/ui/switch";
 import Swal from "sweetalert2";
+import CallsSection from "../components/calls/CallsSection";
 
 export const LeadDetail = () => {
     const { id } = useParams();
@@ -1148,6 +1149,9 @@ export const LeadDetail = () => {
                             )}
                         </div>
                     )}
+
+                    {/* Calls */}
+                    {!isNew && <CallsSection entityType="lead" entityId={id} />}
 
                     {/* Files Section */}
                     {!isNew && (

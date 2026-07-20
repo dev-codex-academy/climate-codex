@@ -7,6 +7,7 @@ import { getClients } from "../services/clientService";
 import { getCohorts } from "../services/cohortService";
 import { useAuth } from "../context/AuthContext";
 import { formatDate } from "../utils/date";
+import CallsSection from "../components/calls/CallsSection";
 
 // UI Components
 import { Input } from "../components/ui/input";
@@ -745,6 +746,9 @@ export const ServiceDetail = () => {
                             )}
                         </div>
                     )}
+
+                    {/* Calls */}
+                    {!isNew && <CallsSection entityType="service" entityId={id} />}
 
                     {/* Files & Images */}
                     {!isNew && (
