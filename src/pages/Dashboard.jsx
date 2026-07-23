@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
-import { API_URL, getHeaders } from "@/services/api";
+import { API_URL, getHeaders, fetchAllPages } from "@/services/api";
 import { getMyTasks } from "@/services/taskService";
 import { Modal } from "../components/Modal";
 import { Magnet, Building2, Receipt, Laptop, ArrowUpRight, ClipboardList, ChevronLeft, ChevronRight } from "lucide-react";
@@ -444,17 +444,11 @@ export const Dashboard = () => {
     useEffect(() => {
         const loadReport = async () => {
             try {
-                const [pipelinesRes, leadsRes, usersRes] = await Promise.all([
-                    fetch(`${API_URL}/pipelines/?page_size=100`, { headers: getHeaders() }),
-                    fetch(`${API_URL}/leads/?page_size=500`, { headers: getHeaders() }),
-                    fetch(`${API_URL}/sales/?page_size=100`, { headers: getHeaders() }),
+                const [pipelines, leads, users] = await Promise.all([
+                    fetchAllPages(`${API_URL}/pipelines/`, { headers: getHeaders() }),
+                    fetchAllPages(`${API_URL}/leads/`, { headers: getHeaders() }),
+                    fetchAllPages(`${API_URL}/sales/`, { headers: getHeaders() }),
                 ]);
-                const [pipelinesData, leadsData, usersData] = await Promise.all([
-                    pipelinesRes.json(), leadsRes.json(), usersRes.json(),
-                ]);
-                const pipelines = pipelinesData.results || pipelinesData;
-                const leads = leadsData.results || leadsData;
-                const users = usersData.results || usersData;
 
                 const userMap = {};
                 users.forEach(u => {
