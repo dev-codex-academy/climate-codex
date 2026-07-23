@@ -392,7 +392,7 @@ const PipelineReportCard = ({ pipeline }) => {
                                         </span>
                                     </div>
                                     <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
-                                        {Object.entries(data.stages).sort((a, b) => b[1] - a[1]).map(([stage, count]) => {
+                                        {Object.entries(data.stages).sort((a, b) => pipeline.orderedStages.indexOf(a[0]) - pipeline.orderedStages.indexOf(b[0])).map(([stage, count]) => {
                                             const idx = pipeline.orderedStages.indexOf(stage);
                                             const color = idx >= 0 ? STAGE_PALETTE[idx % STAGE_PALETTE.length] : "#9b948e";
                                             return (
