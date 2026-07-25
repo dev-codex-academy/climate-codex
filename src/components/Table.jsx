@@ -27,6 +27,10 @@ export const Table = ({
   onResetPassword,
   onViewContact,
   verSeguimiento,
+  // Optional list of extra per-row actions: [{ label, icon: LucideIcon, onClick(row) }].
+  // Rendered as additional DropdownMenuItems above the built-in Edit/Delete —
+  // additive only, every existing caller that doesn't pass this is unaffected.
+  rowActions,
   searchable = true,
   pageSizeOptions = [10, 20, 50],
 }) => {
@@ -55,6 +59,7 @@ export const Table = ({
           onResetPassword={onResetPassword}
           onViewContact={onViewContact}
           verSeguimiento={verSeguimiento}
+          rowActions={rowActions}
         />
       );
     }
@@ -394,7 +399,8 @@ const RowActions = ({
   onAskDelete,
   onResetPassword,
   onViewContact,
-  verSeguimiento
+  verSeguimiento,
+  rowActions,
 }) => {
   const activo =
     typeof row.activo === "boolean"
@@ -446,6 +452,25 @@ const RowActions = ({
               <FileInput className="w-6 h-6 text-codex-iconos-terciario dark:text-codex-iconos-primary-variante2" />
               View Tracking
             </DropdownMenuItem>
+          </>
+        )}
+
+        {Array.isArray(rowActions) && rowActions.length > 0 && (
+          <>
+            <DropdownMenuSeparator />
+            {rowActions.map((action) => {
+              // icon is always a plain component reference (not a
+              // per-row function) — components are themselves functions, so
+              // a "call if function" check here couldn't tell the two apart.
+              const ActionIcon = action.icon;
+              const label = typeof action.label === "function" ? action.label(row) : action.label;
+              return (
+                <DropdownMenuItem key={label} onClick={() => action.onClick(row)}>
+                  {ActionIcon && <ActionIcon className="w-6 h-6 text-codex-iconos-terciario dark:text-codex-iconos-primary-variante2" />}
+                  {label}
+                </DropdownMenuItem>
+              );
+            })}
           </>
         )}
 

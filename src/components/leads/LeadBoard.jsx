@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import { LeadCard } from "./LeadCard";
 import { getPipelines } from "../../services/pipelineService";
-import { getLeadsPage, updateLead } from "../../services/leadService";
+import { getLeadsPage, updateLead, archiveLead } from "../../services/leadService";
 import { getSales } from "../../services/salesService";
 import { getClients } from "../../services/clientService";
 import { useAuth } from "../../context/AuthContext";
@@ -24,7 +24,7 @@ const SEARCH_DEBOUNCE_MS = 400;
 // request instead of a client-side filter, so a match past what's already
 // scrolled into view is never silently invisible (the exact failure mode
 // of bug #57).
-const StageColumn = ({ stage, data, onLoadMore, onDragOver, onDrop, salesUsers, clientsById, onDragStart, onLeadClick }) => {
+const StageColumn = ({ stage, data, onLoadMore, onDragOver, onDrop, salesUsers, clientsById, onDragStart, onLeadClick, onArchive }) => {
     // Plain refs don't work here: the sentinel div only renders once
     // `hasMore` is true (after the first fetch resolves), so it doesn't
     // exist yet on the render where a ref-based effect would normally set up
@@ -91,6 +91,7 @@ const StageColumn = ({ stage, data, onLoadMore, onDragOver, onDrop, salesUsers, 
                         clientsById={clientsById}
                         onDragStart={onDragStart}
                         onClick={() => onLeadClick?.(lead)}
+                        onArchive={onArchive}
                     />
                 ))}
                 {!initialLoad && leads.length === 0 && (
@@ -308,6 +309,29 @@ export const LeadBoard = ({ refreshTrigger, selectedPipelineId, setSelectedPipel
         }
     };
 
+    const handleArchiveLead = async (leadId) => {
+        try {
+            await archiveLead(leadId);
+            setStageData(prev => {
+                const next = { ...prev };
+                for (const [stageName, data] of Object.entries(next)) {
+                    if ((data.leads || []).some(l => l.id.toString() === leadId.toString())) {
+                        next[stageName] = {
+                            ...data,
+                            leads: data.leads.filter(l => l.id.toString() !== leadId.toString()),
+                            count: Math.max(0, (data.count || 1) - 1),
+                        };
+                        break;
+                    }
+                }
+                return next;
+            });
+        } catch (error) {
+            console.error("Failed to archive lead", error);
+            Swal.fire('Error', error.message || 'Could not archive this lead.', 'error');
+        }
+    };
+
     const handleLostSubmit = () => {
         if (!lostReason.trim()) return;
         performStageUpdate(pendingLostLeadId, "Lost", { lost_reason: lostReason });
@@ -442,6 +466,7 @@ export const LeadBoard = ({ refreshTrigger, selectedPipelineId, setSelectedPipel
                         clientsById={clientsById}
                         onDragStart={(e, l) => e.dataTransfer.setData("leadId", l.id)}
                         onLeadClick={onLeadClick}
+                        onArchive={handleArchiveLead}
                     />
                 ))}
             </div>

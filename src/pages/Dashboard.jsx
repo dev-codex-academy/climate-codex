@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { API_URL, getHeaders, fetchAllPages } from "@/services/api";
 import { getMyTasks } from "@/services/taskService";
+import { getClients } from "@/services/clientService";
+import { getCohorts } from "@/services/cohortService";
 import { Modal } from "../components/Modal";
 import { Magnet, Building2, Receipt, Laptop, ArrowUpRight, ClipboardList, ChevronLeft, ChevronRight } from "lucide-react";
 
@@ -423,6 +425,14 @@ export const Dashboard = () => {
     const [tasksLoading, setTasksLoading] = useState(true);
     const [pipelineReport, setPipelineReport] = useState([]);
     const [reportLoading, setReportLoading] = useState(true);
+    // Raw data behind the "Leads by Pipeline" report, kept as-is so the
+    // Client/Cohort filters below can recompute byStage/byUser client-side
+    // without re-fetching every lead on every filter change.
+    const [reportRaw, setReportRaw] = useState({ pipelines: [], leads: [], userMap: {} });
+    const [reportClients, setReportClients] = useState([]);
+    const [reportCohorts, setReportCohorts] = useState([]);
+    const [reportClientFilter, setReportClientFilter] = useState("");
+    const [reportCohortFilter, setReportCohortFilter] = useState("");
     const [openTaskModal, setOpenTaskModal] = useState(null); // 'lead' | 'client' | 'service' | null
 
     useEffect(() => {
@@ -444,10 +454,12 @@ export const Dashboard = () => {
     useEffect(() => {
         const loadReport = async () => {
             try {
-                const [pipelines, leads, users] = await Promise.all([
+                const [pipelines, leads, users, clients, cohorts] = await Promise.all([
                     fetchAllPages(`${API_URL}/pipelines/`, { headers: getHeaders() }),
                     fetchAllPages(`${API_URL}/leads/`, { headers: getHeaders() }),
                     fetchAllPages(`${API_URL}/sales/`, { headers: getHeaders() }),
+                    getClients().catch(() => []),
+                    getCohorts().catch(() => []),
                 ]);
 
                 const userMap = {};
@@ -455,42 +467,9 @@ export const Dashboard = () => {
                     userMap[u.id] = u.name || u.username || "Unassigned";
                 });
 
-                const report = pipelines.map(pipeline => {
-                    const pipelineLeads = leads.filter(l => {
-                        const pId = typeof l.pipeline === "object" ? l.pipeline?.id : l.pipeline;
-                        return String(pId) === String(pipeline.id);
-                    });
-                    if (pipelineLeads.length === 0) return null;
-
-                    const stageOrder = [...(pipeline.stages || [])].sort((a, b) => a.order - b.order).map(s => s.name);
-
-                    const byStage = {};
-                    const byUser = {};
-                    pipelineLeads.forEach(l => {
-                        byStage[l.stage] = (byStage[l.stage] || 0) + 1;
-
-                        const resp = l.responsible;
-                        let userName = "Unassigned";
-                        if (typeof resp === "object" && resp) {
-                            userName = resp.name || resp.username || "Unassigned";
-                        } else if (resp && userMap[resp]) {
-                            userName = userMap[resp];
-                        }
-                        if (!byUser[userName]) byUser[userName] = { total: 0, stages: {} };
-                        byUser[userName].total++;
-                        byUser[userName].stages[l.stage] = (byUser[userName].stages[l.stage] || 0) + 1;
-                    });
-
-                    const orderedStages = [
-                        ...stageOrder.filter(s => byStage[s]),
-                        ...Object.keys(byStage).filter(s => !stageOrder.includes(s)),
-                    ];
-                    const orderedUsers = Object.entries(byUser).sort((a, b) => b[1].total - a[1].total);
-
-                    return { id: pipeline.id, name: pipeline.name, total: pipelineLeads.length, orderedStages, byStage, orderedUsers };
-                }).filter(Boolean);
-
-                setPipelineReport(report);
+                setReportRaw({ pipelines, leads, userMap });
+                setReportClients(clients || []);
+                setReportCohorts(cohorts.results || cohorts || []);
             } catch (e) {
                 console.error("Error loading pipeline report", e);
             } finally {
@@ -499,6 +478,66 @@ export const Dashboard = () => {
         };
         loadReport();
     }, []);
+
+    // Recomputes byStage/byUser from the raw leads already in memory whenever
+    // the Client/Cohort filters change — no re-fetch needed (see reportRaw).
+    useEffect(() => {
+        const { pipelines, leads, userMap } = reportRaw;
+        if (!pipelines.length) {
+            setPipelineReport([]);
+            return;
+        }
+
+        const selectedCohort = reportCohorts.find(c => String(c.id) === String(reportCohortFilter));
+
+        const filteredLeads = leads.filter(l => {
+            if (reportClientFilter) {
+                const clientId = typeof l.possible_client === "object" ? l.possible_client?.id : l.possible_client;
+                if (String(clientId || "") !== String(reportClientFilter)) return false;
+            }
+            if (selectedCohort) {
+                if (!l.moodle_course_id || l.moodle_course_id !== selectedCohort.moodle_course_id) return false;
+            }
+            return true;
+        });
+
+        const report = pipelines.map(pipeline => {
+            const pipelineLeads = filteredLeads.filter(l => {
+                const pId = typeof l.pipeline === "object" ? l.pipeline?.id : l.pipeline;
+                return String(pId) === String(pipeline.id);
+            });
+            if (pipelineLeads.length === 0) return null;
+
+            const stageOrder = [...(pipeline.stages || [])].sort((a, b) => a.order - b.order).map(s => s.name);
+
+            const byStage = {};
+            const byUser = {};
+            pipelineLeads.forEach(l => {
+                byStage[l.stage] = (byStage[l.stage] || 0) + 1;
+
+                const resp = l.responsible;
+                let userName = "Unassigned";
+                if (typeof resp === "object" && resp) {
+                    userName = resp.name || resp.username || "Unassigned";
+                } else if (resp && userMap[resp]) {
+                    userName = userMap[resp];
+                }
+                if (!byUser[userName]) byUser[userName] = { total: 0, stages: {} };
+                byUser[userName].total++;
+                byUser[userName].stages[l.stage] = (byUser[userName].stages[l.stage] || 0) + 1;
+            });
+
+            const orderedStages = [
+                ...stageOrder.filter(s => byStage[s]),
+                ...Object.keys(byStage).filter(s => !stageOrder.includes(s)),
+            ];
+            const orderedUsers = Object.entries(byUser).sort((a, b) => b[1].total - a[1].total);
+
+            return { id: pipeline.id, name: pipeline.name, total: pipelineLeads.length, orderedStages, byStage, orderedUsers };
+        }).filter(Boolean);
+
+        setPipelineReport(report);
+    }, [reportRaw, reportClientFilter, reportCohortFilter, reportCohorts]);
 
     useEffect(() => {
         const loadTasks = async () => {
@@ -583,17 +622,49 @@ export const Dashboard = () => {
                 </section>
 
                 {/* Leads by Pipeline */}
-                {(reportLoading || pipelineReport.length > 0) && (
+                {(reportLoading || reportRaw.pipelines.length > 0) && (
                     <section className="space-y-4">
-                        <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: "#9b948e", fontFamily: '"Source Sans 3", Arial, sans-serif' }}>
-                            Leads by Pipeline
-                        </p>
+                        <div className="flex flex-wrap items-center justify-between gap-3">
+                            <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: "#9b948e", fontFamily: '"Source Sans 3", Arial, sans-serif' }}>
+                                Leads by Pipeline
+                            </p>
+                            {!reportLoading && (
+                                <div className="flex items-center gap-2">
+                                    <select
+                                        value={reportClientFilter}
+                                        onChange={e => setReportClientFilter(e.target.value)}
+                                        className="appearance-none pl-3 pr-7 py-1.5 rounded-full text-xs font-semibold focus:outline-none cursor-pointer"
+                                        style={{ border: "1px solid #D8D2C4", backgroundColor: "#F2EBDD", color: "#2E2A26" }}
+                                    >
+                                        <option value="">All Clients</option>
+                                        {reportClients.map(c => (
+                                            <option key={c.id} value={c.id}>{c.name}</option>
+                                        ))}
+                                    </select>
+                                    <select
+                                        value={reportCohortFilter}
+                                        onChange={e => setReportCohortFilter(e.target.value)}
+                                        className="appearance-none pl-3 pr-7 py-1.5 rounded-full text-xs font-semibold focus:outline-none cursor-pointer"
+                                        style={{ border: "1px solid #D8D2C4", backgroundColor: "#F2EBDD", color: "#2E2A26" }}
+                                    >
+                                        <option value="">All Cohorts</option>
+                                        {reportCohorts.map(c => (
+                                            <option key={c.id} value={c.id}>{c.name}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                            )}
+                        </div>
                         {reportLoading ? (
                             <div className="space-y-3">
                                 {[1, 2].map(i => (
                                     <div key={i} className="h-40 rounded-xl animate-pulse" style={{ backgroundColor: "#E8E3DA" }} />
                                 ))}
                             </div>
+                        ) : pipelineReport.length === 0 ? (
+                            <p className="text-sm py-4 text-center" style={{ color: "#9b948e" }}>
+                                No leads match the selected filters.
+                            </p>
                         ) : (
                             <div className="space-y-4">
                                 {pipelineReport.map(pipeline => (
