@@ -32,6 +32,9 @@ export const Table = ({
   // additive only, every existing caller that doesn't pass this is unaffected.
   rowActions,
   searchable = true,
+  // Optional override for the built-in filter's placeholder — additive,
+  // every existing caller that doesn't pass it keeps "Search...".
+  searchPlaceholder = "Search...",
   pageSizeOptions = [10, 20, 50],
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -198,7 +201,7 @@ export const Table = ({
             <div className="relative w-full">
               {/* Input de shadcn */}
               <input
-                placeholder="Search..."
+                placeholder={searchPlaceholder}
                 value={searchTerm}
                 onChange={(e) => {
                   setSearchTerm(e.target.value);

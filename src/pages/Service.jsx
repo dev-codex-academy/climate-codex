@@ -17,12 +17,23 @@ const FIXED_FIELDS = [
     { name: 'actual_cohort', label: 'Actual Cohort', required: false, hint: 'Cohort name, not id' },
 ];
 
+// Same persistence pattern as Lead.jsx/LeadBoard.jsx (selectedPipelineId,
+// searchTerm, etc.) — survives navigating into a service's detail page and
+// back, which unmounts/remounts this component via the router.
+const SERVICE_SELECTED_CLIENT_STORAGE_KEY = 'service_selected_client';
+const SERVICE_SEARCH_TERM_STORAGE_KEY = 'service_search_term';
+
 export const Service = () => {
     const [services, setServices] = useState([]);
     const [loading, setLoading] = useState(false);
     const [attributes, setAttributes] = useState([]);
     const [clients, setClients] = useState([]);
-    const [selectedClient, setSelectedClient] = useState("");
+    const [selectedClient, setSelectedClient] = useState(
+        () => localStorage.getItem(SERVICE_SELECTED_CLIENT_STORAGE_KEY) || ""
+    );
+    const [searchTerm, setSearchTerm] = useState(
+        () => localStorage.getItem(SERVICE_SEARCH_TERM_STORAGE_KEY) || ""
+    );
     const navigate = useNavigate();
 
     // Import modal state
@@ -36,12 +47,30 @@ export const Service = () => {
 
     const staticColumns = [
         { key: "name", label: "Name" },
+        { key: "linked_email", label: "Email" },
+        { key: "linked_phone", label: "Phone" },
+        { key: "linked_date_of_birth", label: "Date of Birth", render: (value) => formatDate(value) },
     ];
 
     const [columns, setColumns] = useState(staticColumns);
 
     useEffect(() => {
+        localStorage.setItem(SERVICE_SELECTED_CLIENT_STORAGE_KEY, selectedClient);
+    }, [selectedClient]);
+
+    useEffect(() => {
+        localStorage.setItem(SERVICE_SEARCH_TERM_STORAGE_KEY, searchTerm);
+    }, [searchTerm]);
+
+    useEffect(() => {
         fetchInitialData();
+        // Restores the previous client/search on remount (e.g. coming back
+        // from a service's detail page) instead of leaving the selection
+        // filled in but the table empty until the user hits Search again.
+        if (selectedClient || searchTerm.trim()) {
+            handleSearch();
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const fetchInitialData = async () => {
@@ -61,7 +90,7 @@ export const Service = () => {
             const dynamicColumns = attributesData.map(attr => ({
                 key: attr.name,
                 label: attr.label,
-                ...(attr.type === 'date' ? { render: (value) => formatDate(value) } : {})
+                ...(attr.type === 'date' ? { render: (value) => formatDate(value) } : {}),
             }));
             const cohortColumns = [
                 { key: "origin_cohort", label: "Origin Cohort", render: (value) => cohortsById[String(value)] || "—" },
@@ -74,13 +103,18 @@ export const Service = () => {
     };
 
     const handleSearch = async () => {
-        if (!selectedClient) {
-            Swal.fire('Info', 'Please select a client to search.', 'info');
+        const term = searchTerm.trim();
+        if (!selectedClient && !term) {
+            Swal.fire('Info', 'Select a client or enter a search term.', 'info');
             return;
         }
         setLoading(true);
         try {
-            const servicesData = await getServices({ client: selectedClient });
+            const filters = {
+                ...(selectedClient && { client: selectedClient }),
+                ...(term && { search: term }),
+            };
+            const servicesData = await getServices(filters);
             const processedServices = servicesData.map(service => ({
                 ...service,
                 client_name: service.client ? (service.client.name || service.client) : "",
@@ -95,7 +129,7 @@ export const Service = () => {
     };
 
     const fetchData = async () => {
-        if (selectedClient) handleSearch();
+        if (selectedClient || searchTerm.trim()) handleSearch();
     };
 
     const handleEdit = (service) => {
@@ -188,12 +222,21 @@ export const Service = () => {
                         ))}
                     </SelectContent>
                 </Select>
+                <input
+                    type="text"
+                    placeholder="Search across all clients..."
+                    value={searchTerm}
+                    onChange={e => setSearchTerm(e.target.value)}
+                    onKeyDown={e => e.key === 'Enter' && handleSearch()}
+                    className="w-[220px] h-9 px-3 rounded-lg text-sm focus:outline-none"
+                    style={{ backgroundColor: "#fff", border: "1px solid #D8D2C4", color: "#2E2A26", fontFamily: '"Source Sans 3", Arial, sans-serif' }}
+                />
                 <button
                     onClick={handleSearch}
-                    disabled={!selectedClient || loading}
+                    disabled={(!selectedClient && !searchTerm.trim()) || loading}
                     className="flex items-center gap-2 h-9 px-4 rounded-lg text-sm font-semibold transition-colors cursor-pointer"
-                    style={{ backgroundColor: "#5E6A43", color: "#FBF7EF", opacity: (!selectedClient || loading) ? 0.5 : 1 }}
-                    onMouseEnter={e => (!selectedClient && !loading) && (e.currentTarget.style.backgroundColor = "#4a5535")}
+                    style={{ backgroundColor: "#5E6A43", color: "#FBF7EF", opacity: (!selectedClient && !searchTerm.trim() || loading) ? 0.5 : 1 }}
+                    onMouseEnter={e => (selectedClient || searchTerm.trim()) && !loading && (e.currentTarget.style.backgroundColor = "#4a5535")}
                     onMouseLeave={e => (e.currentTarget.style.backgroundColor = "#5E6A43")}
                 >
                     <Search className="h-4 w-4" /> Search
@@ -226,6 +269,7 @@ export const Service = () => {
                     onAskDelete={handleDelete}
                     verSeguimiento={handleViewFollowup}
                     searchable={true}
+                    searchPlaceholder="Filter loaded results..."
                 />
             </div>
 
