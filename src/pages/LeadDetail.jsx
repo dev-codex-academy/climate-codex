@@ -19,11 +19,12 @@ import { Button } from "../components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
 import { Checkbox } from "../components/ui/checkbox";
 import { Textarea } from "../components/ui/textarea";
-import { ArrowLeft, Link2 } from "lucide-react";
+import { ArrowLeft, Link2, MoreVertical } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../components/ui/table";
 import { Switch } from "../components/ui/switch";
 import Swal from "sweetalert2";
 import CallsSection from "../components/calls/CallsSection";
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "../components/ui/dropdown-menu";
 
 export const LeadDetail = () => {
     const { id } = useParams();
@@ -617,52 +618,65 @@ export const LeadDetail = () => {
     return (
         <div className="min-h-screen bg-background flex flex-col">
             {/* Header */}
-            <div className="sticky top-0 z-10 border-b px-6 py-4 flex items-center justify-between bg-card shrink-0">
-                <div className="flex items-center gap-4">
-                    <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
+            <div className="sticky top-0 z-10 border-b px-4 sm:px-6 py-3 sm:py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-card shrink-0">
+                <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+                    <Button variant="ghost" size="icon" className="shrink-0" onClick={() => navigate(-1)}>
                         <ArrowLeft className="h-5 w-5" />
                     </Button>
-                    <div>
-                        <h1 className="text-xl font-semibold">
+                    <div className="min-w-0">
+                        <h1 className="text-xl font-semibold truncate">
                             {isNew ? "New Opportunity" : "Edit Opportunity"}
                         </h1>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-sm text-muted-foreground truncate">
                             {isNew ? "Create a new sales opportunity" : `Managing details for ${name}`}
                         </p>
                     </div>
                 </div>
-                <div className="flex items-center gap-2">
-                    {!isNew && isArchived && (
-                        <span style={{ fontSize: "12px", backgroundColor: "#E8E3DA", color: "#6b6560", border: "1px solid #D8D2C4", borderRadius: "12px", padding: "2px 10px", fontWeight: 600 }}>
-                            Archived
-                        </span>
-                    )}
-                    {!isNew && isDirty && (
-                        <span style={{ fontSize: "12px", backgroundColor: "#FFDCC8", color: "#9a4b1f", border: "1px solid rgba(242,155,107,0.4)", borderRadius: "12px", padding: "2px 10px", fontWeight: 600 }}>
-                            Unsaved changes
-                        </span>
-                    )}
-                    {!isNew && availableStages.length > 0 && (
-                        <Select
-                            value={currentStage}
-                            onValueChange={handleStageChange}
-                            disabled={changingStage}
-                        >
-                            <SelectTrigger className="h-9 w-[180px]" style={{ backgroundColor: "#fff", borderColor: "#D8D2C4", color: "#2E2A26" }}>
-                                <SelectValue placeholder="Stage" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {currentStage && !availableStages.some(s => s.name === currentStage) && (
-                                    <SelectItem value={currentStage}>{currentStage}</SelectItem>
-                                )}
-                                {availableStages.map(s => (
-                                    <SelectItem key={s.id || s.name} value={s.name}>
-                                        {s.name}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    )}
+
+                {/* Right side: status badges + stage selector (visible at every width)
+                    plus the action buttons, which collapse into an overflow menu on
+                    mobile — see "Desktop actions" / "Mobile actions" below. Grouped in
+                    one wrapper so the header's own sm:justify-between still only sees
+                    two children (title block, this group). */}
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                {!isNew && (isArchived || isDirty || availableStages.length > 0) && (
+                    <div className="flex items-center gap-2 flex-wrap">
+                        {isArchived && (
+                            <span style={{ fontSize: "12px", backgroundColor: "#E8E3DA", color: "#6b6560", border: "1px solid #D8D2C4", borderRadius: "12px", padding: "2px 10px", fontWeight: 600 }}>
+                                Archived
+                            </span>
+                        )}
+                        {isDirty && (
+                            <span style={{ fontSize: "12px", backgroundColor: "#FFDCC8", color: "#9a4b1f", border: "1px solid rgba(242,155,107,0.4)", borderRadius: "12px", padding: "2px 10px", fontWeight: 600 }}>
+                                Unsaved changes
+                            </span>
+                        )}
+                        {availableStages.length > 0 && (
+                            <Select
+                                value={currentStage}
+                                onValueChange={handleStageChange}
+                                disabled={changingStage}
+                            >
+                                <SelectTrigger className="h-9 w-[180px]" style={{ backgroundColor: "#fff", borderColor: "#D8D2C4", color: "#2E2A26" }}>
+                                    <SelectValue placeholder="Stage" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {currentStage && !availableStages.some(s => s.name === currentStage) && (
+                                        <SelectItem value={currentStage}>{currentStage}</SelectItem>
+                                    )}
+                                    {availableStages.map(s => (
+                                        <SelectItem key={s.id || s.name} value={s.name}>
+                                            {s.name}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        )}
+                    </div>
+                )}
+
+                {/* Desktop actions */}
+                <div className="hidden sm:flex items-center gap-2 shrink-0">
                     {!isNew && (
                         <button
                             type="button"
@@ -697,6 +711,38 @@ export const LeadDetail = () => {
                     <Button onClick={handleSubmit} disabled={loading || uploading}>
                         {loading ? "Saving..." : "Save Opportunity"}
                     </Button>
+                </div>
+
+                {/* Mobile actions — secondary actions collapse into an overflow menu, Cancel/Save stay full-width */}
+                {!isNew && (
+                <div className="flex sm:hidden items-center justify-end gap-2">
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="outline" size="icon" className="h-9 w-9 shrink-0">
+                                <MoreVertical className="h-4 w-4" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => {
+                                navigator.clipboard.writeText(`${window.location.origin}/enrollment/${id}`);
+                                setCopiedEnrollment(true);
+                                setTimeout(() => setCopiedEnrollment(false), 2000);
+                            }}>
+                                {copiedEnrollment ? "Copied!" : "Copy Enrollment URL"}
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => { setLostReason(""); setShowLostModal(true); }} className="text-red-600 focus:text-red-600">
+                                Move to Lost
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                </div>
+                )}
+                <div className="flex sm:hidden items-center gap-2">
+                    <Button variant="outline" className="flex-1" onClick={() => navigate(-1)}>Cancel</Button>
+                    <Button className="flex-1" onClick={handleSubmit} disabled={loading || uploading}>
+                        {loading ? "Saving..." : "Save Opportunity"}
+                    </Button>
+                </div>
                 </div>
             </div>
 
@@ -965,7 +1011,7 @@ export const LeadDetail = () => {
                         {itemsList.length === 0 ? (
                             <p className="text-sm text-muted-foreground italic">No items added.</p>
                         ) : (
-                            <div className="border rounded-md">
+                            <div className="border rounded-md overflow-x-auto">
                                 <Table>
                                     <TableHeader>
                                         <TableRow>
