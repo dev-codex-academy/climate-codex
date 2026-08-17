@@ -15,9 +15,10 @@ import { Button } from "../components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
 import { Checkbox } from "../components/ui/checkbox";
 import { Textarea } from "../components/ui/textarea";
-import { ArrowLeft, Link2 } from "lucide-react";
+import { ArrowLeft, Link2, MoreVertical } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../components/ui/table";
 import { Switch } from "../components/ui/switch";
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "../components/ui/dropdown-menu";
 
 export const LeadDetail = () => {
     const { id } = useParams();
@@ -487,21 +488,23 @@ export const LeadDetail = () => {
     return (
         <div className="min-h-screen bg-background flex flex-col">
             {/* Header */}
-            <div className="sticky top-0 z-10 border-b px-6 py-4 flex items-center justify-between bg-card shrink-0">
-                <div className="flex items-center gap-4">
-                    <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
+            <div className="sticky top-0 z-10 border-b px-4 sm:px-6 py-3 sm:py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-card shrink-0">
+                <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+                    <Button variant="ghost" size="icon" className="shrink-0" onClick={() => navigate(-1)}>
                         <ArrowLeft className="h-5 w-5" />
                     </Button>
-                    <div>
-                        <h1 className="text-xl font-semibold">
+                    <div className="min-w-0">
+                        <h1 className="text-xl font-semibold truncate">
                             {isNew ? "New Opportunity" : "Edit Opportunity"}
                         </h1>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-sm text-muted-foreground truncate">
                             {isNew ? "Create a new sales opportunity" : `Managing details for ${name}`}
                         </p>
                     </div>
                 </div>
-                <div className="flex gap-2">
+
+                {/* Desktop actions */}
+                <div className="hidden sm:flex items-center gap-2 shrink-0">
                     {!isNew && (
                         <button
                             type="button"
@@ -525,6 +528,37 @@ export const LeadDetail = () => {
                     )}
                     <Button variant="outline" onClick={() => navigate(-1)}>Cancel</Button>
                     <Button onClick={handleSubmit} disabled={loading || uploading}>
+                        {loading ? "Saving..." : "Save Opportunity"}
+                    </Button>
+                </div>
+
+                {/* Mobile actions — secondary actions collapse into an overflow menu, Cancel/Save stay full-width */}
+                {!isNew && (
+                <div className="flex sm:hidden items-center justify-end gap-2">
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="outline" size="icon" className="h-9 w-9 shrink-0">
+                                <MoreVertical className="h-4 w-4" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => {
+                                navigator.clipboard.writeText(`${window.location.origin}/enrollment/${id}`);
+                                setCopiedEnrollment(true);
+                                setTimeout(() => setCopiedEnrollment(false), 2000);
+                            }}>
+                                {copiedEnrollment ? "Copied!" : "Copy Enrollment URL"}
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => { setLostReason(""); setShowLostModal(true); }} className="text-red-600 focus:text-red-600">
+                                Move to Lost
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                </div>
+                )}
+                <div className="flex sm:hidden items-center gap-2">
+                    <Button variant="outline" className="flex-1" onClick={() => navigate(-1)}>Cancel</Button>
+                    <Button className="flex-1" onClick={handleSubmit} disabled={loading || uploading}>
                         {loading ? "Saving..." : "Save Opportunity"}
                     </Button>
                 </div>
@@ -753,7 +787,7 @@ export const LeadDetail = () => {
                         {itemsList.length === 0 ? (
                             <p className="text-sm text-muted-foreground italic">No items added.</p>
                         ) : (
-                            <div className="border rounded-md">
+                            <div className="border rounded-md overflow-x-auto">
                                 <Table>
                                     <TableHeader>
                                         <TableRow>
