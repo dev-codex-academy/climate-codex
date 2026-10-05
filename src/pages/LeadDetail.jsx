@@ -835,8 +835,16 @@ export const LeadDetail = () => {
                                     </SelectTrigger>
                                     <SelectContent>
                                         {cohorts.map((c) => (
-                                            <SelectItem key={c.id} value={String(c.id)}>
-                                                {c.name}
+                                            <SelectItem
+                                                key={c.id}
+                                                value={String(c.id)}
+                                                disabled={!c.is_active}
+                                                style={{
+                                                    backgroundColor: c.is_active ? "#fff" : "#E8E3DA",
+                                                    color: c.is_active ? "#2E2A26" : "#9b948e",
+                                                }}
+                                            >
+                                                {c.name}{!c.is_active && " (closed)"}
                                             </SelectItem>
                                         ))}
                                     </SelectContent>
@@ -846,13 +854,38 @@ export const LeadDetail = () => {
 
                         {/* Moodle Course ID */}
                         <div className="space-y-2">
-                            <Label htmlFor="moodle-id">Moodle Course ID</Label>
-                            <Input
-                                id="moodle-id"
-                                placeholder="e.g. 123456"
-                                value={moodleCourseId}
-                                onChange={(e) => { setMoodleCourseId(e.target.value); setIsDirty(true); }}
-                            />
+                            <Label htmlFor="moodle-id">
+                                Moodle Course ID
+                                {showCohortSelector && (
+                                    <span style={{ marginLeft: "6px", fontSize: "11px", fontWeight: 400, color: "#9b948e" }}>
+                                        (from Cohort)
+                                    </span>
+                                )}
+                            </Label>
+                            {showCohortSelector ? (
+                                // Driven by the Cohort selector: read-only so it can't be typed
+                                // by hand into a closed Cohort's id (the backend rejects it too).
+                                <input
+                                    id="moodle-id"
+                                    value={moodleCourseId}
+                                    readOnly
+                                    placeholder="Select a cohort"
+                                    style={{
+                                        width: "100%", height: "36px", padding: "0 12px",
+                                        borderRadius: "6px", border: "1px solid #D8D2C4",
+                                        backgroundColor: "#F2EBDD", color: "#9b948e",
+                                        fontSize: "14px", cursor: "default",
+                                        outline: "none", boxSizing: "border-box",
+                                    }}
+                                />
+                            ) : (
+                                <Input
+                                    id="moodle-id"
+                                    placeholder="e.g. 123456"
+                                    value={moodleCourseId}
+                                    onChange={(e) => { setMoodleCourseId(e.target.value); setIsDirty(true); }}
+                                />
+                            )}
                         </div>
 
                         {/* Pipeline Selection (Only for New Leads) */}
