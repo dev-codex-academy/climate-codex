@@ -21,7 +21,7 @@ export const useMenu = () => {
 
                 // Views that no longer exist or are nested only — always hide
                 const hiddenViews = [
-                    "cohort", "enrollment", "enrollmentdetail",
+                    "enrollment", "enrollmentdetail",
                     "attendance", "attendancedetail", "followup",
                     "pricetier", "invoicelineitem", "invoicepayment",
                     "aiconversation", "aimessage",
@@ -52,6 +52,7 @@ export const useMenu = () => {
                     "Asset": "Laptop",
                     "Assetassignment": "ClipboardList",
                     "Webhook": "Webhook",
+                    "Cohort": "GraduationCap",
                 };
 
                 // Display-friendly labels
@@ -64,6 +65,7 @@ export const useMenu = () => {
                     "Client": "Clients",
                     "Asset": "Assets",
                     "Assetassignment": "Asset Assignments",
+                    "Cohort": "Cohorts",
                 };
 
                 const formattedMenu = permissions
@@ -136,7 +138,7 @@ export const useMenu = () => {
                 }
 
                 // Grouping — meaningful buckets, no "Others" catch-all
-                const crmItems = ["Lead", "Clients", "Contacts", "Service", "Pipeline"];
+                const crmItems = ["Lead", "Clients", "Contacts", "Service", "Cohorts", "Pipeline"];
                 const billingItems = ["Invoices", "Catalogue", "Categories", "Inventory"];
                 const assetItems = ["Assets", "Asset Assignments"];
                 const aiItems = ["Chett AI"];

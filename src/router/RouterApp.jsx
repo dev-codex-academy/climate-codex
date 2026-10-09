@@ -28,6 +28,8 @@ import { Asset } from "../pages/Asset";
 import { AssetDetail } from "../pages/AssetDetail";
 import { AssetAssignment } from "../pages/AssetAssignment";
 import { AssetAssignmentDetail } from "../pages/AssetAssignmentDetail";
+import { Cohort } from "../pages/Cohort";
+import { CohortDetail } from "../pages/CohortDetail";
 import { WebhookList } from "../pages/Webhooks/WebhookList";
 import { WebhookDetail } from "../pages/Webhooks/WebhookDetail";
 import { ApiGuide } from "../pages/ApiGuide";
@@ -99,6 +101,8 @@ export const RouterApp = () => {
                 <Route path="asset/:id" element={<PermissionGuard requiredPermission="app.add_asset"><AssetDetail /></PermissionGuard>} />
                 <Route path="assetassignment" element={<PermissionGuard requiredPermission="app.add_assetassignment"><AssetAssignment /></PermissionGuard>} />
                 <Route path="assetassignment/:id" element={<PermissionGuard requiredPermission="app.add_assetassignment"><AssetAssignmentDetail /></PermissionGuard>} />
+                <Route path="cohort" element={<PermissionGuard requiredPermission="app.add_cohort"><Cohort /></PermissionGuard>} />
+                <Route path="cohort/:id" element={<PermissionGuard requiredPermission="app.add_cohort"><CohortDetail /></PermissionGuard>} />
                 <Route path="followup" element={<PermissionGuard requiredPermission="app.add_followup"><Followup /></PermissionGuard>} />
                 <Route path="webhook" element={<PermissionGuard requiredPermission="app.add_webhook"><WebhookList /></PermissionGuard>} />
                 <Route path="webhook/:id" element={<PermissionGuard requiredPermission="app.add_webhook"><WebhookDetail /></PermissionGuard>} />

@@ -13,7 +13,7 @@ const routeLabels = {
     "/contact": "Contacts", "/service": "Services", "/invoice": "Invoices",
     "/inventory": "Inventory", "/asset": "Assets", "/assetassignment": "Asset Assignments",
     "/pipeline": "Pipelines", "/attribute": "Attributes", "/category": "Categories",
-    "/catalogue": "Catalogue", "/followup": "Follow-ups", "/webhook": "Webhooks",
+    "/catalogue": "Catalogue", "/followup": "Follow-ups", "/webhook": "Webhooks", "/cohort": "Cohorts",
     "/apidocs": "API Docs", "/faq": "FAQ",
 };
 

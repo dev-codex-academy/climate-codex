@@ -31,6 +31,10 @@ export const Table = ({
   // Rendered as additional DropdownMenuItems above the built-in Edit/Delete —
   // additive only, every existing caller that doesn't pass this is unaffected.
   rowActions,
+  // Opt-in: render ONLY `rowActions` in the row menu, hiding the built-in
+  // Edit/Delete — for read-only tables where those would be no-ops. Default
+  // false, so every existing caller is unaffected.
+  onlyRowActions = false,
   searchable = true,
   // Optional override for the built-in filter's placeholder — additive,
   // every existing caller that doesn't pass it keeps "Search...".
@@ -63,6 +67,7 @@ export const Table = ({
           onViewContact={onViewContact}
           verSeguimiento={verSeguimiento}
           rowActions={rowActions}
+          onlyRowActions={onlyRowActions}
         />
       );
     }
@@ -431,6 +436,7 @@ const RowActions = ({
   onViewContact,
   verSeguimiento,
   rowActions,
+  onlyRowActions,
 }) => {
   const activo =
     typeof row.activo === "boolean"
@@ -451,10 +457,12 @@ const RowActions = ({
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align="end" side="bottom" sideOffset={4} className="w-48">
-        <DropdownMenuItem onClick={() => onEdit?.(row)}>
-          <SquarePen className="w-6 h-6 text-codex-iconos-primary dark:text-codex-iconos-primary-variante1" />
-          Edit
-        </DropdownMenuItem>
+        {!onlyRowActions && (
+          <DropdownMenuItem onClick={() => onEdit?.(row)}>
+            <SquarePen className="w-6 h-6 text-codex-iconos-primary dark:text-codex-iconos-primary-variante1" />
+            Edit
+          </DropdownMenuItem>
+        )}
 
         {hasContacto && (
           <>
@@ -487,7 +495,7 @@ const RowActions = ({
 
         {Array.isArray(rowActions) && rowActions.length > 0 && (
           <>
-            <DropdownMenuSeparator />
+            {!onlyRowActions && <DropdownMenuSeparator />}
             {rowActions.map((action) => {
               // icon is always a plain component reference (not a
               // per-row function) — components are themselves functions, so
@@ -504,14 +512,18 @@ const RowActions = ({
           </>
         )}
 
-        <DropdownMenuSeparator />
-        <DropdownMenuItem
-          className="hover:text-destructive focus:text-destructive"
-          onClick={() => onAskDelete?.(row)}
-        >
-          <OctagonX className="w-6 h-6 text-destructive focus:text-destructive" />
-          Delete
-        </DropdownMenuItem>
+        {!onlyRowActions && (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              className="hover:text-destructive focus:text-destructive"
+              onClick={() => onAskDelete?.(row)}
+            >
+              <OctagonX className="w-6 h-6 text-destructive focus:text-destructive" />
+              Delete
+            </DropdownMenuItem>
+          </>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );
