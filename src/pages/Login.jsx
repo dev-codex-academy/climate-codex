@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Briefcase, Users, Zap, ArrowRight } from "lucide-react";
+import { UserPlus, GraduationCap, Users, ArrowRight } from "lucide-react";
 import { useLogin } from "@/hooks/useLogin";
 import { Modal } from "@/components/Modal";
 import { Form } from "@/components/Form";
@@ -404,20 +404,20 @@ export const Login = ({ className, ...props }) => {
                 className="text-5xl font-semibold leading-tight"
                 style={{ fontFamily: 'var(--font-heading)', color: "var(--c-on-dark)", letterSpacing: "-0.015em", lineHeight: 1.1 }}
               >
-                Manage smarter.<br />
-                <span style={{ color: "var(--c-accent)" }}>Grow faster.</span>
+                From enrollment<br />
+                <span style={{ color: "var(--c-accent)" }}>to graduation.</span>
               </h2>
               <p className="text-base leading-relaxed" style={{ color: "#B9C7DD", fontFamily: 'var(--font-body)' }}>
-                A unified platform to manage clients, leads, and operations — all in one place.
+                One workspace to enroll students, guide them through their cohort, and support the people who teach them.
               </p>
             </div>
 
             {/* Features */}
             <div className="space-y-5">
               {[
-                { icon: Briefcase, color: "color-mix(in srgb, var(--c-brand) 25%, transparent)", border: "color-mix(in srgb, var(--c-brand) 40%, transparent)", iconColor: "var(--c-accent)", title: "Sales Pipeline", desc: "Track leads from first contact to closed deal with full visibility." },
-                { icon: Users, color: "color-mix(in srgb, var(--c-cta) 18%, transparent)", border: "color-mix(in srgb, var(--c-cta) 35%, transparent)", iconColor: "var(--c-cta)", title: "Client Management", desc: "Keep every client interaction, service record, and follow-up organized." },
-                { icon: Zap, color: "color-mix(in srgb, var(--c-accent) 18%, transparent)", border: "color-mix(in srgb, var(--c-accent) 35%, transparent)", iconColor: "var(--c-accent)", title: "Unified Operations", desc: "Connect Sales, Operations, and Finance in one real-time workspace." },
+                { icon: UserPlus, color: "color-mix(in srgb, var(--c-brand) 25%, transparent)", border: "color-mix(in srgb, var(--c-brand) 40%, transparent)", iconColor: "var(--c-accent)", title: "New Enrollments", desc: "Capture every applicant, follow them through the pipeline, and turn them into enrolled students." },
+                { icon: GraduationCap, color: "color-mix(in srgb, var(--c-cta) 18%, transparent)", border: "color-mix(in srgb, var(--c-cta) 35%, transparent)", iconColor: "var(--c-cta)", title: "Student Success Management", desc: "Keep each student's cohort, progress, and mentorship sessions in one place, so nobody falls behind." },
+                { icon: Users, color: "color-mix(in srgb, var(--c-accent) 18%, transparent)", border: "color-mix(in srgb, var(--c-accent) 35%, transparent)", iconColor: "var(--c-accent)", title: "Instructors and TAs", desc: "Assign teachers and teaching assistants to cohorts and let students book time with them." },
               ].map(({ icon: Icon, color, border, iconColor, title, desc }) => (
                 <div key={title} className="flex gap-4 group">
                   <div
@@ -440,10 +440,10 @@ export const Login = ({ className, ...props }) => {
                 className="text-sm leading-relaxed"
                 style={{ fontFamily: 'var(--font-heading)', color: "#C4D1E6" }}
               >
-                "Technology that takes your business to the next level."
+                "Real projects, mentorship, and interview prep, so every student graduates with a portfolio that proves what they can build."
               </blockquote>
               <p className="text-xs mt-2 font-semibold uppercase tracking-widest" style={{ color: "var(--c-accent)" }}>
-                — Codex Technologies
+                — CodeX Academy
               </p>
             </div>
           </div>
