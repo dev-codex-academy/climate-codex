@@ -51,18 +51,9 @@ export function AppSidebar({ ...props }) {
         <div
           className="flex items-center gap-2.5 px-3 py-2.5 group-data-[collapsible=icon]:hidden border-b border-border"
         >
-          <div
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg"
-            style={{ backgroundColor: "#5E6A43" }}
-          >
-            <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4 text-white" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M12 2L2 7l10 5 10-5-10-5z" />
-              <path d="M2 17l10 5 10-5" />
-              <path d="M2 12l10 5 10-5" />
-            </svg>
-          </div>
+          <img src="/codex-logo.png" alt="CodeX" className="h-10 w-auto shrink-0" />
           <div className="leading-none">
-            <p className="text-sm font-bold tracking-tight text-foreground" style={{ fontFamily: '"Source Sans 3", Arial, sans-serif' }}>
+            <p className="text-sm font-bold tracking-tight text-foreground" style={{ fontFamily: 'var(--font-body)' }}>
               Codex CRM
             </p>
             <p className="text-[10px] font-medium uppercase tracking-widest mt-0.5 text-muted-foreground">
@@ -75,7 +66,7 @@ export function AppSidebar({ ...props }) {
         <div className="hidden group-data-[collapsible=icon]:flex justify-center py-2.5 border-b border-border">
           <div
             className="flex h-8 w-8 items-center justify-center rounded-lg"
-            style={{ backgroundColor: "#5E6A43" }}
+            style={{ backgroundColor: "var(--c-brand)" }}
           >
             <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4 text-white" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M12 2L2 7l10 5 10-5-10-5z" />
@@ -103,12 +94,12 @@ export function AppSidebar({ ...props }) {
                   isActive={isDashboardActive}
                   style={isDashboardActive ? {
                     backgroundColor: "var(--sidebar-accent)",
-                    borderLeft: "3px solid #5E6A43",
+                    borderLeft: "3px solid var(--c-brand)",
                     borderRadius: "0 4px 4px 0",
                   } : {}}
                 >
-                  <Link to="/" style={{ fontFamily: '"Source Sans 3", Arial, sans-serif' }}>
-                    <LayoutDashboard className="size-5" style={{ color: isDashboardActive ? "#5E6A43" : undefined }} />
+                  <Link to="/" style={{ fontFamily: 'var(--font-body)' }}>
+                    <LayoutDashboard className="size-5" style={{ color: isDashboardActive ? "var(--c-brand)" : undefined }} />
                     <span className="font-medium text-foreground">Dashboard</span>
                   </Link>
                 </SidebarMenuButton>
@@ -121,7 +112,7 @@ export function AppSidebar({ ...props }) {
           <SidebarGroup key={group.label}>
             <SidebarGroupLabel
               className="text-[10px] uppercase tracking-widest font-semibold text-muted-foreground"
-              style={{ fontFamily: '"Source Sans 3", Arial, sans-serif' }}
+              style={{ fontFamily: 'var(--font-body)' }}
             >
               {group.label}
             </SidebarGroupLabel>

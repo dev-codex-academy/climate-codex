@@ -6,6 +6,17 @@
   <link rel="icon" type="image/png" href="/favicon.png" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CodeX</title>
+  <script>
+    // Apply the saved theme before first paint, on EVERY page (the public /book pages
+    // included, which never mount the sidebar's theme switch). "system" follows the OS.
+    (function () {
+      try {
+        var t = localStorage.getItem("theme");
+        var dark = t === "dark" || (t !== "light" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+        document.documentElement.classList.toggle("dark", dark);
+      } catch (e) {}
+    })();
+  </script>
 </head>
 
 <body>

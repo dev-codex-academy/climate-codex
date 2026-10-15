@@ -642,12 +642,12 @@ export const LeadDetail = () => {
                 {!isNew && (isArchived || isDirty || availableStages.length > 0) && (
                     <div className="flex items-center gap-2 flex-wrap">
                         {isArchived && (
-                            <span style={{ fontSize: "12px", backgroundColor: "#E8E3DA", color: "#6b6560", border: "1px solid #D8D2C4", borderRadius: "12px", padding: "2px 10px", fontWeight: 600 }}>
+                            <span style={{ fontSize: "12px", backgroundColor: "var(--c-skeleton)", color: "var(--c-muted)", border: "1px solid var(--c-border)", borderRadius: "12px", padding: "2px 10px", fontWeight: 600 }}>
                                 Archived
                             </span>
                         )}
                         {isDirty && (
-                            <span style={{ fontSize: "12px", backgroundColor: "#FFDCC8", color: "#9a4b1f", border: "1px solid rgba(242,155,107,0.4)", borderRadius: "12px", padding: "2px 10px", fontWeight: 600 }}>
+                            <span style={{ fontSize: "12px", backgroundColor: "var(--c-cta-pale)", color: "var(--c-cta-strong)", border: "1px solid color-mix(in srgb, var(--c-cta) 40%, transparent)", borderRadius: "12px", padding: "2px 10px", fontWeight: 600 }}>
                                 Unsaved changes
                             </span>
                         )}
@@ -657,7 +657,7 @@ export const LeadDetail = () => {
                                 onValueChange={handleStageChange}
                                 disabled={changingStage}
                             >
-                                <SelectTrigger className="h-9 w-[180px]" style={{ backgroundColor: "#fff", borderColor: "#D8D2C4", color: "#2E2A26" }}>
+                                <SelectTrigger className="h-9 w-[180px]" style={{ backgroundColor: "var(--c-card)", borderColor: "var(--c-border)", color: "var(--c-ink)" }}>
                                     <SelectValue placeholder="Stage" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -685,7 +685,7 @@ export const LeadDetail = () => {
                                 setCopiedEnrollment(true);
                                 setTimeout(() => setCopiedEnrollment(false), 2000);
                             }}
-                            style={{ display: "flex", alignItems: "center", gap: "6px", height: "36px", padding: "0 14px", borderRadius: "6px", border: "1px solid #D8D2C4", backgroundColor: copiedEnrollment ? "#F2EBDD" : "transparent", color: copiedEnrollment ? "#5E6A43" : "#6b6560", fontSize: "13px", fontWeight: 500, cursor: "pointer", transition: "all 0.2s" }}>
+                            style={{ display: "flex", alignItems: "center", gap: "6px", height: "36px", padding: "0 14px", borderRadius: "6px", border: "1px solid var(--c-border)", backgroundColor: copiedEnrollment ? "var(--c-surface-2)" : "transparent", color: copiedEnrollment ? "var(--c-brand)" : "var(--c-muted)", fontSize: "13px", fontWeight: 500, cursor: "pointer", transition: "all 0.2s" }}>
                             <Link2 size={14} />
                             {copiedEnrollment ? "Copied!" : "Copy Enrollment URL"}
                         </button>
@@ -703,7 +703,7 @@ export const LeadDetail = () => {
                             type="button"
                             onClick={handleToggleArchive}
                             disabled={archiving}
-                            style={{ display: "flex", alignItems: "center", gap: "6px", height: "36px", padding: "0 14px", borderRadius: "6px", border: "1px solid #D8D2C4", backgroundColor: "transparent", color: "#6b6560", fontSize: "13px", fontWeight: 500, cursor: archiving ? "not-allowed" : "pointer", transition: "all 0.2s", opacity: archiving ? 0.6 : 1 }}>
+                            style={{ display: "flex", alignItems: "center", gap: "6px", height: "36px", padding: "0 14px", borderRadius: "6px", border: "1px solid var(--c-border)", backgroundColor: "transparent", color: "var(--c-muted)", fontSize: "13px", fontWeight: 500, cursor: archiving ? "not-allowed" : "pointer", transition: "all 0.2s", opacity: archiving ? 0.6 : 1 }}>
                             {archiving ? "Saving…" : isArchived ? "Unarchive" : "Archive"}
                         </button>
                     )}
@@ -803,7 +803,7 @@ export const LeadDetail = () => {
                             <Label htmlFor="lead-name" style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                                 Opportunity Name
                                 {isAutoName && (
-                                    <span style={{ fontSize: "11px", color: "#9b948e", fontWeight: 400 }}>
+                                    <span style={{ fontSize: "11px", color: "var(--c-hint)", fontWeight: 400 }}>
                                         (auto from First / Last Name)
                                     </span>
                                 )}
@@ -816,9 +816,9 @@ export const LeadDetail = () => {
                                 readOnly={isAutoName}
                                 style={{
                                     width: "100%", height: "36px", padding: "0 12px",
-                                    borderRadius: "6px", border: "1px solid #D8D2C4",
-                                    backgroundColor: isAutoName ? "#F2EBDD" : "#fff",
-                                    color: isAutoName ? "#9b948e" : "#2E2A26",
+                                    borderRadius: "6px", border: "1px solid var(--c-border)",
+                                    backgroundColor: isAutoName ? "var(--c-surface-2)" : "var(--c-card)",
+                                    color: isAutoName ? "var(--c-hint)" : "var(--c-ink)",
                                     fontSize: "14px", cursor: isAutoName ? "default" : "text",
                                     outline: "none", boxSizing: "border-box",
                                 }}
@@ -840,8 +840,8 @@ export const LeadDetail = () => {
                                                 value={String(c.id)}
                                                 disabled={!c.is_active}
                                                 style={{
-                                                    backgroundColor: c.is_active ? "#fff" : "#E8E3DA",
-                                                    color: c.is_active ? "#2E2A26" : "#9b948e",
+                                                    backgroundColor: c.is_active ? "var(--c-card)" : "var(--c-skeleton)",
+                                                    color: c.is_active ? "var(--c-ink)" : "var(--c-hint)",
                                                 }}
                                             >
                                                 {c.name}{!c.is_active && " (closed)"}
@@ -857,7 +857,7 @@ export const LeadDetail = () => {
                             <Label htmlFor="moodle-id">
                                 Moodle Course ID
                                 {showCohortSelector && (
-                                    <span style={{ marginLeft: "6px", fontSize: "11px", fontWeight: 400, color: "#9b948e" }}>
+                                    <span style={{ marginLeft: "6px", fontSize: "11px", fontWeight: 400, color: "var(--c-hint)" }}>
                                         (from Cohort)
                                     </span>
                                 )}
@@ -872,8 +872,8 @@ export const LeadDetail = () => {
                                     placeholder="Select a cohort"
                                     style={{
                                         width: "100%", height: "36px", padding: "0 12px",
-                                        borderRadius: "6px", border: "1px solid #D8D2C4",
-                                        backgroundColor: "#F2EBDD", color: "#9b948e",
+                                        borderRadius: "6px", border: "1px solid var(--c-border)",
+                                        backgroundColor: "var(--c-surface-2)", color: "var(--c-hint)",
                                         fontSize: "14px", cursor: "default",
                                         outline: "none", boxSizing: "border-box",
                                     }}
@@ -922,7 +922,7 @@ export const LeadDetail = () => {
                                     <Label htmlFor={attr.name} style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                                         {attr.label}
                                         {isCohortDate && (
-                                            <span style={{ fontSize: "11px", color: "#9b948e", fontWeight: 400 }}>
+                                            <span style={{ fontSize: "11px", color: "var(--c-hint)", fontWeight: 400 }}>
                                                 (from Cohort)
                                             </span>
                                         )}
@@ -1220,7 +1220,7 @@ export const LeadDetail = () => {
                             <div className="flex items-center justify-between border-b pb-2">
                                 <h3 className="font-medium text-lg">Enrollment Agreement</h3>
                                 {enrollment && (
-                                    <span style={{ fontSize: "12px", backgroundColor: "#F2EBDD", color: "#5E6A43", border: "1px solid rgba(94,106,67,0.3)", borderRadius: "12px", padding: "2px 10px", fontWeight: 600 }}>
+                                    <span style={{ fontSize: "12px", backgroundColor: "var(--c-surface-2)", color: "var(--c-brand)", border: "1px solid color-mix(in srgb, var(--c-brand) 30%, transparent)", borderRadius: "12px", padding: "2px 10px", fontWeight: 600 }}>
                                         Signed
                                     </span>
                                 )}
@@ -1228,7 +1228,7 @@ export const LeadDetail = () => {
                             {!enrollment ? (
                                 <p className="text-sm text-muted-foreground italic">No enrollment agreement on file for this lead yet.</p>
                             ) : (
-                                <div style={{ fontSize: 13, fontFamily: '"Source Sans 3", Arial, sans-serif' }}>
+                                <div style={{ fontSize: 13, fontFamily: 'var(--font-body)' }}>
                                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "12px 24px", marginBottom: 16 }}>
                                         {[
                                             ["Student", enrollment.student_name],
@@ -1239,8 +1239,8 @@ export const LeadDetail = () => {
                                             ["Signed On", formatDate(enrollment.signed_at) || "—"],
                                         ].map(([label, val]) => (
                                             <div key={label}>
-                                                <p style={{ color: "#9b948e", fontWeight: 600, marginBottom: 2 }}>{label}</p>
-                                                <p style={{ color: "#2E2A26" }}>{val}</p>
+                                                <p style={{ color: "var(--c-hint)", fontWeight: 600, marginBottom: 2 }}>{label}</p>
+                                                <p style={{ color: "var(--c-ink)" }}>{val}</p>
                                             </div>
                                         ))}
                                     </div>
@@ -1250,19 +1250,19 @@ export const LeadDetail = () => {
                                                 href={enrollment.pdf_url}
                                                 target="_blank"
                                                 rel="noreferrer"
-                                                style={{ fontSize: 12, padding: "4px 14px", borderRadius: 6, border: "1px solid #D8D2C4", backgroundColor: "transparent", color: "#5E6A43", cursor: "pointer", fontWeight: 500, textDecoration: "none" }}>
+                                                style={{ fontSize: 12, padding: "4px 14px", borderRadius: 6, border: "1px solid var(--c-border)", backgroundColor: "transparent", color: "var(--c-brand)", cursor: "pointer", fontWeight: 500, textDecoration: "none" }}>
                                                 View Signed PDF
                                             </a>
                                         )}
                                         <button
                                             type="button"
                                             onClick={() => setShowSignature((v) => !v)}
-                                            style={{ fontSize: 12, padding: "4px 14px", borderRadius: 6, border: "1px solid #D8D2C4", backgroundColor: "transparent", color: "#5E6A43", cursor: "pointer", fontWeight: 500 }}>
+                                            style={{ fontSize: 12, padding: "4px 14px", borderRadius: 6, border: "1px solid var(--c-border)", backgroundColor: "transparent", color: "var(--c-brand)", cursor: "pointer", fontWeight: 500 }}>
                                             {showSignature ? "Hide Signature" : "View Signature"}
                                         </button>
                                     </div>
                                     {showSignature && enrollment.student_signature && (
-                                        <div style={{ marginTop: 12, border: "1px solid #D8D2C4", borderRadius: 6, padding: 12, backgroundColor: "#fff", display: "inline-block" }}>
+                                        <div style={{ marginTop: 12, border: "1px solid var(--c-border)", borderRadius: 6, padding: 12, backgroundColor: "var(--c-card)", display: "inline-block" }}>
                                             <img src={enrollment.student_signature} alt="Student signature" style={{ maxWidth: 340, display: "block" }} />
                                         </div>
                                     )}
@@ -1321,9 +1321,9 @@ export const LeadDetail = () => {
             {/* Move to Lost modal */}
             {showLostModal && (
                 <div style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.45)", zIndex: 50, display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
-                    <div style={{ backgroundColor: "#fff", borderRadius: 8, padding: 32, width: "100%", maxWidth: 440, boxShadow: "0 8px 32px rgba(0,0,0,0.18)" }}>
+                    <div style={{ backgroundColor: "var(--c-card)", borderRadius: 8, padding: 32, width: "100%", maxWidth: 440, boxShadow: "0 8px 32px rgba(0,0,0,0.18)" }}>
                         <p style={{ fontSize: 18, fontWeight: 700, color: "#1a1a1a", marginBottom: 8 }}>Move to Lost</p>
-                        <p style={{ fontSize: 13, color: "#6b6560", marginBottom: 20 }}>
+                        <p style={{ fontSize: 13, color: "var(--c-muted)", marginBottom: 20 }}>
                             Please provide a reason for marking <strong>{name}</strong> as lost.
                         </p>
                         <textarea
@@ -1332,13 +1332,13 @@ export const LeadDetail = () => {
                             placeholder="e.g. Not interested, budget constraints, chose a competitor…"
                             value={lostReason}
                             onChange={(e) => setLostReason(e.target.value)}
-                            style={{ width: "100%", padding: "8px 10px", border: "1px solid #D8D2C4", borderRadius: 4, fontSize: 14, fontFamily: "inherit", resize: "vertical", boxSizing: "border-box", outline: "none" }}
+                            style={{ width: "100%", padding: "8px 10px", border: "1px solid var(--c-border)", borderRadius: 4, fontSize: 14, fontFamily: "inherit", resize: "vertical", boxSizing: "border-box", outline: "none" }}
                         />
                         <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 20 }}>
                             <button
                                 type="button"
                                 onClick={() => setShowLostModal(false)}
-                                style={{ height: 36, padding: "0 16px", borderRadius: 6, border: "1px solid #D8D2C4", background: "transparent", color: "#6b6560", fontSize: 13, fontWeight: 500, cursor: "pointer" }}>
+                                style={{ height: 36, padding: "0 16px", borderRadius: 6, border: "1px solid var(--c-border)", background: "transparent", color: "var(--c-muted)", fontSize: 13, fontWeight: 500, cursor: "pointer" }}>
                                 Cancel
                             </button>
                             <button

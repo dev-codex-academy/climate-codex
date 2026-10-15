@@ -84,8 +84,8 @@ export const Followup = () => {
             text: "You won't be able to revert this!",
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
+            confirmButtonColor: 'var(--c-cta)',
+            cancelButtonColor: 'var(--c-brand)',
             confirmButtonText: 'Yes, delete it!'
         });
 

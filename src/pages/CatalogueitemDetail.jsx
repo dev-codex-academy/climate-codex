@@ -235,8 +235,8 @@ export const CatalogueitemDetail = () => {
             text: "You won't be able to revert this!",
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
+            confirmButtonColor: 'var(--c-brand)',
+            cancelButtonColor: 'var(--c-cta)',
             confirmButtonText: 'Yes, delete it!'
         });
 

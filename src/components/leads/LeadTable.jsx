@@ -104,7 +104,7 @@ export const LeadTable = ({ selectedPipelineId, refreshTrigger, onLeadClick }) =
                     type="button"
                     onClick={() => onLeadClick?.(row)}
                     className="font-semibold hover:underline cursor-pointer"
-                    style={{ color: "#5E6A43" }}
+                    style={{ color: "var(--c-brand)" }}
                 >
                     {val}
                 </button>
@@ -149,14 +149,14 @@ export const LeadTable = ({ selectedPipelineId, refreshTrigger, onLeadClick }) =
 
     if (loading) {
         return (
-            <div className="p-10 text-center" style={{ color: "#6b6560", fontFamily: '"Source Sans 3", Arial, sans-serif' }}>
+            <div className="p-10 text-center" style={{ color: "var(--c-muted)", fontFamily: 'var(--font-body)' }}>
                 Loading leads...
             </div>
         );
     }
 
     return (
-        <div className="h-full flex flex-col px-4 pb-4" style={{ fontFamily: '"Source Sans 3", Arial, sans-serif' }}>
+        <div className="h-full flex flex-col px-4 pb-4" style={{ fontFamily: 'var(--font-body)' }}>
             <Table
                 data={rows}
                 columns={columns}

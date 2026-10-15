@@ -40,15 +40,15 @@ export const LeadMobileBoard = ({ stages, stageData, onLoadMore, salesUsers, cli
     const initialLoad = currentLeads.length === 0 && current.loading;
 
     return (
-        <div className="flex flex-col h-full w-full overflow-hidden" style={{ fontFamily: '"Source Sans 3", Arial, sans-serif' }}>
+        <div className="flex flex-col h-full w-full overflow-hidden" style={{ fontFamily: 'var(--font-body)' }}>
             {/* Stage chips */}
             <div
                 className="flex gap-2 overflow-x-auto px-4 py-3 shrink-0"
-                style={{ scrollbarWidth: "none", borderBottom: "1px solid #D8D2C4" }}
+                style={{ scrollbarWidth: "none", borderBottom: "1px solid var(--c-border)" }}
             >
                 {stages.map(stage => {
                     const isActive = stage.name === activeStage;
-                    const stageColor = stage.color || "#5E6A43";
+                    const stageColor = stage.color || "var(--c-brand)";
                     const count = stageData?.[stage.name]?.count ?? 0;
                     return (
                         <button
@@ -56,19 +56,19 @@ export const LeadMobileBoard = ({ stages, stageData, onLoadMore, salesUsers, cli
                             onClick={() => setActiveStage(stage.name)}
                             className="flex items-center gap-1.5 shrink-0 px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-colors cursor-pointer"
                             style={{
-                                backgroundColor: isActive ? stageColor : "#F2EBDD",
-                                color: isActive ? "#FBF7EF" : "#2E2A26",
-                                border: `1px solid ${isActive ? stageColor : "#D8D2C4"}`,
+                                backgroundColor: isActive ? stageColor : "var(--c-surface-2)",
+                                color: isActive ? "var(--c-on-dark)" : "var(--c-ink)",
+                                border: `1px solid ${isActive ? stageColor : "var(--c-border)"}`,
                             }}
                         >
                             <span
                                 className="h-1.5 w-1.5 rounded-full shrink-0"
-                                style={{ backgroundColor: isActive ? "#FBF7EF" : stageColor }}
+                                style={{ backgroundColor: isActive ? "var(--c-surface)" : stageColor }}
                             />
                             {stage.name}
                             <span
                                 className="text-[10px] font-bold px-1.5 rounded-full tabular-nums"
-                                style={{ backgroundColor: isActive ? "rgba(251,247,239,0.25)" : "rgba(94,106,67,0.12)" }}
+                                style={{ backgroundColor: isActive ? "color-mix(in srgb, var(--c-surface) 25%, transparent)" : "color-mix(in srgb, var(--c-brand) 12%, transparent)" }}
                             >
                                 {count}
                             </span>
@@ -80,19 +80,19 @@ export const LeadMobileBoard = ({ stages, stageData, onLoadMore, salesUsers, cli
             {/* Cards list for the active stage */}
             <div ref={setScrollNode} className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
                 {initialLoad && (
-                    <div className="h-20 flex items-center justify-center text-[10px] uppercase tracking-widest font-bold" style={{ color: "#9b948e" }}>
+                    <div className="h-20 flex items-center justify-center text-[10px] uppercase tracking-widest font-bold" style={{ color: "var(--c-hint)" }}>
                         Loading...
                     </div>
                 )}
                 {!initialLoad && currentLeads.length === 0 && (
                     <div
                         className="h-28 flex flex-col items-center justify-center rounded-xl"
-                        style={{ border: "1.5px dashed #D8D2C4" }}
+                        style={{ border: "1.5px dashed var(--c-border)" }}
                     >
-                        <p className="text-xs uppercase tracking-widest font-bold" style={{ color: "#9b948e" }}>
+                        <p className="text-xs uppercase tracking-widest font-bold" style={{ color: "var(--c-hint)" }}>
                             Empty Stage
                         </p>
-                        <p className="text-[11px] mt-1 opacity-60" style={{ color: "#9b948e" }}>
+                        <p className="text-[11px] mt-1 opacity-60" style={{ color: "var(--c-hint)" }}>
                             No leads here yet
                         </p>
                     </div>
@@ -110,7 +110,7 @@ export const LeadMobileBoard = ({ stages, stageData, onLoadMore, salesUsers, cli
                 ))}
                 {current.hasMore && <div ref={setSentinelNode} className="h-4" />}
                 {current.loading && currentLeads.length > 0 && (
-                    <div className="text-center py-2 text-[10px] uppercase tracking-widest font-bold" style={{ color: "#9b948e" }}>
+                    <div className="text-center py-2 text-[10px] uppercase tracking-widest font-bold" style={{ color: "var(--c-hint)" }}>
                         Loading more...
                     </div>
                 )}

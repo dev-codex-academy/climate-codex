@@ -78,3 +78,28 @@ export const getInstructors = async () => {
     const data = await parse(res, "Error fetching instructors");
     return Array.isArray(data) ? data : data.results || [];
 };
+
+export const getTeachingAssistants = async () => {
+    const res = await fetch(`${API_URL}/tas/`, { method: "GET", headers: getHeaders() });
+    const data = await parse(res, "Error fetching teaching assistants");
+    return Array.isArray(data) ? data : data.results || [];
+};
+
+export const getCohortMentors = async (cohortId) => {
+    return fetchAllPages(`${API_URL}/cohort-mentors/?cohort=${cohortId}`, { method: "GET", headers: getHeaders() });
+};
+
+export const addCohortMentor = async (cohortId, userId) => {
+    const res = await fetch(`${API_URL}/cohort-mentors/`, {
+        method: "POST", headers: getHeaders(), body: JSON.stringify({ cohort: cohortId, user: userId }),
+    });
+    return parse(res, "Error assigning mentor");
+};
+
+export const removeCohortMentor = async (id) => {
+    const res = await fetch(`${API_URL}/cohort-mentors/${id}/`, { method: "DELETE", headers: getHeaders() });
+    if (!res.ok) {
+        const errorData = await res.json().catch(() => null);
+        throw new Error(extractErrorMessage(errorData, "Error removing mentor"));
+    }
+};

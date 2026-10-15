@@ -9,15 +9,11 @@ export const useMenu = () => {
 
         if (storedPermissions) {
             try {
-                let permissions = JSON.parse(storedPermissions);
-
-                // Inject missing permissions just in case backend didn't provide them
-                if (!permissions.includes("app.add_inventory")) permissions.push("app.add_inventory");
-                if (!permissions.includes("app.add_asset")) permissions.push("app.add_asset");
-                if (!permissions.includes("app.add_assetassignment")) permissions.push("app.add_assetassignment");
-                if (!permissions.includes("app.add_catalogueitem") && !permissions.includes("app.add_catalogue_item")) {
-                    permissions.push("app.add_catalogueitem");
-                }
+                // The menu shows ONLY what the user's real permissions allow. (It used to
+                // inject add_inventory/add_asset/add_assetassignment/add_catalogueitem for
+                // everybody, so users with no role saw Inventory, Catalogue and Assets links
+                // that only led to 403 pages.)
+                const permissions = JSON.parse(storedPermissions);
 
                 // Views that no longer exist or are nested only — always hide
                 const hiddenViews = [
@@ -25,6 +21,8 @@ export const useMenu = () => {
                     "attendance", "attendancedetail", "followup",
                     "pricetier", "invoicelineitem", "invoicepayment",
                     "aiconversation", "aimessage",
+                    // Mentorship models: managed from the Cohort detail / mentor self-service pages
+                    "cohortmentor", "mentorprofile", "availabilityrule", "mentorshipbooking",
                 ];
 
                 // Dictionary of known words to separate PascalCase
@@ -118,6 +116,20 @@ export const useMenu = () => {
                     });
                 }
 
+                // Mentor self-service (teachers / Teacher Assistants). Gated by
+                // view_mentorprofile, which setup_mentor_groups grants to both groups.
+                if (permissions.includes("app.view_mentorprofile")) {
+                    // Teachers / TAs get a read-only list of THEIR cohorts (the API filters it); anyone who
+                    // manages cohorts already has the regular "Cohorts" entry.
+                    if (permissions.includes("app.view_cohort") && !permissions.includes("app.add_cohort")) {
+                        formattedMenu.push({ title: "My Cohorts", url: "/cohort", icon: "GraduationCap", items: [] });
+                    }
+                    formattedMenu.push(
+                        { title: "My Availability", url: "/my-availability", icon: "Calendar", items: [] },
+                        { title: "My Mentorships", url: "/my-mentorships", icon: "CalendarCheck", items: [] },
+                    );
+                }
+
                 // Inject Lead Reassignment for superusers only — bulk operation
                 // gated by is_superuser (see PermissionGuard's requireSuperuser),
                 // not a regular Django permission, so it isn't in `permissions`.
@@ -142,12 +154,14 @@ export const useMenu = () => {
                 const billingItems = ["Invoices", "Catalogue", "Categories", "Inventory"];
                 const assetItems = ["Assets", "Asset Assignments"];
                 const aiItems = ["Chett AI"];
+                const mentoringItems = ["My Cohorts", "My Availability", "My Mentorships"];
                 const adminItems = ["Attribute", "Lead Fields", "Webhook", "Lead Reassignment"];
 
                 const groups = [
                     { label: "CRM", items: formattedMenu.filter(i => crmItems.includes(i.title)) },
                     { label: "Billing / Inventory", items: formattedMenu.filter(i => billingItems.includes(i.title)) },
                     { label: "Assets", items: formattedMenu.filter(i => assetItems.includes(i.title)) },
+                    { label: "Mentoring", items: formattedMenu.filter(i => mentoringItems.includes(i.title)) },
                     { label: "AI", items: formattedMenu.filter(i => aiItems.includes(i.title)) },
                     { label: "Admin", items: formattedMenu.filter(i => adminItems.includes(i.title)) },
                 ].filter(g => g.items.length > 0);

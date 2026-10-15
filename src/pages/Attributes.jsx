@@ -12,11 +12,11 @@ import { Plus, Trash, Edit, ChevronLeft, ChevronRight, SlidersHorizontal, GripVe
 import Swal from 'sweetalert2';
 
 const TYPE_COLORS = {
-    text:     { bg: "rgba(94,106,67,0.10)",  border: "rgba(94,106,67,0.35)",  color: "#4a5535" },
-    boolean:  { bg: "rgba(242,155,107,0.12)", border: "rgba(242,155,107,0.4)", color: "#c0622a" },
-    list:     { bg: "rgba(184,199,106,0.12)", border: "rgba(184,199,106,0.4)", color: "#697a28" },
-    number:   { bg: "rgba(216,210,196,0.4)",  border: "#D8D2C4",               color: "#6b6560" },
-    date:     { bg: "rgba(216,210,196,0.4)",  border: "#D8D2C4",               color: "#6b6560" },
+    text:     { bg: "color-mix(in srgb, var(--c-brand) 10%, transparent)",  border: "color-mix(in srgb, var(--c-brand) 35%, transparent)",  color: "var(--c-brand-strong)" },
+    boolean:  { bg: "color-mix(in srgb, var(--c-cta) 12%, transparent)", border: "color-mix(in srgb, var(--c-cta) 40%, transparent)", color: "var(--c-cta-strong)" },
+    list:     { bg: "color-mix(in srgb, var(--c-accent) 12%, transparent)", border: "color-mix(in srgb, var(--c-accent) 40%, transparent)", color: "var(--c-brand-strong)" },
+    number:   { bg: "rgba(216,210,196,0.4)",  border: "var(--c-border)",               color: "var(--c-muted)" },
+    date:     { bg: "rgba(216,210,196,0.4)",  border: "var(--c-border)",               color: "var(--c-muted)" },
 };
 
 const TypePill = ({ type }) => {
@@ -36,11 +36,11 @@ const Modal = ({ isOpen, children, onClose }) => {
     return (
         <div
             className="fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm"
-            style={{ backgroundColor: "rgba(46,42,38,0.4)" }}
+            style={{ backgroundColor: "rgba(30,47,74,0.4)" }}
         >
             <div
                 className="w-full max-w-md rounded-xl shadow-2xl p-6 relative"
-                style={{ backgroundColor: "#FBF7EF", border: "1px solid #D8D2C4" }}
+                style={{ backgroundColor: "var(--c-surface)", border: "1px solid var(--c-border)" }}
                 onClick={e => e.stopPropagation()}
             >
                 {children}
@@ -67,13 +67,13 @@ const SortableAttrCard = ({ attr, onEdit, onDelete }) => {
             className="group/item flex items-center justify-between p-3 rounded-lg transition-all"
             onMouseEnter={e => {
                 if (!isDragging) {
-                    e.currentTarget.style.borderColor = "#5E6A43";
-                    e.currentTarget.style.backgroundColor = "#ede7d9";
+                    e.currentTarget.style.borderColor = "var(--c-brand)";
+                    e.currentTarget.style.backgroundColor = "var(--c-surface-2)";
                 }
             }}
             onMouseLeave={e => {
-                e.currentTarget.style.borderColor = "#D8D2C4";
-                e.currentTarget.style.backgroundColor = "#F2EBDD";
+                e.currentTarget.style.borderColor = "var(--c-border)";
+                e.currentTarget.style.backgroundColor = "var(--c-surface-2)";
             }}
         >
             {/* Drag handle */}
@@ -81,7 +81,7 @@ const SortableAttrCard = ({ attr, onEdit, onDelete }) => {
                 {...attributes}
                 {...listeners}
                 className="flex items-center justify-center mr-2 shrink-0 cursor-grab active:cursor-grabbing"
-                style={{ color: "#D8D2C4", touchAction: "none" }}
+                style={{ color: "var(--c-border)", touchAction: "none" }}
                 title="Drag to reorder"
             >
                 <GripVertical size={14} />
@@ -92,9 +92,9 @@ const SortableAttrCard = ({ attr, onEdit, onDelete }) => {
                 className="shrink-0 mr-2 text-[9px] font-black tabular-nums flex items-center justify-center rounded"
                 style={{
                     minWidth: "18px", height: "18px",
-                    backgroundColor: "rgba(94,106,67,0.12)",
-                    border: "1px solid rgba(94,106,67,0.25)",
-                    color: "#5E6A43",
+                    backgroundColor: "color-mix(in srgb, var(--c-brand) 12%, transparent)",
+                    border: "1px solid color-mix(in srgb, var(--c-brand) 25%, transparent)",
+                    color: "var(--c-brand)",
                     padding: "0 3px",
                 }}
             >
@@ -103,7 +103,7 @@ const SortableAttrCard = ({ attr, onEdit, onDelete }) => {
 
             <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-1.5">
-                    <p className="font-bold text-xs uppercase tracking-tight truncate" style={{ color: "#2E2A26" }}>
+                    <p className="font-bold text-xs uppercase tracking-tight truncate" style={{ color: "var(--c-ink)" }}>
                         {attr.label}
                     </p>
                     {attr.is_required && (
@@ -112,7 +112,7 @@ const SortableAttrCard = ({ attr, onEdit, onDelete }) => {
                 </div>
                 <div className="flex items-center gap-2 mt-1">
                     <TypePill type={attr.type} />
-                    <span className="font-mono text-[9px] truncate opacity-60" style={{ color: "#6b6560" }}>#{attr.name}</span>
+                    <span className="font-mono text-[9px] truncate opacity-60" style={{ color: "var(--c-muted)" }}>#{attr.name}</span>
                 </div>
             </div>
 
@@ -120,8 +120,8 @@ const SortableAttrCard = ({ attr, onEdit, onDelete }) => {
                 <button
                     onClick={() => onEdit(attr)}
                     className="flex h-7 w-7 items-center justify-center rounded-md transition-colors cursor-pointer"
-                    style={{ color: "#5E6A43" }}
-                    onMouseEnter={e => e.currentTarget.style.backgroundColor = "rgba(94,106,67,0.1)"}
+                    style={{ color: "var(--c-brand)" }}
+                    onMouseEnter={e => e.currentTarget.style.backgroundColor = "color-mix(in srgb, var(--c-brand) 10%, transparent)"}
                     onMouseLeave={e => e.currentTarget.style.backgroundColor = "transparent"}
                     title="Edit"
                 >
@@ -212,8 +212,8 @@ export const Attributes = () => {
             text: "You won't be able to revert this!",
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#5E6A43',
-            cancelButtonColor: '#9b948e',
+            confirmButtonColor: 'var(--c-brand)',
+            cancelButtonColor: 'var(--c-hint)',
             confirmButtonText: 'Yes, delete it!'
         });
         if (!result.isConfirmed) return;
@@ -260,7 +260,7 @@ export const Attributes = () => {
 
     if (loading) {
         return (
-            <div className="p-8 text-center" style={{ color: "#6b6560", fontFamily: '"Source Sans 3", Arial, sans-serif' }}>
+            <div className="p-8 text-center" style={{ color: "var(--c-muted)", fontFamily: 'var(--font-body)' }}>
                 Loading Attributes...
             </div>
         );
@@ -269,33 +269,33 @@ export const Attributes = () => {
     return (
         <div
             className="flex-1 flex flex-col min-h-0 overflow-hidden w-full"
-            style={{ backgroundColor: "#FBF7EF", fontFamily: '"Source Sans 3", Arial, sans-serif' }}
+            style={{ backgroundColor: "var(--c-surface)", fontFamily: 'var(--font-body)' }}
         >
             {/* Page header */}
             <div
                 className="shrink-0 px-6 py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3"
-                style={{ borderBottom: "1px solid #D8D2C4", backgroundColor: "#F2EBDD" }}
+                style={{ borderBottom: "1px solid var(--c-border)", backgroundColor: "var(--c-surface-2)" }}
             >
                 <div className="flex items-center gap-3">
                     <div
                         className="flex h-10 w-10 items-center justify-center rounded-lg"
-                        style={{ backgroundColor: "rgba(94,106,67,0.12)", border: "1px solid rgba(94,106,67,0.3)" }}
+                        style={{ backgroundColor: "color-mix(in srgb, var(--c-brand) 12%, transparent)", border: "1px solid color-mix(in srgb, var(--c-brand) 30%, transparent)" }}
                     >
-                        <SlidersHorizontal className="h-5 w-5" style={{ color: "#5E6A43" }} />
+                        <SlidersHorizontal className="h-5 w-5" style={{ color: "var(--c-brand)" }} />
                     </div>
                     <div>
-                        <p className="text-base font-semibold uppercase tracking-wide" style={{ color: "#2E2A26", fontFamily: '"Source Sans 3", Arial, sans-serif' }}>
+                        <p className="text-base font-semibold uppercase tracking-wide" style={{ color: "var(--c-ink)", fontFamily: 'var(--font-body)' }}>
                             Core Attributes Management
                         </p>
-                        <p className="text-xs flex items-center gap-1.5 mt-0.5" style={{ color: "#9b948e" }}>
-                            <span className="h-1.5 w-1.5 rounded-full animate-pulse inline-block" style={{ backgroundColor: "#5E6A43" }} />
+                        <p className="text-xs flex items-center gap-1.5 mt-0.5" style={{ color: "var(--c-hint)" }}>
+                            <span className="h-1.5 w-1.5 rounded-full animate-pulse inline-block" style={{ backgroundColor: "var(--c-brand)" }} />
                             Define and customize fields for your core system entities. Drag cards to reorder.
                         </p>
                     </div>
                 </div>
                 <span
                     className="text-xs font-semibold uppercase tracking-widest px-3 py-1 rounded-full"
-                    style={{ backgroundColor: "rgba(94,106,67,0.10)", border: "1px solid rgba(94,106,67,0.3)", color: "#5E6A43" }}
+                    style={{ backgroundColor: "color-mix(in srgb, var(--c-brand) 10%, transparent)", border: "1px solid color-mix(in srgb, var(--c-brand) 30%, transparent)", color: "var(--c-brand)" }}
                 >
                     {entities.length} Modules
                 </span>
@@ -304,14 +304,14 @@ export const Attributes = () => {
             {/* Kanban board */}
             <div className="flex-1 min-h-0 overflow-hidden p-5 relative group/board">
                 {/* Scroll fade overlays */}
-                <div className="absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-[#FBF7EF] to-transparent pointer-events-none z-10 opacity-0 group-hover/board:opacity-100 transition-opacity" />
-                <div className="absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-[#FBF7EF] to-transparent pointer-events-none z-10 opacity-0 group-hover/board:opacity-100 transition-opacity" />
+                <div className="absolute inset-y-0 left-0 w-16 bg-gradient-to-r from-[var(--c-surface)] to-transparent pointer-events-none z-10 opacity-0 group-hover/board:opacity-100 transition-opacity" />
+                <div className="absolute inset-y-0 right-0 w-16 bg-gradient-to-l from-[var(--c-surface)] to-transparent pointer-events-none z-10 opacity-0 group-hover/board:opacity-100 transition-opacity" />
 
                 {/* Scroll left */}
                 <button
                     onClick={() => document.getElementById('attr-scroll-container').scrollBy({ left: -420, behavior: 'smooth' })}
                     className="absolute left-3 top-1/2 -translate-y-1/2 z-20 h-9 w-9 flex items-center justify-center rounded-full opacity-0 group-hover/board:opacity-100 transition-all hover:scale-105 hidden md:flex"
-                    style={{ backgroundColor: "#FBF7EF", border: "1px solid #D8D2C4", color: "#5E6A43", boxShadow: "0 2px 8px rgba(0,0,0,0.10)" }}
+                    style={{ backgroundColor: "var(--c-surface)", border: "1px solid var(--c-border)", color: "var(--c-brand)", boxShadow: "0 2px 8px rgba(0,0,0,0.10)" }}
                 >
                     <ChevronLeft size={16} />
                 </button>
@@ -320,7 +320,7 @@ export const Attributes = () => {
                 <button
                     onClick={() => document.getElementById('attr-scroll-container').scrollBy({ left: 420, behavior: 'smooth' })}
                     className="absolute right-3 top-1/2 -translate-y-1/2 z-20 h-9 w-9 flex items-center justify-center rounded-full opacity-0 group-hover/board:opacity-100 transition-all hover:scale-105 hidden md:flex"
-                    style={{ backgroundColor: "#FBF7EF", border: "1px solid #D8D2C4", color: "#5E6A43", boxShadow: "0 2px 8px rgba(0,0,0,0.10)" }}
+                    style={{ backgroundColor: "var(--c-surface)", border: "1px solid var(--c-border)", color: "var(--c-brand)", boxShadow: "0 2px 8px rgba(0,0,0,0.10)" }}
                 >
                     <ChevronRight size={16} />
                 </button>
@@ -328,7 +328,7 @@ export const Attributes = () => {
                 <div
                     id="attr-scroll-container"
                     className="flex gap-5 overflow-x-auto pb-4 h-full scroll-smooth"
-                    style={{ scrollbarWidth: "thin", scrollbarColor: "#D8D2C4 transparent" }}
+                    style={{ scrollbarWidth: "thin", scrollbarColor: "var(--c-border) transparent" }}
                 >
                     {entities.map(entity => {
                         const label = entity === 'catalogue_item' ? 'Catalogue Item'
@@ -341,25 +341,25 @@ export const Attributes = () => {
                             <div
                                 key={entity}
                                 className="flex-shrink-0 w-[85vw] md:w-[360px] flex flex-col rounded-xl h-full"
-                                style={{ border: "1px solid #D8D2C4", backgroundColor: "#FBF7EF", overflow: "hidden" }}
+                                style={{ border: "1px solid var(--c-border)", backgroundColor: "var(--c-surface)", overflow: "hidden" }}
                             >
                                 {/* Column header */}
                                 <div
                                     className="px-4 py-3 flex justify-between items-center shrink-0"
-                                    style={{ backgroundColor: "#5E6A43", borderBottom: "1px solid #4a5535" }}
+                                    style={{ backgroundColor: "var(--c-brand)", borderBottom: "1px solid var(--c-brand-strong)" }}
                                 >
                                     <div className="flex items-center gap-2.5">
                                         <div
                                             className="flex h-8 w-8 items-center justify-center rounded-lg text-sm font-bold uppercase"
-                                            style={{ backgroundColor: "rgba(251,247,239,0.15)", color: "#FBF7EF" }}
+                                            style={{ backgroundColor: "color-mix(in srgb, var(--c-surface) 15%, transparent)", color: "var(--c-on-dark)" }}
                                         >
                                             {entity.charAt(0).toUpperCase()}
                                         </div>
                                         <div>
-                                            <p className="text-xs font-black uppercase tracking-widest leading-none" style={{ color: "#FBF7EF" }}>
+                                            <p className="text-xs font-black uppercase tracking-widest leading-none" style={{ color: "var(--c-on-dark)" }}>
                                                 {label}
                                             </p>
-                                            <span className="text-[9px] font-medium" style={{ color: "rgba(251,247,239,0.6)" }}>
+                                            <span className="text-[9px] font-medium" style={{ color: "color-mix(in srgb, var(--c-surface) 60%, transparent)" }}>
                                                 {attrs.length} {attrs.length === 1 ? 'attribute' : 'attributes'}
                                             </span>
                                         </div>
@@ -367,9 +367,9 @@ export const Attributes = () => {
                                     <button
                                         onClick={() => handleAddClick(entity)}
                                         className="flex items-center gap-1 px-3 h-7 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer"
-                                        style={{ backgroundColor: "rgba(251,247,239,0.15)", color: "#FBF7EF", border: "1px solid rgba(251,247,239,0.25)" }}
-                                        onMouseEnter={e => e.currentTarget.style.backgroundColor = "rgba(251,247,239,0.25)"}
-                                        onMouseLeave={e => e.currentTarget.style.backgroundColor = "rgba(251,247,239,0.15)"}
+                                        style={{ backgroundColor: "color-mix(in srgb, var(--c-surface) 15%, transparent)", color: "var(--c-on-dark)", border: "1px solid color-mix(in srgb, var(--c-surface) 25%, transparent)" }}
+                                        onMouseEnter={e => e.currentTarget.style.backgroundColor = "color-mix(in srgb, var(--c-surface) 25%, transparent)"}
+                                        onMouseLeave={e => e.currentTarget.style.backgroundColor = "color-mix(in srgb, var(--c-surface) 15%, transparent)"}
                                     >
                                         <Plus size={11} /> New
                                     </button>
@@ -380,7 +380,7 @@ export const Attributes = () => {
                                     {attrs.length === 0 ? (
                                         <div
                                             className="h-24 flex flex-col items-center justify-center rounded-lg m-1"
-                                            style={{ border: "1.5px dashed #D8D2C4", color: "#9b948e" }}
+                                            style={{ border: "1.5px dashed var(--c-border)", color: "var(--c-hint)" }}
                                         >
                                             <p className="text-[10px] uppercase tracking-widest font-bold">No Attributes</p>
                                             <p className="text-[9px] mt-0.5 opacity-60 italic">Start by adding one</p>

@@ -46,17 +46,17 @@ export const LeadCard = ({ lead, salesUsers = [], clientsById = {}, onDragStart,
             <div
                 className="rounded-lg p-3 transition-all"
                 style={{
-                    backgroundColor: "#FBF7EF",
-                    border: "1px solid #D8D2C4",
-                    fontFamily: '"Source Sans 3", Arial, sans-serif',
+                    backgroundColor: "var(--c-surface)",
+                    border: "1px solid var(--c-border)",
+                    fontFamily: 'var(--font-body)',
                 }}
                 onMouseEnter={e => {
-                    e.currentTarget.style.borderColor = "#5E6A43";
-                    e.currentTarget.style.boxShadow = "0 4px 12px rgba(94,106,67,0.10)";
+                    e.currentTarget.style.borderColor = "var(--c-brand)";
+                    e.currentTarget.style.boxShadow = "0 4px 12px color-mix(in srgb, var(--c-brand) 10%, transparent)";
                     e.currentTarget.style.transform = "translateY(-1px)";
                 }}
                 onMouseLeave={e => {
-                    e.currentTarget.style.borderColor = "#D8D2C4";
+                    e.currentTarget.style.borderColor = "var(--c-border)";
                     e.currentTarget.style.boxShadow = "none";
                     e.currentTarget.style.transform = "none";
                 }}
@@ -65,7 +65,7 @@ export const LeadCard = ({ lead, salesUsers = [], clientsById = {}, onDragStart,
                 <div className="flex items-start justify-between gap-1.5 mb-2.5">
                     <p
                         className="text-[11px] font-bold uppercase tracking-tight leading-tight line-clamp-2"
-                        style={{ color: "#2E2A26" }}
+                        style={{ color: "var(--c-ink)" }}
                     >
                         {lead.name}
                     </p>
@@ -73,7 +73,7 @@ export const LeadCard = ({ lead, salesUsers = [], clientsById = {}, onDragStart,
                         {lead.calls_count > 0 && (
                             <div
                                 className="flex items-center gap-0.5"
-                                style={{ color: "#5E6A43" }}
+                                style={{ color: "var(--c-brand)" }}
                                 title={`${lead.calls_count} call${lead.calls_count === 1 ? "" : "s"} on file`}
                             >
                                 <Phone className="w-3.5 h-3.5" />
@@ -83,7 +83,7 @@ export const LeadCard = ({ lead, salesUsers = [], clientsById = {}, onDragStart,
                         {lead.has_enrollment_agreement && (
                             <FileCheck2
                                 className="w-3.5 h-3.5"
-                                style={{ color: "#5E6A43" }}
+                                style={{ color: "var(--c-brand)" }}
                                 title="Enrollment Agreement on file"
                             />
                         )}
@@ -92,7 +92,7 @@ export const LeadCard = ({ lead, salesUsers = [], clientsById = {}, onDragStart,
                             onClick={handleArchiveClick}
                             title="Archive lead"
                             className="cursor-pointer hover:opacity-70 transition-opacity"
-                            style={{ color: "#9b948e", lineHeight: 0 }}
+                            style={{ color: "var(--c-hint)", lineHeight: 0 }}
                         >
                             <Archive className="w-3.5 h-3.5" />
                         </button>
@@ -102,29 +102,29 @@ export const LeadCard = ({ lead, salesUsers = [], clientsById = {}, onDragStart,
                 {/* Responsible */}
                 <div
                     className="flex items-center gap-1.5 px-2 py-1 rounded-md mb-2"
-                    style={{ backgroundColor: "#F2EBDD", border: "1px solid #D8D2C4" }}
+                    style={{ backgroundColor: "var(--c-surface-2)", border: "1px solid var(--c-border)" }}
                 >
                     <div
                         className="h-4 w-4 rounded-full flex items-center justify-center text-[7px] font-black shrink-0"
-                        style={{ backgroundColor: "#5E6A43", color: "#FBF7EF" }}
+                        style={{ backgroundColor: "var(--c-brand)", color: "var(--c-on-dark)" }}
                     >
                         {responsibleName.charAt(0).toUpperCase()}
                     </div>
-                    <span className="text-[9px] font-semibold truncate" style={{ color: "#2E2A26" }}>
+                    <span className="text-[9px] font-semibold truncate" style={{ color: "var(--c-ink)" }}>
                         {responsibleName}
                     </span>
                 </div>
 
                 {/* Date + client */}
                 <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-1" style={{ color: "#9b948e" }}>
+                    <div className="flex items-center gap-1" style={{ color: "var(--c-hint)" }}>
                         <Calendar className="w-2.5 h-2.5" />
                         <span className="text-[9px] font-medium">
                             {formatDate(lead.created_at || lead.date) || "No date"}
                         </span>
                     </div>
                     {clientName && (
-                        <div className="flex items-center gap-1 max-w-[55%]" style={{ color: "#9b948e" }}>
+                        <div className="flex items-center gap-1 max-w-[55%]" style={{ color: "var(--c-hint)" }}>
                             <Building className="w-2.5 h-2.5 shrink-0" />
                             <span className="text-[9px] truncate">{clientName}</span>
                         </div>

@@ -16,8 +16,8 @@ import {
 } from "@/components/ui/sidebar"
 import { useLocation } from "react-router-dom";
 
-const OLIVE = "#5E6A43";
-const ACTIVE_BORDER = "3px solid #5E6A43";
+const OLIVE = "var(--c-brand)";
+const ACTIVE_BORDER = "3px solid var(--c-brand)";
 
 export function NavMain({ items }) {
   const location = useLocation();
@@ -45,7 +45,7 @@ export function NavMain({ items }) {
               >
                 <a
                   href={item.url || "#"}
-                  style={{ fontFamily: '"Source Sans 3", Arial, sans-serif' }}
+                  style={{ fontFamily: 'var(--font-body)' }}
                 >
                   {item.icon && (
                     <Icon
@@ -71,13 +71,13 @@ export function NavMain({ items }) {
               <CollapsibleTrigger asChild>
                 <SidebarMenuButton
                   tooltip={item.title}
-                  style={{ fontFamily: '"Source Sans 3", Arial, sans-serif' }}
+                  style={{ fontFamily: 'var(--font-body)' }}
                 >
                   {item.icon && (
                     <div className="flex items-center">
                       <div
                         className="p-1 rounded group-data-[collapsible=icon]:hidden"
-                        style={{ backgroundColor: "rgba(94,106,67,0.12)" }}
+                        style={{ backgroundColor: "color-mix(in srgb, var(--c-brand) 12%, transparent)" }}
                       >
                         <Icon className="size-4" style={{ color: OLIVE }} />
                       </div>
@@ -109,7 +109,7 @@ export function NavMain({ items }) {
                             style={{
                               color: isActive ? OLIVE : undefined,
                               backgroundColor: isActive ? "var(--sidebar-accent)" : "transparent",
-                              fontFamily: '"Source Sans 3", Arial, sans-serif',
+                              fontFamily: 'var(--font-body)',
                               fontWeight: isActive ? 600 : 400,
                               borderLeft: isActive ? `2px solid ${OLIVE}` : "2px solid transparent",
                             }}

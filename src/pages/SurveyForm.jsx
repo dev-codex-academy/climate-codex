@@ -3,19 +3,19 @@ import { useParams } from "react-router-dom";
 import { submitSurvey } from "../services/surveyService";
 import { DateInput } from "../components/ui/date-input";
 
-const FONT = '"Source Sans 3", Arial, sans-serif';
-const INK = "#2E2A26";
-const MUTED = "#6b6560";
-const HINT = "#9b948e";
-const LINEN = "#FBF7EF";
-const OAT = "#F2EBDD";
-const PEBBLE = "#D8D2C4";
-const OLIVE = "#5E6A43";
-const APRICOT = "#F29B6B";
+const FONT = 'var(--font-body)';
+const INK = "var(--c-ink)";
+const MUTED = "var(--c-muted)";
+const HINT = "var(--c-hint)";
+const LINEN = "var(--c-surface)";
+const OAT = "var(--c-surface-2)";
+const PEBBLE = "var(--c-border)";
+const OLIVE = "var(--c-brand)";
+const APRICOT = "var(--c-cta)";
 
 const inputStyle = {
     width: "100%", padding: "10px 14px", border: `1px solid ${PEBBLE}`,
-    borderRadius: "6px", backgroundColor: "#fff", color: INK,
+    borderRadius: "6px", backgroundColor: "var(--c-card)", color: INK,
     fontFamily: FONT, fontSize: "16px", outline: "none", boxSizing: "border-box",
 };
 
@@ -87,7 +87,7 @@ function CheckGroup({ options, values, onChange, allowOther, otherValue, onOther
 function SectionTitle({ number, title, subtitle }) {
     return (
         <div style={{ borderBottom: `2px solid ${OLIVE}`, paddingBottom: "10px", marginBottom: "24px", marginTop: "32px" }}>
-            <p style={{ fontFamily: '"Cormorant Garamond", Georgia, serif', fontSize: "26px", fontStyle: "italic", color: OLIVE, margin: 0 }}>
+            <p style={{ fontFamily: 'var(--font-heading)', fontSize: "26px", color: OLIVE, margin: 0 }}>
                 {number}. {title}
             </p>
             {subtitle && <p style={{ fontFamily: FONT, fontSize: "14px", color: HINT, marginTop: "4px" }}>{subtitle}</p>}
@@ -172,10 +172,10 @@ export const SurveyForm = () => {
         return (
             <div style={{ minHeight: "100vh", backgroundColor: LINEN, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: FONT }}>
                 <div style={{ textAlign: "center", maxWidth: "520px", padding: "40px" }}>
-                    <div style={{ width: "64px", height: "64px", borderRadius: "50%", backgroundColor: "rgba(94,106,67,0.12)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px" }}>
+                    <div style={{ width: "64px", height: "64px", borderRadius: "50%", backgroundColor: "color-mix(in srgb, var(--c-brand) 12%, transparent)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px" }}>
                         <span style={{ fontSize: "28px" }}>✓</span>
                     </div>
-                    <p style={{ fontFamily: '"Cormorant Garamond", Georgia, serif', fontSize: "32px", fontStyle: "italic", color: OLIVE, marginBottom: "12px" }}>
+                    <p style={{ fontFamily: 'var(--font-heading)', fontSize: "32px", color: OLIVE, marginBottom: "12px" }}>
                         Registration Submitted
                     </p>
                     <p style={{ color: MUTED, fontSize: "17px", lineHeight: 1.6 }}>
@@ -190,7 +190,7 @@ export const SurveyForm = () => {
         <div style={{ minHeight: "100vh", backgroundColor: LINEN, fontFamily: FONT }}>
             {/* Header */}
             <div style={{ backgroundColor: OLIVE, padding: "24px 0", textAlign: "center" }}>
-                <p style={{ fontFamily: '"Cormorant Garamond", Georgia, serif', fontSize: "36px", fontStyle: "italic", color: "#FBF7EF", margin: 0 }}>
+                <p style={{ fontFamily: 'var(--font-heading)', fontSize: "36px", color: "var(--c-on-dark)", margin: 0 }}>
                     Registration Form
                 </p>
             </div>
@@ -409,8 +409,8 @@ export const SurveyForm = () => {
 
                 <div style={{ display: "flex", justifyContent: "center", marginTop: "32px" }}>
                     <button type="submit" disabled={submitting}
-                        style={{ backgroundColor: OLIVE, color: LINEN, border: "none", borderRadius: "8px", padding: "12px 48px", fontSize: "17px", fontWeight: 600, fontFamily: FONT, cursor: submitting ? "not-allowed" : "pointer", opacity: submitting ? 0.7 : 1, transition: "background-color 0.2s" }}
-                        onMouseEnter={e => { if (!submitting) e.currentTarget.style.backgroundColor = "#4a5535"; }}
+                        style={{ backgroundColor: OLIVE, color: "var(--c-on-dark)", border: "none", borderRadius: "8px", padding: "12px 48px", fontSize: "17px", fontWeight: 600, fontFamily: FONT, cursor: submitting ? "not-allowed" : "pointer", opacity: submitting ? 0.7 : 1, transition: "background-color 0.2s" }}
+                        onMouseEnter={e => { if (!submitting) e.currentTarget.style.backgroundColor = "var(--c-brand-strong)"; }}
                         onMouseLeave={e => { e.currentTarget.style.backgroundColor = OLIVE; }}>
                         {submitting ? "Submitting..." : "Submit Registration"}
                     </button>

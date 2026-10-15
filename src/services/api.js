@@ -67,7 +67,10 @@ window.fetch = async (url, options = {}) => {
   if (
     response.status === 401 &&
     !urlStr.includes('/login/') &&
-    !urlStr.includes('/me/')
+    !urlStr.includes('/me/') &&
+    // Public endpoints (e.g. the mentorship booking page) answer 401 to a wrong
+    // code or an expired booking session; that is not a CRM session expiring.
+    !urlStr.includes('/public/')
   ) {
     window.dispatchEvent(new CustomEvent('auth:token-expired'));
   }

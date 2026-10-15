@@ -22,6 +22,18 @@ export const postToken = async (user) => {
 
 }
 
+export const changeTemporaryPassword = async (payload) => {
+    const response = await fetch(`${API_URL}/login/change-password/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload)
+    })
+
+    return await finalResponse(response, 'login/change-password/', 'Creation')
+}
+
 export const verifyLoginCode = async (payload) => {
     const response = await fetch(verifyUrl, {
         method: 'POST',

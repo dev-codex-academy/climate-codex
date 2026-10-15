@@ -8,14 +8,14 @@ import {
 } from "lucide-react";
 import Swal from "sweetalert2";
 
-const FONT = '"Source Sans 3", Arial, sans-serif';
-const OLIVE = "#5E6A43";
-const LINEN = "#FBF7EF";
-const PEBBLE = "#D8D2C4";
-const INK = "#2E2A26";
-const CITRON = "#B8C76A";
-const APRICOT = "#F29B6B";
-const CODEX_PRIMARY = "#4F8071";
+const FONT = 'var(--font-body)';
+const OLIVE = "var(--c-brand)";
+const LINEN = "var(--c-surface)";
+const PEBBLE = "var(--c-border)";
+const INK = "var(--c-ink)";
+const CITRON = "var(--c-accent)";
+const APRICOT = "var(--c-cta)";
+const CODEX_PRIMARY = "var(--c-brand)";
 
 export const LandingPage = () => {
     const [pipelines, setPipelines] = useState([]);
@@ -143,7 +143,7 @@ export const LandingPage = () => {
                         </div>
                     </div>
                     <h1 className="text-3xl font-black tracking-tight" style={{ color: INK }}>Success!</h1>
-                    <p className="text-muted-foreground" style={{ color: "#6b6560" }}>
+                    <p className="text-muted-foreground" style={{ color: "var(--c-muted)" }}>
                         We've received your information. A representative will reach out to you shortly.
                     </p>
                     
@@ -153,7 +153,7 @@ export const LandingPage = () => {
                             target="_blank"
                             rel="noopener noreferrer"
                             className="w-full py-4 rounded-xl font-bold transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
-                            style={{ backgroundColor: APRICOT, color: LINEN }}
+                            style={{ backgroundColor: APRICOT, color: "var(--c-on-dark)" }}
                         >
                             Schedule a Meeting
                         </a>
@@ -182,7 +182,7 @@ export const LandingPage = () => {
                     <h1 className="text-5xl md:text-6xl font-black leading-[1.1] tracking-tight" style={{ color: INK }}>
                         Empower Your <span style={{ color: CODEX_PRIMARY }}>Sales</span> Workflow.
                     </h1>
-                    <p className="text-lg leading-relaxed opacity-70" style={{ color: "#2E2A26" }}>
+                    <p className="text-lg leading-relaxed opacity-70" style={{ color: "var(--c-ink)" }}>
                         Experience the next generation of CRM. Personalizable pipelines, 
                         dynamic attributes, and seamless automation tailored for your specific needs.
                     </p>
@@ -195,10 +195,10 @@ export const LandingPage = () => {
                             "Real-time Lead Tracking"
                         ].map((item, idx) => (
                             <div key={idx} className="flex items-center gap-3">
-                                <div className="h-5 w-5 rounded-full flex items-center justify-center" style={{ backgroundColor: "rgba(184,199,106,0.2)" }}>
+                                <div className="h-5 w-5 rounded-full flex items-center justify-center" style={{ backgroundColor: "color-mix(in srgb, var(--c-accent) 20%, transparent)" }}>
                                     <ChevronRight size={12} style={{ color: CITRON }} />
                                 </div>
-                                <span className="text-sm font-bold" style={{ color: "#2E2A26" }}>{item}</span>
+                                <span className="text-sm font-bold" style={{ color: "var(--c-ink)" }}>{item}</span>
                             </div>
                         ))}
                     </div>
@@ -222,7 +222,7 @@ export const LandingPage = () => {
                     <form onSubmit={handleSubmit} className="space-y-5">
                         {/* Pipeline Selector */}
                         <div className="space-y-1.5">
-                            <label className="text-[10px] font-black uppercase tracking-widest" style={{ color: "#6b6560" }}>
+                            <label className="text-[10px] font-black uppercase tracking-widest" style={{ color: "var(--c-muted)" }}>
                                 What are you interested in? *
                             </label>
                             <div className="relative">
@@ -231,7 +231,7 @@ export const LandingPage = () => {
                                     value={selectedPipelineId}
                                     onChange={(e) => setSelectedPipelineId(e.target.value)}
                                     className="w-full h-12 pl-10 pr-4 rounded-xl border appearance-none focus:outline-none transition-all shadow-sm"
-                                    style={{ borderColor: PEBBLE, backgroundColor: "#F9F8F6", color: INK }}
+                                    style={{ borderColor: PEBBLE, backgroundColor: "var(--c-hover)", color: INK }}
                                     onFocus={e => e.target.style.borderColor = CODEX_PRIMARY}
                                     onBlur={e => e.target.style.borderColor = PEBBLE}
                                 >
@@ -259,7 +259,7 @@ export const LandingPage = () => {
                                 ) : (
                                     attributes.map(attr => (
                                         <div key={attr.id} className="space-y-1.5">
-                                            <label className="text-[10px] font-black uppercase tracking-widest" style={{ color: "#6b6560" }}>
+                                            <label className="text-[10px] font-black uppercase tracking-widest" style={{ color: "var(--c-muted)" }}>
                                                 {attr.label} {attr.is_required ? "*" : ""}
                                             </label>
                                             
@@ -270,7 +270,7 @@ export const LandingPage = () => {
                                                     value={formData[attr.name] || ""}
                                                     onChange={handleInputChange}
                                                     className="w-full h-12 px-4 rounded-xl border focus:outline-none transition-all"
-                                                    style={{ borderColor: PEBBLE, backgroundColor: "#F9F8F6", color: INK }}
+                                                    style={{ borderColor: PEBBLE, backgroundColor: "var(--c-hover)", color: INK }}
                                                     onFocus={e => e.target.style.borderColor = CODEX_PRIMARY}
                                                     onBlur={e => e.target.style.borderColor = PEBBLE}
                                                 >
@@ -287,12 +287,12 @@ export const LandingPage = () => {
                                                     onChange={handleInputChange}
                                                     placeholder={`Enter ${attr.label}`}
                                                     className="w-full p-4 rounded-xl border focus:outline-none transition-all min-h-[100px]"
-                                                    style={{ borderColor: PEBBLE, backgroundColor: "#F9F8F6", color: INK }}
+                                                    style={{ borderColor: PEBBLE, backgroundColor: "var(--c-hover)", color: INK }}
                                                     onFocus={e => e.target.style.borderColor = CODEX_PRIMARY}
                                                     onBlur={e => e.target.style.borderColor = PEBBLE}
                                                 />
                                             ) : attr.type === "boolean" ? (
-                                                <div className="flex items-center gap-3 p-3 rounded-xl border" style={{ borderColor: PEBBLE, backgroundColor: "#F9F8F6" }}>
+                                                <div className="flex items-center gap-3 p-3 rounded-xl border" style={{ borderColor: PEBBLE, backgroundColor: "var(--c-hover)" }}>
                                                     <input 
                                                         type="checkbox"
                                                         name={attr.name}
@@ -318,7 +318,7 @@ export const LandingPage = () => {
                                                     onChange={handleInputChange}
                                                     placeholder={`Enter ${attr.label}`}
                                                     className="w-full h-12 px-4 rounded-xl border focus:outline-none transition-all"
-                                                    style={{ borderColor: PEBBLE, backgroundColor: "#F9F8F6", color: INK }}
+                                                    style={{ borderColor: PEBBLE, backgroundColor: "var(--c-hover)", color: INK }}
                                                     onFocus={e => e.target.style.borderColor = CODEX_PRIMARY}
                                                     onBlur={e => e.target.style.borderColor = PEBBLE}
                                                 />
@@ -335,7 +335,7 @@ export const LandingPage = () => {
                             className="w-full h-14 rounded-2xl font-black uppercase tracking-widest text-sm flex items-center justify-center gap-3 transition-all shadow-xl hover:scale-[1.02] active:scale-[0.98] mt-4"
                             style={{ 
                                 backgroundColor: loading || !selectedPipelineId ? PEBBLE : CODEX_PRIMARY, 
-                                color: LINEN,
+                                color: "var(--c-on-dark)",
                                 cursor: loading || !selectedPipelineId ? "not-allowed" : "pointer"
                             }}
                         >

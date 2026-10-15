@@ -34,10 +34,14 @@ import { WebhookList } from "../pages/Webhooks/WebhookList";
 import { WebhookDetail } from "../pages/Webhooks/WebhookDetail";
 import { ApiGuide } from "../pages/ApiGuide";
 import { Faq } from "../pages/Faq";
-import { Dashboard } from "../pages/Dashboard";
+import { DashboardHome } from "../pages/DashboardHome";
 import { SurveyForm } from "../pages/SurveyForm";
 import { EnrollmentForm } from "../pages/EnrollmentForm";
 import { LandingPage } from "../pages/LandingPage";
+import { BookMentorship } from "../pages/BookMentorship";
+import { BookCancel } from "../pages/BookCancel";
+import { MyAvailability } from "../pages/MyAvailability";
+import { MyMentorships } from "../pages/MyMentorships";
 import AdminLayout from "@/layout/AdminLayout"
 import { useAuth } from "@/context/AuthContext"
 import { PermissionGuard } from "../components/PermissionGuard"
@@ -72,11 +76,13 @@ export const RouterApp = () => {
             <Route path="/survey/:serviceId" element={<SurveyForm />} />
             <Route path="/enrollment/:leadId" element={<EnrollmentForm />} />
             <Route path="/landing" element={<LandingPage />} />
+            <Route path="/book" element={<BookMentorship />} />
+            <Route path="/book/cancel/:token" element={<BookCancel />} />
 
             {/* private routes */}
 
             <Route path="/" element={<LoginValidate><AdminLayout /></LoginValidate>}>
-                <Route index element={<Dashboard />} />
+                <Route index element={<DashboardHome />} />
                 {/*  <Route path="rol" element={<Rol />} /> */}
                 <Route path="lead" element={<PermissionGuard requiredPermission="app.add_lead"><Lead /></PermissionGuard>} />
                 <Route path="lead/:id" element={<PermissionGuard requiredPermission="app.add_lead"><LeadDetail /></PermissionGuard>} />
@@ -101,12 +107,14 @@ export const RouterApp = () => {
                 <Route path="asset/:id" element={<PermissionGuard requiredPermission="app.add_asset"><AssetDetail /></PermissionGuard>} />
                 <Route path="assetassignment" element={<PermissionGuard requiredPermission="app.add_assetassignment"><AssetAssignment /></PermissionGuard>} />
                 <Route path="assetassignment/:id" element={<PermissionGuard requiredPermission="app.add_assetassignment"><AssetAssignmentDetail /></PermissionGuard>} />
-                <Route path="cohort" element={<PermissionGuard requiredPermission="app.add_cohort"><Cohort /></PermissionGuard>} />
-                <Route path="cohort/:id" element={<PermissionGuard requiredPermission="app.add_cohort"><CohortDetail /></PermissionGuard>} />
+                <Route path="cohort" element={<PermissionGuard requiredPermission="app.view_cohort"><Cohort /></PermissionGuard>} />
+                <Route path="cohort/:id" element={<PermissionGuard requiredPermission="app.view_cohort"><CohortDetail /></PermissionGuard>} />
                 <Route path="followup" element={<PermissionGuard requiredPermission="app.add_followup"><Followup /></PermissionGuard>} />
                 <Route path="webhook" element={<PermissionGuard requiredPermission="app.add_webhook"><WebhookList /></PermissionGuard>} />
                 <Route path="webhook/:id" element={<PermissionGuard requiredPermission="app.add_webhook"><WebhookDetail /></PermissionGuard>} />
                 <Route path="chett-ai" element={<PermissionGuard requiredPermission="app.view_aiconversation"><ChettAI /></PermissionGuard>} />
+                <Route path="my-availability" element={<PermissionGuard requiredPermission="app.view_mentorprofile"><MyAvailability /></PermissionGuard>} />
+                <Route path="my-mentorships" element={<PermissionGuard requiredPermission="app.view_mentorprofile"><MyMentorships /></PermissionGuard>} />
                 <Route path="lead-reassignment" element={<PermissionGuard requireSuperuser><LeadReassignment /></PermissionGuard>} />
             </Route>
 

@@ -6,14 +6,14 @@ import { DateInput } from "../components/ui/date-input";
 import { formatDate } from "../utils/date";
 
 const BRAND = {
-  linen: "#FBF7EF",
-  oat: "#F2EBDD",
-  pebble: "#D8D2C4",
-  olive: "#5E6A43",
-  apricot: "#F29B6B",
-  ink: "#2E2A26",
-  muted: "#6b6560",
-  hint: "#9b948e",
+  linen: "var(--c-surface)",
+  oat: "var(--c-surface-2)",
+  pebble: "var(--c-border)",
+  olive: "var(--c-brand)",
+  apricot: "var(--c-cta)",
+  ink: "var(--c-ink)",
+  muted: "var(--c-muted)",
+  hint: "var(--c-hint)",
 };
 
 const STUDENT_TYPES = [
@@ -29,10 +29,10 @@ const inputStyle = {
   padding: "8px 10px",
   border: `1px solid ${BRAND.pebble}`,
   borderRadius: 4,
-  backgroundColor: "#fff",
+  backgroundColor: "var(--c-card)",
   color: BRAND.ink,
   fontSize: 14,
-  fontFamily: '"Source Sans 3", Arial, sans-serif',
+  fontFamily: 'var(--font-body)',
   boxSizing: "border-box",
 };
 
@@ -42,14 +42,14 @@ const labelStyle = {
   fontWeight: 600,
   color: BRAND.muted,
   marginBottom: 4,
-  fontFamily: '"Source Sans 3", Arial, sans-serif',
+  fontFamily: 'var(--font-body)',
 };
 
 const sectionTitleStyle = {
   fontSize: 18,
   fontWeight: 700,
   color: BRAND.ink,
-  fontFamily: '"Source Sans 3", Arial, sans-serif',
+  fontFamily: 'var(--font-body)',
   borderBottom: `2px solid ${BRAND.pebble}`,
   paddingBottom: 8,
   marginBottom: 20,
@@ -143,7 +143,7 @@ export function EnrollmentForm() {
   if (loading) {
     return (
       <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh", backgroundColor: BRAND.linen }}>
-        <p style={{ color: BRAND.muted, fontFamily: '"Source Sans 3", Arial, sans-serif' }}>Loading…</p>
+        <p style={{ color: BRAND.muted, fontFamily: 'var(--font-body)' }}>Loading…</p>
       </div>
     );
   }
@@ -151,12 +151,12 @@ export function EnrollmentForm() {
   if (prefill?.already_signed) {
     return (
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "100vh", backgroundColor: BRAND.linen, padding: 24 }}>
-        <div style={{ backgroundColor: "#fff", border: `1px solid ${BRAND.pebble}`, borderRadius: 8, padding: 48, maxWidth: 520, textAlign: "center" }}>
+        <div style={{ backgroundColor: "var(--c-card)", border: `1px solid ${BRAND.pebble}`, borderRadius: 8, padding: 48, maxWidth: 520, textAlign: "center" }}>
           <div style={{ fontSize: 48, marginBottom: 16 }}>✓</div>
-          <p style={{ fontSize: 22, fontWeight: 700, color: BRAND.ink, fontFamily: '"Source Sans 3", Arial, sans-serif', marginBottom: 8 }}>
+          <p style={{ fontSize: 22, fontWeight: 700, color: BRAND.ink, fontFamily: 'var(--font-body)', marginBottom: 8 }}>
             Agreement Already Signed
           </p>
-          <p style={{ color: BRAND.muted, fontFamily: '"Source Sans 3", Arial, sans-serif' }}>
+          <p style={{ color: BRAND.muted, fontFamily: 'var(--font-body)' }}>
             Your enrollment agreement has already been submitted. If you have any questions, please contact us at admissions@codex.academy.
           </p>
         </div>
@@ -167,12 +167,12 @@ export function EnrollmentForm() {
   if (submitted) {
     return (
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "100vh", backgroundColor: BRAND.linen, padding: 24 }}>
-        <div style={{ backgroundColor: "#fff", border: `1px solid ${BRAND.pebble}`, borderRadius: 8, padding: 48, maxWidth: 520, textAlign: "center" }}>
+        <div style={{ backgroundColor: "var(--c-card)", border: `1px solid ${BRAND.pebble}`, borderRadius: 8, padding: 48, maxWidth: 520, textAlign: "center" }}>
           <div style={{ fontSize: 48, marginBottom: 16 }}>✓</div>
-          <p style={{ fontSize: 22, fontWeight: 700, color: BRAND.ink, fontFamily: '"Source Sans 3", Arial, sans-serif', marginBottom: 8 }}>
+          <p style={{ fontSize: 22, fontWeight: 700, color: BRAND.ink, fontFamily: 'var(--font-body)', marginBottom: 8 }}>
             Enrollment Agreement Submitted
           </p>
-          <p style={{ color: BRAND.muted, fontFamily: '"Source Sans 3", Arial, sans-serif' }}>
+          <p style={{ color: BRAND.muted, fontFamily: 'var(--font-body)' }}>
             Thank you, {form.student_name}. Your signed enrollment agreement has been received. You will receive a confirmation from our team shortly.
           </p>
         </div>
@@ -188,10 +188,10 @@ export function EnrollmentForm() {
 
         {/* Header */}
         <div style={{ textAlign: "center", marginBottom: 32 }}>
-          <p style={{ fontSize: 28, fontWeight: 700, color: BRAND.ink, fontFamily: '"Source Sans 3", Arial, sans-serif', marginBottom: 4 }}>
+          <p style={{ fontSize: 28, fontWeight: 700, color: BRAND.ink, fontFamily: 'var(--font-body)', marginBottom: 4 }}>
             Enrollment Agreement
           </p>
-          <p style={{ color: BRAND.muted, fontFamily: '"Source Sans 3", Arial, sans-serif' }}>
+          <p style={{ color: BRAND.muted, fontFamily: 'var(--font-body)' }}>
             CodeX Academy Technologies, LLC · 2930 Pipkin Hills Drive · Spring Hill, TN 37174<br />
             (615) 266-4847 · Hours: 9:00 a.m. – 5:00 p.m. (Central)
           </p>
@@ -200,14 +200,14 @@ export function EnrollmentForm() {
         {/* Error banner */}
         {hasErrors && (
           <div style={{ backgroundColor: "#fef2f2", border: "1px solid #fca5a5", borderRadius: 6, padding: "12px 16px", marginBottom: 20 }}>
-            <p style={{ color: "#b91c1c", fontFamily: '"Source Sans 3", Arial, sans-serif', fontSize: 14, margin: 0 }}>
+            <p style={{ color: "#b91c1c", fontFamily: 'var(--font-body)', fontSize: 14, margin: 0 }}>
               {errors.detail || "Please review the errors below and try again."}
             </p>
           </div>
         )}
 
         <form onSubmit={handleSubmit}>
-          <div style={{ backgroundColor: "#fff", border: `1px solid ${BRAND.pebble}`, borderRadius: 8, padding: 28 }}>
+          <div style={{ backgroundColor: "var(--c-card)", border: `1px solid ${BRAND.pebble}`, borderRadius: 8, padding: 28 }}>
 
             {/* Student Information */}
             <p style={sectionTitleStyle}>Student Information</p>
@@ -257,7 +257,7 @@ export function EnrollmentForm() {
                 <label style={labelStyle}>Student Type *</label>
                 <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 4 }}>
                   {STUDENT_TYPES.map((t) => (
-                    <label key={t.value} style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", fontFamily: '"Source Sans 3", Arial, sans-serif', fontSize: 14, color: BRAND.ink }}>
+                    <label key={t.value} style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", fontFamily: 'var(--font-body)', fontSize: 14, color: BRAND.ink }}>
                       <input
                         type="radio"
                         name="student_type"
@@ -271,7 +271,7 @@ export function EnrollmentForm() {
                   ))}
                 </div>
                 {errors.student_type && (
-                  <p style={{ color: "#b91c1c", fontSize: 13, marginTop: 4, fontFamily: '"Source Sans 3", Arial, sans-serif' }}>{errors.student_type}</p>
+                  <p style={{ color: "#b91c1c", fontSize: 13, marginTop: 4, fontFamily: 'var(--font-body)' }}>{errors.student_type}</p>
                 )}
               </div>
               {form.student_type === "other" && (
@@ -290,7 +290,7 @@ export function EnrollmentForm() {
 
             {/* Enrollment Agreement Text */}
             <p style={sectionTitleStyle}>Student Enrollment Agreement</p>
-            <div style={{ backgroundColor: BRAND.linen, border: `1px solid ${BRAND.pebble}`, borderRadius: 6, padding: 20, fontSize: 13, color: BRAND.ink, fontFamily: '"Source Sans 3", Arial, sans-serif', lineHeight: 1.7, maxHeight: 400, overflowY: "auto" }}>
+            <div style={{ backgroundColor: BRAND.linen, border: `1px solid ${BRAND.pebble}`, borderRadius: 6, padding: 20, fontSize: 13, color: BRAND.ink, fontFamily: 'var(--font-body)', lineHeight: 1.7, maxHeight: 400, overflowY: "auto" }}>
               <p style={{ fontWeight: 700, marginBottom: 8 }}>Admissions Statement</p>
               <p>Each student is assessed as part of the application process. The admissions staff review each application to determine if the student meets the standards for acceptance. For adult learners, a minimum of a High School Diploma or GED is required for acceptance. General admission acceptance is based on the following criteria:</p>
               <ul>
@@ -341,12 +341,12 @@ export function EnrollmentForm() {
 
             {/* Disability accommodation */}
             <p style={{ ...sectionTitleStyle, marginTop: 28 }}>Accommodation</p>
-            <p style={{ fontSize: 13, color: BRAND.ink, fontFamily: '"Source Sans 3", Arial, sans-serif', marginBottom: 12 }}>
+            <p style={{ fontSize: 13, color: BRAND.ink, fontFamily: 'var(--font-body)', marginBottom: 12 }}>
               Do you have a disability that may require reasonable accommodations to support your success in this course?
             </p>
             <div style={{ display: "flex", gap: 24, marginBottom: 10 }}>
               {[{ label: "Yes", value: true }, { label: "No", value: false }, { label: "Prefer not to say", value: "prefer_not" }].map((opt) => (
-                <label key={String(opt.value)} style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", fontFamily: '"Source Sans 3", Arial, sans-serif', fontSize: 14, color: BRAND.ink }}>
+                <label key={String(opt.value)} style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", fontFamily: 'var(--font-body)', fontSize: 14, color: BRAND.ink }}>
                   <input
                     type="radio"
                     name="has_disability"
@@ -358,13 +358,13 @@ export function EnrollmentForm() {
                 </label>
               ))}
             </div>
-            <p style={{ fontSize: 12, color: "#6b6560", fontFamily: '"Source Sans 3", Arial, sans-serif', fontStyle: "italic", margin: 0 }}>
+            <p style={{ fontSize: 12, color: "var(--c-muted)", fontFamily: 'var(--font-body)', margin: 0 }}>
               If yes, a member of our support team will follow up to discuss available accommodations. Disclosure is voluntary and confidential, and will not affect your enrollment status.
             </p>
 
             {/* Signatures */}
             <p style={{ ...sectionTitleStyle, marginTop: 32 }}>Signatures</p>
-            <p style={{ fontSize: 13, color: BRAND.ink, fontFamily: '"Source Sans 3", Arial, sans-serif', marginBottom: 20 }}>
+            <p style={{ fontSize: 13, color: BRAND.ink, fontFamily: 'var(--font-body)', marginBottom: 20 }}>
               By my signature, I agree to the conditions of this agreement. I also verify that I have read and received a copy of this agreement and the school catalog.
             </p>
 
@@ -372,7 +372,7 @@ export function EnrollmentForm() {
               {/* Student signature */}
               <div>
                 <label style={labelStyle}>Student Signature *</label>
-                <div style={{ border: `1px solid ${BRAND.pebble}`, borderRadius: 4, backgroundColor: "#fff", overflow: "hidden" }}>
+                <div style={{ border: `1px solid ${BRAND.pebble}`, borderRadius: 4, backgroundColor: "var(--c-card)", overflow: "hidden" }}>
                   <SignatureCanvas
                     ref={sigRef}
                     penColor={BRAND.ink}
@@ -382,14 +382,14 @@ export function EnrollmentForm() {
                 <button
                   type="button"
                   onClick={() => sigRef.current?.clear()}
-                  style={{ marginTop: 6, fontSize: 12, color: BRAND.muted, background: "none", border: "none", cursor: "pointer", padding: 0, fontFamily: '"Source Sans 3", Arial, sans-serif' }}
+                  style={{ marginTop: 6, fontSize: 12, color: BRAND.muted, background: "none", border: "none", cursor: "pointer", padding: 0, fontFamily: 'var(--font-body)' }}
                 >
                   Clear signature
                 </button>
                 {errors.student_signature && (
-                  <p style={{ color: "#b91c1c", fontSize: 13, marginTop: 4, fontFamily: '"Source Sans 3", Arial, sans-serif' }}>{errors.student_signature}</p>
+                  <p style={{ color: "#b91c1c", fontSize: 13, marginTop: 4, fontFamily: 'var(--font-body)' }}>{errors.student_signature}</p>
                 )}
-                <p style={{ fontSize: 12, color: BRAND.hint, marginTop: 4, fontFamily: '"Source Sans 3", Arial, sans-serif' }}>
+                <p style={{ fontSize: 12, color: BRAND.hint, marginTop: 4, fontFamily: 'var(--font-body)' }}>
                   Date: {new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
                 </p>
               </div>
@@ -398,17 +398,17 @@ export function EnrollmentForm() {
               <div>
                 <label style={labelStyle}>Institutional Representative</label>
                 <div style={{ border: `1px solid ${BRAND.pebble}`, borderRadius: 4, backgroundColor: BRAND.oat, padding: "12px 16px", height: 120, display: "flex", flexDirection: "column", justifyContent: "center" }}>
-                  <p style={{ fontSize: 13, color: BRAND.muted, fontFamily: '"Source Sans 3", Arial, sans-serif', margin: 0 }}>Lillian Reina</p>
-                  <p style={{ fontSize: 12, color: BRAND.hint, fontFamily: '"Source Sans 3", Arial, sans-serif', margin: "4px 0 0" }}>Signed on file</p>
+                  <p style={{ fontSize: 13, color: BRAND.muted, fontFamily: 'var(--font-body)', margin: 0 }}>Lillian Reina</p>
+                  <p style={{ fontSize: 12, color: BRAND.hint, fontFamily: 'var(--font-body)', margin: "4px 0 0" }}>Signed on file</p>
                 </div>
-                <p style={{ fontSize: 12, color: BRAND.hint, marginTop: 4, fontFamily: '"Source Sans 3", Arial, sans-serif' }}>
+                <p style={{ fontSize: 12, color: BRAND.hint, marginTop: 4, fontFamily: 'var(--font-body)' }}>
                   Date: June 23, 2026
                 </p>
               </div>
             </div>
 
             {/* Footer note */}
-            <p style={{ fontSize: 11, color: BRAND.hint, fontFamily: '"Source Sans 3", Arial, sans-serif', marginTop: 28, fontStyle: "italic" }}>
+            <p style={{ fontSize: 11, color: BRAND.hint, fontFamily: 'var(--font-body)', marginTop: 28, }}>
               CodeX Academy Technologies LLC is authorized by the Tennessee Higher Education Commission. This authorization must be renewed each year and is based on an evaluation of minimum standards concerning quality of education, ethical business practices, and fiscal responsibility.
             </p>
 
@@ -425,11 +425,11 @@ export function EnrollmentForm() {
                   padding: "10px 28px",
                   fontSize: 15,
                   fontWeight: 600,
-                  fontFamily: '"Source Sans 3", Arial, sans-serif',
+                  fontFamily: 'var(--font-body)',
                   cursor: submitting ? "not-allowed" : "pointer",
                   transition: "background-color 0.2s",
                 }}
-                onMouseEnter={(e) => { if (!submitting) e.currentTarget.style.backgroundColor = "#4a5535"; }}
+                onMouseEnter={(e) => { if (!submitting) e.currentTarget.style.backgroundColor = "var(--c-brand-strong)"; }}
                 onMouseLeave={(e) => { if (!submitting) e.currentTarget.style.backgroundColor = BRAND.olive; }}
               >
                 {submitting ? "Submitting…" : "Submit Enrollment Agreement"}

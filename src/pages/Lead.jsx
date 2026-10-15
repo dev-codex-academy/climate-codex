@@ -177,38 +177,38 @@ export const Lead = () => {
             // padding 1rem) is what actually bounds it, independent of that
             // ancestor chain — see plan.md #64.
             className="h-[calc(100vh-4rem)] flex flex-col w-full overflow-hidden"
-            style={{ backgroundColor: "#FBF7EF", fontFamily: '"Source Sans 3", Arial, sans-serif' }}
+            style={{ backgroundColor: "var(--c-surface)", fontFamily: 'var(--font-body)' }}
         >
             {/* Page header */}
             <div
                 className="shrink-0 px-6 py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3"
-                style={{ borderBottom: "1px solid #D8D2C4", backgroundColor: "#F2EBDD" }}
+                style={{ borderBottom: "1px solid var(--c-border)", backgroundColor: "var(--c-surface-2)" }}
             >
                 <div className="flex items-center gap-3 min-w-0">
                     <div
                         className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg"
-                        style={{ backgroundColor: "rgba(94,106,67,0.12)", border: "1px solid rgba(94,106,67,0.3)" }}
+                        style={{ backgroundColor: "color-mix(in srgb, var(--c-brand) 12%, transparent)", border: "1px solid color-mix(in srgb, var(--c-brand) 30%, transparent)" }}
                     >
-                        <TrendingUp className="h-5 w-5" style={{ color: "#5E6A43" }} />
+                        <TrendingUp className="h-5 w-5" style={{ color: "var(--c-brand)" }} />
                     </div>
                     <div className="min-w-0">
-                        <p className="text-base font-semibold truncate" style={{ color: "#2E2A26", fontFamily: '"Source Sans 3", Arial, sans-serif' }}>
+                        <p className="text-base font-semibold truncate" style={{ color: "var(--c-ink)", fontFamily: 'var(--font-body)' }}>
                             Sales Pipeline
                         </p>
-                        <p className="text-xs flex items-center gap-1.5 mt-0.5" style={{ color: "#9b948e" }}>
-                            <span className="h-1.5 w-1.5 rounded-full animate-pulse inline-block shrink-0" style={{ backgroundColor: "#5E6A43" }} />
+                        <p className="text-xs flex items-center gap-1.5 mt-0.5" style={{ color: "var(--c-hint)" }}>
+                            <span className="h-1.5 w-1.5 rounded-full animate-pulse inline-block shrink-0" style={{ backgroundColor: "var(--c-brand)" }} />
                             Manage your opportunities and move them through stages.
                         </p>
                     </div>
                 </div>
 
                 <div className="flex items-center gap-2 shrink-0">
-                    <div className="flex items-center rounded-lg p-0.5" style={{ backgroundColor: "#F2EBDD", border: "1px solid #D8D2C4" }}>
+                    <div className="flex items-center rounded-lg p-0.5" style={{ backgroundColor: "var(--c-surface-2)", border: "1px solid var(--c-border)" }}>
                         <button
                             onClick={() => setViewMode('kanban')}
                             title="Kanban view"
                             className="flex items-center justify-center h-9 w-9 rounded-md cursor-pointer transition-colors"
-                            style={{ backgroundColor: viewMode === 'kanban' ? "#5E6A43" : "transparent", color: viewMode === 'kanban' ? "#FBF7EF" : "#6b6560" }}
+                            style={{ backgroundColor: viewMode === 'kanban' ? "var(--c-brand)" : "transparent", color: viewMode === 'kanban' ? "var(--c-surface)" : "var(--c-muted)" }}
                         >
                             <LayoutGrid className="h-4 w-4" />
                         </button>
@@ -216,7 +216,7 @@ export const Lead = () => {
                             onClick={() => setViewMode('table')}
                             title="Table view"
                             className="flex items-center justify-center h-9 w-9 rounded-md cursor-pointer transition-colors"
-                            style={{ backgroundColor: viewMode === 'table' ? "#5E6A43" : "transparent", color: viewMode === 'table' ? "#FBF7EF" : "#6b6560" }}
+                            style={{ backgroundColor: viewMode === 'table' ? "var(--c-brand)" : "transparent", color: viewMode === 'table' ? "var(--c-surface)" : "var(--c-muted)" }}
                         >
                             <TableIcon className="h-4 w-4" />
                         </button>
@@ -226,9 +226,9 @@ export const Lead = () => {
                             onClick={handleExportExcel}
                             disabled={exporting}
                             className="flex items-center gap-2 h-10 px-4 rounded-lg text-sm font-semibold transition-colors cursor-pointer disabled:opacity-60"
-                            style={{ backgroundColor: "#F2EBDD", border: "1px solid #5E6A43", color: "#5E6A43" }}
-                            onMouseEnter={e => e.currentTarget.style.backgroundColor = "rgba(94,106,67,0.15)"}
-                            onMouseLeave={e => e.currentTarget.style.backgroundColor = "#F2EBDD"}
+                            style={{ backgroundColor: "var(--c-surface-2)", border: "1px solid var(--c-brand)", color: "var(--c-brand)" }}
+                            onMouseEnter={e => e.currentTarget.style.backgroundColor = "color-mix(in srgb, var(--c-brand) 15%, transparent)"}
+                            onMouseLeave={e => e.currentTarget.style.backgroundColor = "var(--c-surface-2)"}
                         >
                             <Download className="h-4 w-4" /> {exporting ? "Exporting…" : "Export Excel"}
                         </button>
@@ -236,18 +236,18 @@ export const Lead = () => {
                     <button
                         onClick={openImportModal}
                         className="flex items-center gap-2 h-10 px-4 rounded-lg text-sm font-semibold transition-colors cursor-pointer"
-                        style={{ backgroundColor: "#F2EBDD", border: "1px solid #5E6A43", color: "#5E6A43" }}
-                        onMouseEnter={e => e.currentTarget.style.backgroundColor = "rgba(94,106,67,0.15)"}
-                        onMouseLeave={e => e.currentTarget.style.backgroundColor = "#F2EBDD"}
+                        style={{ backgroundColor: "var(--c-surface-2)", border: "1px solid var(--c-brand)", color: "var(--c-brand)" }}
+                        onMouseEnter={e => e.currentTarget.style.backgroundColor = "color-mix(in srgb, var(--c-brand) 15%, transparent)"}
+                        onMouseLeave={e => e.currentTarget.style.backgroundColor = "var(--c-surface-2)"}
                     >
                         <Upload className="h-4 w-4" /> Import Excel
                     </button>
                     <button
                         onClick={() => navigate("/lead/new", { state: { pipelineId: selectedPipelineId } })}
                         className="flex items-center gap-2 h-10 px-4 rounded-lg text-sm font-semibold transition-colors cursor-pointer shrink-0"
-                        style={{ backgroundColor: "#5E6A43", color: "#FBF7EF" }}
-                        onMouseEnter={e => e.currentTarget.style.backgroundColor = "#4a5535"}
-                        onMouseLeave={e => e.currentTarget.style.backgroundColor = "#5E6A43"}
+                        style={{ backgroundColor: "var(--c-brand)", color: "var(--c-on-dark)" }}
+                        onMouseEnter={e => e.currentTarget.style.backgroundColor = "var(--c-brand-strong)"}
+                        onMouseLeave={e => e.currentTarget.style.backgroundColor = "var(--c-brand)"}
                     >
                         <Plus className="h-4 w-4" />
                         New Opportunity
@@ -267,16 +267,16 @@ export const Lead = () => {
                     <>
                         <div
                             className="px-5 py-2.5 flex items-center gap-3 shrink-0"
-                            style={{ borderBottom: "1px solid #D8D2C4", backgroundColor: "#FBF7EF" }}
+                            style={{ borderBottom: "1px solid var(--c-border)", backgroundColor: "var(--c-surface)" }}
                         >
-                            <span className="text-[10px] uppercase tracking-widest font-bold shrink-0" style={{ color: "#9b948e" }}>
+                            <span className="text-[10px] uppercase tracking-widest font-bold shrink-0" style={{ color: "var(--c-hint)" }}>
                                 Active Pipeline
                             </span>
                             <select
                                 value={selectedPipelineId || ""}
                                 onChange={(e) => setSelectedPipelineId(e.target.value)}
                                 className="appearance-none pl-3 pr-7 py-1.5 rounded-full text-xs font-semibold focus:outline-none cursor-pointer"
-                                style={{ border: "1px solid #D8D2C4", backgroundColor: "#F2EBDD", color: "#2E2A26", minWidth: "200px" }}
+                                style={{ border: "1px solid var(--c-border)", backgroundColor: "var(--c-surface-2)", color: "var(--c-ink)", minWidth: "200px" }}
                             >
                                 {tablePipelines.map(p => (
                                     <option key={p.id} value={p.id}>{p.name}</option>
@@ -302,7 +302,7 @@ export const Lead = () => {
                         {/* Modal Header */}
                         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
                             <div>
-                                <h2 className="text-lg font-bold text-[#5E6A43]">Import Leads from Excel</h2>
+                                <h2 className="text-lg font-bold text-[var(--c-brand)]">Import Leads from Excel</h2>
                                 <p className="text-xs text-gray-500 mt-0.5">Select a pipeline and upload your .xlsx file</p>
                             </div>
                             <button onClick={closeImportModal} className="text-gray-400 hover:text-gray-600 cursor-pointer">
@@ -346,7 +346,7 @@ export const Lead = () => {
                                             placeholder="Search clients..."
                                             value={clientSearch}
                                             onChange={e => setClientSearch(e.target.value)}
-                                            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm mb-2 focus:outline-none focus:border-[#5E6A43]"
+                                            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm mb-2 focus:outline-none focus:border-[var(--c-brand)]"
                                         />
                                         <div className="border border-gray-200 rounded-lg max-h-36 overflow-y-auto">
                                             {filteredClients.length === 0 ? (
@@ -357,7 +357,7 @@ export const Lead = () => {
                                                     onClick={() => setImportClientId(c.id)}
                                                     className={`w-full text-left px-4 py-2 text-sm cursor-pointer transition-colors ${
                                                         importClientId === c.id
-                                                            ? 'bg-[#5E6A43] text-white'
+                                                            ? 'bg-[var(--c-brand)] text-white'
                                                             : 'hover:bg-gray-50 text-gray-700'
                                                     }`}
                                                 >
@@ -367,7 +367,7 @@ export const Lead = () => {
                                         </div>
                                         <button
                                             onClick={() => { setIsNewClient(true); setImportClientId(''); }}
-                                            className="mt-2 text-sm font-semibold text-[#5E6A43] hover:underline cursor-pointer"
+                                            className="mt-2 text-sm font-semibold text-[var(--c-brand)] hover:underline cursor-pointer"
                                         >
                                             + New Client
                                         </button>
@@ -379,7 +379,7 @@ export const Lead = () => {
                                             placeholder="New client name..."
                                             value={newClientName}
                                             onChange={e => setNewClientName(e.target.value)}
-                                            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm mb-2 focus:outline-none focus:border-[#5E6A43]"
+                                            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm mb-2 focus:outline-none focus:border-[var(--c-brand)]"
                                         />
                                         <div className="flex items-start gap-2 bg-yellow-50 border border-yellow-200 rounded-lg px-3 py-2">
                                             <AlertCircle className="h-4 w-4 text-yellow-600 shrink-0 mt-0.5" />
@@ -412,7 +412,7 @@ export const Lead = () => {
                                             onClick={() => setImportPipelineId(p.id)}
                                             className={`w-full text-left px-4 py-2 text-sm cursor-pointer transition-colors ${
                                                 importPipelineId === p.id
-                                                    ? 'bg-[#5E6A43] text-white'
+                                                    ? 'bg-[var(--c-brand)] text-white'
                                                     : 'hover:bg-gray-50 text-gray-700'
                                             }`}
                                         >
@@ -436,10 +436,10 @@ export const Lead = () => {
                                 />
                                 <div
                                     onClick={() => fileInputRef.current.click()}
-                                    className="border-2 border-dashed border-gray-300 rounded-lg p-5 text-center cursor-pointer hover:border-[#5E6A43] transition-colors"
+                                    className="border-2 border-dashed border-gray-300 rounded-lg p-5 text-center cursor-pointer hover:border-[var(--c-brand)] transition-colors"
                                 >
                                     {selectedFile ? (
-                                        <p className="text-sm text-[#5E6A43] font-medium">{selectedFile.name}</p>
+                                        <p className="text-sm text-[var(--c-brand)] font-medium">{selectedFile.name}</p>
                                     ) : (
                                         <p className="text-sm text-gray-400">Click to select a file</p>
                                     )}
@@ -501,7 +501,7 @@ export const Lead = () => {
                                     (isNewClient && !newClientName.trim())
                                 }
                                 className="h-9 px-5 rounded-lg text-sm font-semibold text-white transition-colors cursor-pointer disabled:opacity-50"
-                                style={{ backgroundColor: "#5E6A43" }}
+                                style={{ backgroundColor: "var(--c-brand)" }}
                             >
                                 {importing ? 'Importing...' : 'Import'}
                             </button>

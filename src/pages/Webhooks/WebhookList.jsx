@@ -13,22 +13,22 @@ import { getWebhooks, deleteWebhook } from "@/services/webhookService";
 import Swal from 'sweetalert2';
 
 const MODEL_COLORS = {
-    Lead: { bg: "rgba(242,155,107,0.12)", border: "rgba(242,155,107,0.4)", text: "#c0622a" },
-    Client: { bg: "rgba(94,106,67,0.12)", border: "rgba(94,106,67,0.4)", text: "#4a5535" },
-    Service: { bg: "rgba(184,199,106,0.12)", border: "rgba(184,199,106,0.4)", text: "#697a28" },
-    FollowUp: { bg: "rgba(216,210,196,0.3)", border: "#D8D2C4", text: "#6b6560" },
+    Lead: { bg: "color-mix(in srgb, var(--c-cta) 12%, transparent)", border: "color-mix(in srgb, var(--c-cta) 40%, transparent)", text: "var(--c-cta-strong)" },
+    Client: { bg: "color-mix(in srgb, var(--c-brand) 12%, transparent)", border: "color-mix(in srgb, var(--c-brand) 40%, transparent)", text: "var(--c-brand-strong)" },
+    Service: { bg: "color-mix(in srgb, var(--c-accent) 12%, transparent)", border: "color-mix(in srgb, var(--c-accent) 40%, transparent)", text: "var(--c-brand-strong)" },
+    FollowUp: { bg: "rgba(216,210,196,0.3)", border: "var(--c-border)", text: "var(--c-muted)" },
 };
 
 const METHOD_COLORS = {
-    POST: { bg: "rgba(94,106,67,0.12)", border: "rgba(94,106,67,0.35)", text: "#4a5535" },
-    PUT: { bg: "rgba(184,199,106,0.12)", border: "rgba(184,199,106,0.35)", text: "#697a28" },
-    PATCH: { bg: "rgba(242,155,107,0.12)", border: "rgba(242,155,107,0.35)", text: "#c0622a" },
-    DELETE: { bg: "rgba(192,98,42,0.10)", border: "rgba(192,98,42,0.35)", text: "#c0622a" },
-    GET: { bg: "rgba(216,210,196,0.3)", border: "#D8D2C4", text: "#6b6560" },
+    POST: { bg: "color-mix(in srgb, var(--c-brand) 12%, transparent)", border: "color-mix(in srgb, var(--c-brand) 35%, transparent)", text: "var(--c-brand-strong)" },
+    PUT: { bg: "color-mix(in srgb, var(--c-accent) 12%, transparent)", border: "color-mix(in srgb, var(--c-accent) 35%, transparent)", text: "var(--c-brand-strong)" },
+    PATCH: { bg: "color-mix(in srgb, var(--c-cta) 12%, transparent)", border: "color-mix(in srgb, var(--c-cta) 35%, transparent)", text: "var(--c-cta-strong)" },
+    DELETE: { bg: "rgba(192,98,42,0.10)", border: "rgba(192,98,42,0.35)", text: "var(--c-cta-strong)" },
+    GET: { bg: "rgba(216,210,196,0.3)", border: "var(--c-border)", text: "var(--c-muted)" },
 };
 
 const Pill = ({ label, colors }) => {
-    const c = colors || { bg: "rgba(216,210,196,0.3)", border: "#D8D2C4", text: "#6b6560" };
+    const c = colors || { bg: "rgba(216,210,196,0.3)", border: "var(--c-border)", text: "var(--c-muted)" };
     return (
         <span
             className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold"
@@ -74,8 +74,8 @@ export const WebhookList = () => {
             text: "You won't be able to revert this!",
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#5E6A43',
-            cancelButtonColor: '#9b948e',
+            confirmButtonColor: 'var(--c-brand)',
+            cancelButtonColor: 'var(--c-hint)',
             confirmButtonText: 'Yes, delete it!'
         });
 
@@ -108,32 +108,32 @@ export const WebhookList = () => {
 
     if (loading) {
         return (
-            <div className="p-8 text-center" style={{ color: "#6b6560", fontFamily: '"Source Sans 3", Arial, sans-serif' }}>
+            <div className="p-8 text-center" style={{ color: "var(--c-muted)", fontFamily: 'var(--font-body)' }}>
                 Loading webhooks...
             </div>
         );
     }
 
     return (
-        <div className="p-6 space-y-6" style={{ fontFamily: '"Source Sans 3", Arial, sans-serif' }}>
+        <div className="p-6 space-y-6" style={{ fontFamily: 'var(--font-body)' }}>
 
             {/* Page header */}
             <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-center gap-3">
                     <div
                         className="flex h-10 w-10 items-center justify-center rounded-lg"
-                        style={{ backgroundColor: "rgba(94,106,67,0.12)", border: "1px solid rgba(94,106,67,0.3)" }}
+                        style={{ backgroundColor: "color-mix(in srgb, var(--c-brand) 12%, transparent)", border: "1px solid color-mix(in srgb, var(--c-brand) 30%, transparent)" }}
                     >
-                        <Webhook className="h-5 w-5" style={{ color: "#5E6A43" }} />
+                        <Webhook className="h-5 w-5" style={{ color: "var(--c-brand)" }} />
                     </div>
                     <div>
                         <p
                             className="text-base font-semibold"
-                            style={{ color: "#2E2A26", fontFamily: '"Source Sans 3", Arial, sans-serif' }}
+                            style={{ color: "var(--c-ink)", fontFamily: 'var(--font-body)' }}
                         >
                             Webhooks
                         </p>
-                        <p className="text-sm" style={{ color: "#9b948e" }}>
+                        <p className="text-sm" style={{ color: "var(--c-hint)" }}>
                             Manage your system webhooks and event listeners.
                         </p>
                     </div>
@@ -154,9 +154,9 @@ export const WebhookList = () => {
                     <Link to={`/webhook/new?model=${selectedModel}`}>
                         <button
                             className="flex items-center gap-2 h-10 px-4 rounded-lg text-sm font-semibold transition-colors cursor-pointer"
-                            style={{ backgroundColor: "#5E6A43", color: "#FBF7EF" }}
-                            onMouseEnter={e => e.currentTarget.style.backgroundColor = "#4a5535"}
-                            onMouseLeave={e => e.currentTarget.style.backgroundColor = "#5E6A43"}
+                            style={{ backgroundColor: "var(--c-brand)", color: "var(--c-on-dark)" }}
+                            onMouseEnter={e => e.currentTarget.style.backgroundColor = "var(--c-brand-strong)"}
+                            onMouseLeave={e => e.currentTarget.style.backgroundColor = "var(--c-brand)"}
                         >
                             <Plus className="h-4 w-4" />
                             Add Webhook
@@ -168,26 +168,26 @@ export const WebhookList = () => {
             {/* Table card */}
             <div
                 className="overflow-hidden"
-                style={{ borderRadius: "10px", border: "1px solid #D8D2C4", backgroundColor: "#FBF7EF" }}
+                style={{ borderRadius: "10px", border: "1px solid var(--c-border)", backgroundColor: "var(--c-surface)" }}
             >
                 {/* Card header */}
                 <div
                     className="px-5 py-3"
-                    style={{ borderBottom: "1px solid #D8D2C4", backgroundColor: "#F2EBDD" }}
+                    style={{ borderBottom: "1px solid var(--c-border)", backgroundColor: "var(--c-surface-2)" }}
                 >
-                    <span className="text-sm font-semibold" style={{ color: "#2E2A26" }}>
+                    <span className="text-sm font-semibold" style={{ color: "var(--c-ink)" }}>
                         Configured Webhooks
                     </span>
                     <span
                         className="ml-2 text-xs font-medium px-2 py-0.5 rounded-full"
-                        style={{ backgroundColor: "rgba(94,106,67,0.12)", color: "#5E6A43", border: "1px solid rgba(94,106,67,0.3)" }}
+                        style={{ backgroundColor: "color-mix(in srgb, var(--c-brand) 12%, transparent)", color: "var(--c-brand)", border: "1px solid color-mix(in srgb, var(--c-brand) 30%, transparent)" }}
                     >
                         {webhooks.length}
                     </span>
                 </div>
 
                 {webhooks.length === 0 ? (
-                    <div className="py-16 text-center" style={{ color: "#9b948e" }}>
+                    <div className="py-16 text-center" style={{ color: "var(--c-hint)" }}>
                         <Webhook className="h-10 w-10 mx-auto mb-3 opacity-30" />
                         <p className="text-sm">No webhooks configured.</p>
                         <p className="text-xs mt-1">Click "Add Webhook" to create one.</p>
@@ -196,15 +196,15 @@ export const WebhookList = () => {
                     <div className="overflow-auto">
                         <table className="w-full text-sm">
                             <thead>
-                                <tr style={{ backgroundColor: "#5E6A43" }}>
+                                <tr style={{ backgroundColor: "var(--c-brand)" }}>
                                     {["Name", "Model / Event", "Method & URL", "Status", "Actions"].map((h, i) => (
                                         <th
                                             key={h}
                                             className="px-4 py-2.5 text-xs font-semibold text-left"
                                             style={{
-                                                color: "#FBF7EF",
+                                                color: "var(--c-on-dark)",
                                                 letterSpacing: "0.06em",
-                                                fontFamily: '"Source Sans 3", Arial, sans-serif',
+                                                fontFamily: 'var(--font-body)',
                                                 textAlign: i === 4 ? "right" : "left",
                                             }}
                                         >
@@ -213,17 +213,17 @@ export const WebhookList = () => {
                                     ))}
                                 </tr>
                             </thead>
-                            <tbody style={{ color: "#2E2A26" }}>
+                            <tbody style={{ color: "var(--c-ink)" }}>
                                 {webhooks.map((webhook, idx) => (
                                     <tr
                                         key={webhook.id}
-                                        style={{ borderBottom: "1px solid #D8D2C4" }}
-                                        onMouseEnter={e => e.currentTarget.style.backgroundColor = "#F2EBDD"}
+                                        style={{ borderBottom: "1px solid var(--c-border)" }}
+                                        onMouseEnter={e => e.currentTarget.style.backgroundColor = "var(--c-surface-2)"}
                                         onMouseLeave={e => e.currentTarget.style.backgroundColor = ""}
                                     >
                                         <td className="px-4 py-2.5">
                                             <div className="flex items-center gap-2">
-                                                <Activity className="h-4 w-4 shrink-0" style={{ color: "#5E6A43" }} />
+                                                <Activity className="h-4 w-4 shrink-0" style={{ color: "var(--c-brand)" }} />
                                                 <span className="font-medium">{webhook.name}</span>
                                             </div>
                                         </td>
@@ -235,7 +235,7 @@ export const WebhookList = () => {
                                                 />
                                                 <Pill
                                                     label={webhook.event || "UPDATE"}
-                                                    colors={{ bg: "rgba(216,210,196,0.3)", border: "#D8D2C4", text: "#6b6560" }}
+                                                    colors={{ bg: "rgba(216,210,196,0.3)", border: "var(--c-border)", text: "var(--c-muted)" }}
                                                 />
                                             </div>
                                         </td>
@@ -246,10 +246,10 @@ export const WebhookList = () => {
                                                     colors={METHOD_COLORS[webhook.method] || METHOD_COLORS.POST}
                                                 />
                                                 <div className="flex items-center gap-1 min-w-0">
-                                                    <Globe className="h-3 w-3 shrink-0" style={{ color: "#9b948e" }} />
+                                                    <Globe className="h-3 w-3 shrink-0" style={{ color: "var(--c-hint)" }} />
                                                     <span
                                                         className="truncate text-xs"
-                                                        style={{ color: "#6b6560" }}
+                                                        style={{ color: "var(--c-muted)" }}
                                                         title={webhook.url}
                                                     >
                                                         {webhook.url}
@@ -261,8 +261,8 @@ export const WebhookList = () => {
                                             <Pill
                                                 label={webhook.is_active ? "Active" : "Inactive"}
                                                 colors={webhook.is_active
-                                                    ? { bg: "rgba(94,106,67,0.12)", border: "rgba(94,106,67,0.4)", text: "#4a5535" }
-                                                    : { bg: "rgba(216,210,196,0.3)", border: "#D8D2C4", text: "#9b948e" }
+                                                    ? { bg: "color-mix(in srgb, var(--c-brand) 12%, transparent)", border: "color-mix(in srgb, var(--c-brand) 40%, transparent)", text: "var(--c-brand-strong)" }
+                                                    : { bg: "rgba(216,210,196,0.3)", border: "var(--c-border)", text: "var(--c-hint)" }
                                                 }
                                             />
                                         </td>
@@ -271,8 +271,8 @@ export const WebhookList = () => {
                                                 <Link to={`/webhook/${webhook.id}`}>
                                                     <button
                                                         className="flex h-8 w-8 items-center justify-center rounded-md transition-colors cursor-pointer"
-                                                        style={{ color: "#5E6A43" }}
-                                                        onMouseEnter={e => e.currentTarget.style.backgroundColor = "rgba(94,106,67,0.1)"}
+                                                        style={{ color: "var(--c-brand)" }}
+                                                        onMouseEnter={e => e.currentTarget.style.backgroundColor = "color-mix(in srgb, var(--c-brand) 10%, transparent)"}
                                                         onMouseLeave={e => e.currentTarget.style.backgroundColor = "transparent"}
                                                         title="Edit"
                                                     >

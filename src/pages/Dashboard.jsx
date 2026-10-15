@@ -16,16 +16,16 @@ const fetchCount = async (endpoint) => {
 };
 
 const CARD_ACCENTS = {
-    Leads:    { bar: "#F29B6B", badge: { bg: "#FFDCC8", text: "#2E2A26" }, link: "#F29B6B", icon: { bg: "#F29B6B" } },
-    Clients:  { bar: "#5E6A43", badge: { bg: "#e8edde", text: "#5E6A43" }, link: "#5E6A43", icon: { bg: "#5E6A43" } },
-    Invoices: { bar: "#B8C76A", badge: { bg: "#f0f4dc", text: "#5E6A43" }, link: "#8f9a3e", icon: { bg: "#B8C76A" } },
-    Assets:   { bar: "#D8D2C4", badge: { bg: "#F2EBDD", text: "#6b6560" }, link: "#6b6560", icon: { bg: "#6b6560" } },
+    Leads:    { bar: "var(--c-cta)", badge: { bg: "var(--c-cta-pale)", text: "var(--c-ink)" }, link: "var(--c-cta)", icon: { bg: "var(--c-cta)" } },
+    Clients:  { bar: "var(--c-brand)", badge: { bg: "var(--c-brand-pale)", text: "var(--c-brand)" }, link: "var(--c-brand)", icon: { bg: "var(--c-brand)" } },
+    Invoices: { bar: "var(--c-accent)", badge: { bg: "var(--c-accent-pale)", text: "var(--c-brand)" }, link: "var(--c-accent)", icon: { bg: "var(--c-accent)" } },
+    Assets:   { bar: "var(--c-border)", badge: { bg: "var(--c-surface-2)", text: "var(--c-muted)" }, link: "var(--c-muted)", icon: { bg: "var(--c-muted)" } },
 };
 
 const TASK_COLORS = {
-    lead:    { dot: "#5E6A43", bg: "#e8edde", text: "#5E6A43", label: "Lead" },
-    client:  { dot: "#3B82F6", bg: "#dbeafe", text: "#1d4ed8", label: "Client" },
-    service: { dot: "#7C3AED", bg: "#ede9fe", text: "#5b21b6", label: "Service" },
+    lead:    { dot: "var(--c-brand)", bg: "var(--c-brand-pale)", text: "var(--c-brand)", label: "Lead" },
+    client:  { dot: "#3B82F6", bg: "color-mix(in srgb, #3B82F6 18%, transparent)", text: "var(--c-ink)", label: "Client" },
+    service: { dot: "#7C3AED", bg: "color-mix(in srgb, #7C3AED 18%, transparent)", text: "var(--c-ink)", label: "Service" },
 };
 
 const ENTITY_PATHS = { lead: "/lead", client: "/client", service: "/service" };
@@ -41,7 +41,7 @@ const TaskRow = ({ task, navigate }) => {
         <div
             onClick={() => navigate(path)}
             className="px-4 py-3 flex items-start gap-3 cursor-pointer hover:bg-gray-50 transition-colors"
-            style={{ backgroundColor: "#FAFAF8" }}
+            style={{ backgroundColor: "var(--c-hover)" }}
         >
             <span
                 className="mt-0.5 shrink-0 text-xs font-semibold px-2 py-0.5 rounded-full"
@@ -50,10 +50,10 @@ const TaskRow = ({ task, navigate }) => {
                 {colors.label}
             </span>
             <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium truncate" style={{ color: "#2E2A26" }}>{task.task}</p>
-                <p className="text-xs mt-0.5" style={{ color: "#9b948e" }}>{task.entity_name}</p>
+                <p className="text-sm font-medium truncate" style={{ color: "var(--c-ink)" }}>{task.task}</p>
+                <p className="text-xs mt-0.5" style={{ color: "var(--c-hint)" }}>{task.entity_name}</p>
             </div>
-            <ArrowUpRight className="h-3.5 w-3.5 shrink-0 mt-0.5" style={{ color: "#9b948e" }} />
+            <ArrowUpRight className="h-3.5 w-3.5 shrink-0 mt-0.5" style={{ color: "var(--c-hint)" }} />
         </div>
     );
 };
@@ -74,11 +74,11 @@ const TaskListModal = ({ isOpen, entityType, tasks, onClose, navigate }) => {
     return (
         <Modal isOpen={isOpen} onClose={onClose} title={title}>
             {tasks.length === 0 ? (
-                <p className="text-sm text-center py-6" style={{ color: "#9b948e" }}>
+                <p className="text-sm text-center py-6" style={{ color: "var(--c-hint)" }}>
                     No pending tasks assigned to you.
                 </p>
             ) : (
-                <div className="rounded-lg overflow-hidden divide-y divide-gray-100" style={{ border: "1px solid #D8D2C4" }}>
+                <div className="rounded-lg overflow-hidden divide-y divide-gray-100" style={{ border: "1px solid var(--c-border)" }}>
                     {tasks.map(task => (
                         <TaskRow key={task.id} task={task} navigate={goToTask} />
                     ))}
@@ -88,7 +88,7 @@ const TaskListModal = ({ isOpen, entityType, tasks, onClose, navigate }) => {
                 <button
                     onClick={() => goToTask(ENTITY_PATHS[entityType])}
                     className="mt-4 flex items-center gap-1.5 text-xs font-semibold hover:gap-2.5 transition-all cursor-pointer"
-                    style={{ color: colors?.text ?? "#5E6A43" }}
+                    style={{ color: colors?.text ?? "var(--c-brand)" }}
                 >
                     <span>View all {colors?.label}s</span>
                     <ArrowUpRight className="h-3.5 w-3.5" />
@@ -103,36 +103,36 @@ const StatCard = ({ title, count, icon: Icon, href, loading, navigate }) => {
     return (
         <div
             className="group relative overflow-hidden cursor-pointer transition-all duration-300 hover:-translate-y-0.5"
-            style={{ backgroundColor: "#F2EBDD", border: "1px solid #D8D2C4", borderRadius: "8px", boxShadow: "0 1px 3px rgba(46,42,38,0.06)" }}
-            onMouseEnter={e => e.currentTarget.style.boxShadow = "0 8px 24px rgba(46,42,38,0.12)"}
-            onMouseLeave={e => e.currentTarget.style.boxShadow = "0 1px 3px rgba(46,42,38,0.06)"}
+            style={{ backgroundColor: "var(--c-surface-2)", border: "1px solid var(--c-border)", borderRadius: "8px", boxShadow: "0 1px 3px rgba(30,47,74,0.06)" }}
+            onMouseEnter={e => e.currentTarget.style.boxShadow = "0 8px 24px rgba(30,47,74,0.12)"}
+            onMouseLeave={e => e.currentTarget.style.boxShadow = "0 1px 3px rgba(30,47,74,0.06)"}
             onClick={() => navigate(href)}
         >
             <div className="absolute top-0 left-0 right-0 h-1" style={{ backgroundColor: accent.bar }} />
             <div className="relative p-6 flex flex-col gap-5 pt-7">
                 <div className="flex items-start justify-between">
                     <div className="flex h-10 w-10 items-center justify-center rounded-lg" style={{ backgroundColor: accent.icon.bg }}>
-                        <Icon className="h-5 w-5" style={{ color: "#FBF7EF" }} />
+                        <Icon className="h-5 w-5" style={{ color: "var(--c-on-dark)" }} />
                     </div>
                     <span className="text-xs font-semibold uppercase tracking-widest px-2 py-0.5 rounded-full"
-                        style={{ backgroundColor: accent.badge.bg, color: accent.badge.text, border: `1px solid ${accent.bar}30` }}>
+                        style={{ backgroundColor: accent.badge.bg, color: accent.badge.text, border: `1px solid color-mix(in srgb, ${accent.bar} 19%, transparent)` }}>
                         Active
                     </span>
                 </div>
                 <div>
-                    <p className="text-xs font-semibold uppercase tracking-widest mb-1.5" style={{ color: "#6b6560", fontFamily: '"Source Sans 3", Arial, sans-serif' }}>
+                    <p className="text-xs font-semibold uppercase tracking-widest mb-1.5" style={{ color: "var(--c-muted)", fontFamily: 'var(--font-body)' }}>
                         {title}
                     </p>
                     {loading ? (
-                        <div className="h-10 w-24 rounded animate-pulse" style={{ backgroundColor: "#D8D2C4" }} />
+                        <div className="h-10 w-24 rounded animate-pulse" style={{ backgroundColor: "var(--c-border)" }} />
                     ) : (
-                        <span className="text-4xl font-bold" style={{ color: "#2E2A26", fontFamily: '"Source Sans 3", Arial, sans-serif', letterSpacing: "-0.02em" }}>
+                        <span className="text-4xl font-bold" style={{ color: "var(--c-ink)", fontFamily: 'var(--font-body)', letterSpacing: "-0.02em" }}>
                             {count ?? "—"}
                         </span>
                     )}
                 </div>
                 <div className="flex items-center gap-1.5 text-xs font-semibold pt-3 group-hover:gap-2.5 transition-all"
-                    style={{ color: accent.link, borderTop: "1px solid #D8D2C4", fontFamily: '"Source Sans 3", Arial, sans-serif' }}>
+                    style={{ color: accent.link, borderTop: "1px solid var(--c-border)", fontFamily: 'var(--font-body)' }}>
                     <span>View all</span>
                     <ArrowUpRight className="h-3.5 w-3.5 group-hover:scale-110 transition-transform" />
                 </div>
@@ -144,16 +144,16 @@ const StatCard = ({ title, count, icon: Icon, href, loading, navigate }) => {
 const TaskKpiCard = ({ title, count, color, entityKey, onOpenModal, loading }) => (
     <div
         className="group relative overflow-hidden cursor-pointer transition-all duration-300 hover:-translate-y-0.5"
-        style={{ backgroundColor: "#F2EBDD", border: "1px solid #D8D2C4", borderRadius: "8px", boxShadow: "0 1px 3px rgba(46,42,38,0.06)" }}
-        onMouseEnter={e => e.currentTarget.style.boxShadow = "0 8px 24px rgba(46,42,38,0.12)"}
-        onMouseLeave={e => e.currentTarget.style.boxShadow = "0 1px 3px rgba(46,42,38,0.06)"}
+        style={{ backgroundColor: "var(--c-surface-2)", border: "1px solid var(--c-border)", borderRadius: "8px", boxShadow: "0 1px 3px rgba(30,47,74,0.06)" }}
+        onMouseEnter={e => e.currentTarget.style.boxShadow = "0 8px 24px rgba(30,47,74,0.12)"}
+        onMouseLeave={e => e.currentTarget.style.boxShadow = "0 1px 3px rgba(30,47,74,0.06)"}
         onClick={() => onOpenModal(entityKey)}
     >
         <div className="absolute top-0 left-0 right-0 h-1" style={{ backgroundColor: color.dot }} />
         <div className="relative p-5 flex flex-col gap-4 pt-6">
             <div className="flex items-start justify-between">
                 <div className="flex h-9 w-9 items-center justify-center rounded-lg" style={{ backgroundColor: color.dot }}>
-                    <ClipboardList className="h-4 w-4" style={{ color: "#FBF7EF" }} />
+                    <ClipboardList className="h-4 w-4" style={{ color: "var(--c-on-dark)" }} />
                 </div>
                 <span className="text-xs font-semibold px-2 py-0.5 rounded-full"
                     style={{ backgroundColor: color.bg, color: color.text }}>
@@ -161,13 +161,13 @@ const TaskKpiCard = ({ title, count, color, entityKey, onOpenModal, loading }) =
                 </span>
             </div>
             <div>
-                <p className="text-xs font-semibold uppercase tracking-widest mb-1" style={{ color: "#6b6560", fontFamily: '"Source Sans 3", Arial, sans-serif' }}>
+                <p className="text-xs font-semibold uppercase tracking-widest mb-1" style={{ color: "var(--c-muted)", fontFamily: 'var(--font-body)' }}>
                     {title}
                 </p>
                 {loading ? (
-                    <div className="h-9 w-16 rounded animate-pulse" style={{ backgroundColor: "#D8D2C4" }} />
+                    <div className="h-9 w-16 rounded animate-pulse" style={{ backgroundColor: "var(--c-border)" }} />
                 ) : (
-                    <span className="text-3xl font-bold" style={{ color: "#2E2A26", fontFamily: '"Source Sans 3", Arial, sans-serif', letterSpacing: "-0.02em" }}>
+                    <span className="text-3xl font-bold" style={{ color: "var(--c-ink)", fontFamily: 'var(--font-body)', letterSpacing: "-0.02em" }}>
                         {count}
                     </span>
                 )}
@@ -222,19 +222,19 @@ const TaskCalendar = ({ tasks, navigate }) => {
     const selectedTasks = selectedDay ? tasks.filter(t => normalizeDate(t.date) === selectedDay) : [];
 
     return (
-        <div className="rounded-xl p-5" style={{ backgroundColor: "#F2EBDD", border: "1px solid #D8D2C4" }}>
+        <div className="rounded-xl p-5" style={{ backgroundColor: "var(--c-surface-2)", border: "1px solid var(--c-border)" }}>
 
             {/* Header */}
             <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-bold" style={{ color: "#2E2A26", fontFamily: '"Source Sans 3", Arial, sans-serif' }}>
+                <h3 className="text-sm font-bold" style={{ color: "var(--c-ink)", fontFamily: 'var(--font-body)' }}>
                     {MONTHS[current.month]} {current.year}
                 </h3>
                 <div className="flex gap-1">
-                    <button onClick={prevMonth} className="h-7 w-7 flex items-center justify-center rounded-lg hover:bg-[#D8D2C4] transition-colors cursor-pointer">
-                        <ChevronLeft className="h-4 w-4" style={{ color: "#6b6560" }} />
+                    <button onClick={prevMonth} className="h-7 w-7 flex items-center justify-center rounded-lg hover:bg-[var(--c-border)] transition-colors cursor-pointer">
+                        <ChevronLeft className="h-4 w-4" style={{ color: "var(--c-muted)" }} />
                     </button>
-                    <button onClick={nextMonth} className="h-7 w-7 flex items-center justify-center rounded-lg hover:bg-[#D8D2C4] transition-colors cursor-pointer">
-                        <ChevronRight className="h-4 w-4" style={{ color: "#6b6560" }} />
+                    <button onClick={nextMonth} className="h-7 w-7 flex items-center justify-center rounded-lg hover:bg-[var(--c-border)] transition-colors cursor-pointer">
+                        <ChevronRight className="h-4 w-4" style={{ color: "var(--c-muted)" }} />
                     </button>
                 </div>
             </div>
@@ -242,17 +242,17 @@ const TaskCalendar = ({ tasks, navigate }) => {
             {/* Day headers */}
             <div className="grid grid-cols-7 mb-1">
                 {DAYS.map(d => (
-                    <div key={d} className="text-center text-xs font-semibold uppercase tracking-widest py-1" style={{ color: "#9b948e" }}>
+                    <div key={d} className="text-center text-xs font-semibold uppercase tracking-widest py-1" style={{ color: "var(--c-hint)" }}>
                         {d}
                     </div>
                 ))}
             </div>
 
             {/* Calendar grid */}
-            <div className="grid grid-cols-7 gap-px" style={{ backgroundColor: "#D8D2C4", borderRadius: "8px", overflow: "hidden" }}>
+            <div className="grid grid-cols-7 gap-px" style={{ backgroundColor: "var(--c-border)", borderRadius: "8px", overflow: "hidden" }}>
                 {cells.map((cell, i) => {
                     if (!cell) return (
-                        <div key={i} className="py-2 px-1 min-h-[52px]" style={{ backgroundColor: "#F2EBDD", opacity: 0.4 }} />
+                        <div key={i} className="py-2 px-1 min-h-[52px]" style={{ backgroundColor: "var(--c-surface-2)", opacity: 0.4 }} />
                     );
 
                     const isToday = cell.dateStr === todayStr;
@@ -267,18 +267,18 @@ const TaskCalendar = ({ tasks, navigate }) => {
                             onClick={() => hasTasks && setSelectedDay(isSelected ? null : cell.dateStr)}
                             className="py-2 px-1 min-h-[52px] flex flex-col items-center gap-1 transition-colors"
                             style={{
-                                backgroundColor: isSelected ? "#e8edde" : "#F2EBDD",
+                                backgroundColor: isSelected ? "var(--c-brand-pale)" : "var(--c-surface-2)",
                                 cursor: hasTasks ? "pointer" : "default",
                             }}
-                            onMouseEnter={e => hasTasks && !isSelected && (e.currentTarget.style.backgroundColor = "#EDE8DC")}
-                            onMouseLeave={e => hasTasks && !isSelected && (e.currentTarget.style.backgroundColor = "#F2EBDD")}
+                            onMouseEnter={e => hasTasks && !isSelected && (e.currentTarget.style.backgroundColor = "var(--c-surface-2)")}
+                            onMouseLeave={e => hasTasks && !isSelected && (e.currentTarget.style.backgroundColor = "var(--c-surface-2)")}
                         >
                             <span
                                 className="text-xs font-semibold h-6 w-6 flex items-center justify-center rounded-full"
                                 style={{
-                                    color: isToday ? "#FBF7EF" : "#2E2A26",
-                                    backgroundColor: isToday ? "#5E6A43" : "transparent",
-                                    fontFamily: '"Source Sans 3", Arial, sans-serif',
+                                    color: isToday ? "var(--c-on-dark)" : "var(--c-ink)",
+                                    backgroundColor: isToday ? "var(--c-brand)" : "transparent",
+                                    fontFamily: 'var(--font-body)',
                                 }}
                             >
                                 {cell.dayNum}
@@ -302,9 +302,9 @@ const TaskCalendar = ({ tasks, navigate }) => {
 
             {/* Selected day task panel */}
             {selectedDay && selectedTasks.length > 0 && (
-                <div className="mt-4 rounded-lg overflow-hidden" style={{ border: "1px solid #D8D2C4" }}>
-                    <div className="px-4 py-2.5 flex items-center justify-between" style={{ backgroundColor: "#EDE8DC", borderBottom: "1px solid #D8D2C4" }}>
-                        <span className="text-xs font-semibold" style={{ color: "#2E2A26" }}>
+                <div className="mt-4 rounded-lg overflow-hidden" style={{ border: "1px solid var(--c-border)" }}>
+                    <div className="px-4 py-2.5 flex items-center justify-between" style={{ backgroundColor: "var(--c-surface-2)", borderBottom: "1px solid var(--c-border)" }}>
+                        <span className="text-xs font-semibold" style={{ color: "var(--c-ink)" }}>
                             Tasks for {new Date(selectedDay + 'T00:00:00').toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}
                         </span>
                         <button onClick={() => setSelectedDay(null)} className="text-xs text-gray-400 hover:text-gray-600 cursor-pointer">✕</button>
@@ -322,7 +322,7 @@ const TaskCalendar = ({ tasks, navigate }) => {
                 {Object.entries(TASK_COLORS).map(([type, colors]) => (
                     <div key={type} className="flex items-center gap-1.5">
                         <span className="h-2 w-2 rounded-full" style={{ backgroundColor: colors.dot }} />
-                        <span className="text-xs" style={{ color: "#9b948e" }}>{colors.label}</span>
+                        <span className="text-xs" style={{ color: "var(--c-hint)" }}>{colors.label}</span>
                     </div>
                 ))}
             </div>
@@ -332,24 +332,24 @@ const TaskCalendar = ({ tasks, navigate }) => {
 
 // ─── Pipeline report ────────────────────────────────────────────────────────
 
-const STAGE_PALETTE = ["#5E6A43", "#F29B6B", "#B8C76A", "#6b8560", "#9b948e", "#D8D2C4", "#a0856a"];
+const STAGE_PALETTE = ["var(--c-brand)", "var(--c-cta)", "var(--c-accent)", "var(--c-brand)", "var(--c-hint)", "var(--c-border)", "var(--c-muted)"];
 
 const PipelineReportCard = ({ pipeline }) => {
     const maxCount = Math.max(...pipeline.orderedStages.map(s => pipeline.byStage[s] || 0), 1);
     return (
-        <div style={{ backgroundColor: "#F2EBDD", border: "1px solid #D8D2C4", borderRadius: 8, overflow: "hidden", boxShadow: "0 1px 3px rgba(46,42,38,0.06)" }}>
-            <div style={{ borderBottom: "1px solid #D8D2C4", padding: "12px 20px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                <p style={{ fontSize: 14, fontWeight: 700, color: "#2E2A26", fontFamily: '"Source Sans 3", Arial, sans-serif', margin: 0 }}>
+        <div style={{ backgroundColor: "var(--c-surface-2)", border: "1px solid var(--c-border)", borderRadius: 8, overflow: "hidden", boxShadow: "0 1px 3px rgba(30,47,74,0.06)" }}>
+            <div style={{ borderBottom: "1px solid var(--c-border)", padding: "12px 20px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                <p style={{ fontSize: 14, fontWeight: 700, color: "var(--c-ink)", fontFamily: 'var(--font-body)', margin: 0 }}>
                     {pipeline.name}
                 </p>
-                <span style={{ fontSize: 11, fontWeight: 600, color: "#5E6A43", backgroundColor: "#e8edde", border: "1px solid #B8C76A", borderRadius: 99, padding: "2px 10px" }}>
+                <span style={{ fontSize: 11, fontWeight: 600, color: "var(--c-brand)", backgroundColor: "var(--c-brand-pale)", border: "1px solid var(--c-accent)", borderRadius: 99, padding: "2px 10px" }}>
                     {pipeline.total} lead{pipeline.total !== 1 ? "s" : ""}
                 </span>
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr" }}>
                 {/* By stage */}
-                <div style={{ padding: "16px 20px", borderRight: "1px solid #D8D2C4" }}>
-                    <p style={{ fontSize: 10, fontWeight: 700, color: "#9b948e", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 12, fontFamily: '"Source Sans 3", Arial, sans-serif' }}>
+                <div style={{ padding: "16px 20px", borderRight: "1px solid var(--c-border)" }}>
+                    <p style={{ fontSize: 10, fontWeight: 700, color: "var(--c-hint)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 12, fontFamily: 'var(--font-body)' }}>
                         By Stage
                     </p>
                     <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
@@ -360,10 +360,10 @@ const PipelineReportCard = ({ pipeline }) => {
                             return (
                                 <div key={stage}>
                                     <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
-                                        <span style={{ fontSize: 12, color: "#2E2A26", fontFamily: '"Source Sans 3", Arial, sans-serif' }}>{stage}</span>
-                                        <span style={{ fontSize: 12, fontWeight: 700, color: "#2E2A26", fontFamily: '"Source Sans 3", Arial, sans-serif' }}>{count}</span>
+                                        <span style={{ fontSize: 12, color: "var(--c-ink)", fontFamily: 'var(--font-body)' }}>{stage}</span>
+                                        <span style={{ fontSize: 12, fontWeight: 700, color: "var(--c-ink)", fontFamily: 'var(--font-body)' }}>{count}</span>
                                     </div>
-                                    <div style={{ height: 7, backgroundColor: "#E8E3DA", borderRadius: 4 }}>
+                                    <div style={{ height: 7, backgroundColor: "var(--c-skeleton)", borderRadius: 4 }}>
                                         <div style={{ height: 7, width: `${pct}%`, backgroundColor: color, borderRadius: 4, transition: "width 0.5s ease" }} />
                                     </div>
                                 </div>
@@ -373,32 +373,32 @@ const PipelineReportCard = ({ pipeline }) => {
                 </div>
                 {/* By responsible */}
                 <div style={{ padding: "16px 20px" }}>
-                    <p style={{ fontSize: 10, fontWeight: 700, color: "#9b948e", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 12, fontFamily: '"Source Sans 3", Arial, sans-serif' }}>
+                    <p style={{ fontSize: 10, fontWeight: 700, color: "var(--c-hint)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 12, fontFamily: 'var(--font-body)' }}>
                         By Responsible
                     </p>
                     <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                         {pipeline.orderedUsers.map(([userName, data]) => (
                             <div key={userName} style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
-                                <div style={{ width: 26, height: 26, borderRadius: "50%", backgroundColor: "#5E6A43", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 1 }}>
-                                    <span style={{ fontSize: 11, fontWeight: 700, color: "#FBF7EF" }}>
+                                <div style={{ width: 26, height: 26, borderRadius: "50%", backgroundColor: "var(--c-brand)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 1 }}>
+                                    <span style={{ fontSize: 11, fontWeight: 700, color: "var(--c-on-dark)" }}>
                                         {userName.charAt(0).toUpperCase()}
                                     </span>
                                 </div>
                                 <div style={{ flex: 1, minWidth: 0 }}>
                                     <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
-                                        <span style={{ fontSize: 12, color: "#2E2A26", fontFamily: '"Source Sans 3", Arial, sans-serif', overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                                        <span style={{ fontSize: 12, color: "var(--c-ink)", fontFamily: 'var(--font-body)', overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                                             {userName}
                                         </span>
-                                        <span style={{ fontSize: 12, fontWeight: 700, color: "#2E2A26", fontFamily: '"Source Sans 3", Arial, sans-serif', marginLeft: 8, flexShrink: 0 }}>
+                                        <span style={{ fontSize: 12, fontWeight: 700, color: "var(--c-ink)", fontFamily: 'var(--font-body)', marginLeft: 8, flexShrink: 0 }}>
                                             {data.total}
                                         </span>
                                     </div>
                                     <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
                                         {Object.entries(data.stages).sort((a, b) => pipeline.orderedStages.indexOf(a[0]) - pipeline.orderedStages.indexOf(b[0])).map(([stage, count]) => {
                                             const idx = pipeline.orderedStages.indexOf(stage);
-                                            const color = idx >= 0 ? STAGE_PALETTE[idx % STAGE_PALETTE.length] : "#9b948e";
+                                            const color = idx >= 0 ? STAGE_PALETTE[idx % STAGE_PALETTE.length] : "var(--c-hint)";
                                             return (
-                                                <span key={stage} style={{ fontSize: 10, color: "#fff", backgroundColor: color, borderRadius: 3, padding: "1px 6px", fontFamily: '"Source Sans 3", Arial, sans-serif', whiteSpace: "nowrap" }}>
+                                                <span key={stage} style={{ fontSize: 10, color: "#fff", backgroundColor: color, borderRadius: 3, padding: "1px 6px", fontFamily: 'var(--font-body)', whiteSpace: "nowrap" }}>
                                                     {stage} · {count}
                                                 </span>
                                             );
@@ -416,8 +416,18 @@ const PipelineReportCard = ({ pipeline }) => {
 
 // ────────────────────────────────────────────────────────────────────────────
 
+// Reads the real permission list the backend sent at login (same source PermissionGuard uses).
+const userPermissions = () => {
+    try {
+        return JSON.parse(localStorage.getItem("user_permissions") || "[]");
+    } catch {
+        return [];
+    }
+};
+
 export const Dashboard = () => {
     const { user } = useAuth();
+    const can = (model) => userPermissions().includes(`app.view_${model}`);
     const navigate = useNavigate();
     const [counts, setCounts] = useState({ leads: null, clients: null, invoices: null, assets: null });
     const [loading, setLoading] = useState(true);
@@ -437,8 +447,13 @@ export const Dashboard = () => {
 
     useEffect(() => {
         const load = async () => {
+            // Only ask for the counts this user is allowed to see (no pointless 403s).
+            const skip = () => Promise.reject(new Error("no permission"));
             const [leads, clients, invoices, assets] = await Promise.allSettled([
-                fetchCount("leads"), fetchCount("clients"), fetchCount("invoices"), fetchCount("assets"),
+                can("lead") ? fetchCount("leads") : skip(),
+                can("client") ? fetchCount("clients") : skip(),
+                can("invoice") ? fetchCount("invoices") : skip(),
+                can("asset") ? fetchCount("assets") : skip(),
             ]);
             setCounts({
                 leads:    leads.status    === "fulfilled" ? leads.value    : null,
@@ -453,6 +468,10 @@ export const Dashboard = () => {
 
     useEffect(() => {
         const loadReport = async () => {
+            if (!can("lead") || !can("pipeline")) {
+                setReportLoading(false);
+                return;
+            }
             try {
                 const [pipelines, leads, users, clients, cohorts] = await Promise.all([
                     fetchAllPages(`${API_URL}/pipelines/`, { headers: getHeaders() }),
@@ -541,6 +560,10 @@ export const Dashboard = () => {
 
     useEffect(() => {
         const loadTasks = async () => {
+            if (!can("lead") && !can("client") && !can("service")) {
+                setTasksLoading(false);
+                return;
+            }
             try {
                 const data = await getMyTasks();
                 setTaskData(data);
@@ -553,31 +576,32 @@ export const Dashboard = () => {
         loadTasks();
     }, []);
 
+    // Each card/section only appears if the user can actually view that model.
     const cards = [
-        { title: "Leads",    count: counts.leads,    icon: Magnet,    href: "/lead" },
-        { title: "Clients",  count: counts.clients,  icon: Building2, href: "/client" },
-        { title: "Invoices", count: counts.invoices,  icon: Receipt,   href: "/invoice" },
-        { title: "Assets",   count: counts.assets,   icon: Laptop,    href: "/asset" },
-    ];
+        { title: "Leads",    count: counts.leads,    icon: Magnet,    href: "/lead",    model: "lead" },
+        { title: "Clients",  count: counts.clients,  icon: Building2, href: "/client",  model: "client" },
+        { title: "Invoices", count: counts.invoices,  icon: Receipt,   href: "/invoice", model: "invoice" },
+        { title: "Assets",   count: counts.assets,   icon: Laptop,    href: "/asset",   model: "asset" },
+    ].filter(card => can(card.model));
 
     const taskCards = [
         { title: "Tasks in Leads",    count: taskData.totals.leads,    color: TASK_COLORS.lead,    entityKey: "lead" },
         { title: "Tasks in Clients",  count: taskData.totals.clients,  color: TASK_COLORS.client,  entityKey: "client" },
         { title: "Tasks in Services", count: taskData.totals.services, color: TASK_COLORS.service, entityKey: "service" },
-    ];
+    ].filter(card => can(card.entityKey));
 
     const hour = new Date().getHours();
     const greeting = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
 
     return (
-        <div className="h-full flex flex-col w-full transition-colors duration-300" style={{ backgroundColor: "#FBF7EF" }}>
+        <div className="h-full flex flex-col w-full transition-colors duration-300" style={{ backgroundColor: "var(--c-surface)" }}>
 
             {/* Page header */}
             <header
                 className="sticky top-0 z-30 w-full px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
                 style={{
-                    backgroundColor: "rgba(251,247,239,0.85)",
-                    borderBottom: "1px solid #D8D2C4",
+                    backgroundColor: "color-mix(in srgb, var(--c-surface) 85%, transparent)",
+                    borderBottom: "1px solid var(--c-border)",
                     backdropFilter: "blur(12px)",
                     WebkitBackdropFilter: "blur(12px)",
                 }}
@@ -585,23 +609,23 @@ export const Dashboard = () => {
                 <div>
                     <div className="flex items-center gap-2.5">
                         <h1 className="text-2xl font-semibold"
-                            style={{ fontFamily: '"Cormorant Garamond", Georgia, serif', fontStyle: "italic", color: "#2E2A26", letterSpacing: "-0.01em" }}>
+                            style={{ fontFamily: 'var(--font-heading)', color: "var(--c-ink)", letterSpacing: "-0.01em" }}>
                             Dashboard
                         </h1>
                         <span className="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-widest rounded-full px-2 py-0.5"
-                            style={{ backgroundColor: "#e8edde", border: "1px solid #B8C76A", color: "#5E6A43" }}>
-                            <span className="h-1.5 w-1.5 rounded-full animate-pulse" style={{ backgroundColor: "#B8C76A" }} />
+                            style={{ backgroundColor: "var(--c-brand-pale)", border: "1px solid var(--c-accent)", color: "var(--c-brand)" }}>
+                            <span className="h-1.5 w-1.5 rounded-full animate-pulse" style={{ backgroundColor: "var(--c-accent)" }} />
                             Live
                         </span>
                     </div>
-                    <p className="text-sm mt-0.5" style={{ color: "#6b6560", fontFamily: '"Source Sans 3", Arial, sans-serif' }}>
+                    <p className="text-sm mt-0.5" style={{ color: "var(--c-muted)", fontFamily: 'var(--font-body)' }}>
                         {greeting},{" "}
-                        <span className="font-semibold" style={{ color: "#2E2A26" }}>{user?.username || "User"}</span>
-                        {user?.groups?.[0] && <span style={{ color: "#9b948e" }}> · {user.groups[0]}</span>}
+                        <span className="font-semibold" style={{ color: "var(--c-ink)" }}>{user?.username || "User"}</span>
+                        {user?.groups?.[0] && <span style={{ color: "var(--c-hint)" }}> · {user.groups[0]}</span>}
                     </p>
                 </div>
                 <p className="text-xs hidden sm:block"
-                    style={{ color: "#6b6560", fontFamily: '"Source Sans 3", Arial, sans-serif', letterSpacing: "0.04em" }}>
+                    style={{ color: "var(--c-muted)", fontFamily: 'var(--font-body)', letterSpacing: "0.04em" }}>
                     {new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}
                 </p>
             </header>
@@ -610,8 +634,9 @@ export const Dashboard = () => {
             <div className="flex-1 p-6 space-y-8 overflow-y-auto">
 
                 {/* Overview */}
+                {cards.length > 0 && (
                 <section className="space-y-4">
-                    <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: "#9b948e", fontFamily: '"Source Sans 3", Arial, sans-serif' }}>
+                    <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: "var(--c-hint)", fontFamily: 'var(--font-body)' }}>
                         Overview
                     </p>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
@@ -620,12 +645,13 @@ export const Dashboard = () => {
                         ))}
                     </div>
                 </section>
+                )}
 
                 {/* Leads by Pipeline */}
                 {(reportLoading || reportRaw.pipelines.length > 0) && (
                     <section className="space-y-4">
                         <div className="flex flex-wrap items-center justify-between gap-3">
-                            <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: "#9b948e", fontFamily: '"Source Sans 3", Arial, sans-serif' }}>
+                            <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: "var(--c-hint)", fontFamily: 'var(--font-body)' }}>
                                 Leads by Pipeline
                             </p>
                             {!reportLoading && (
@@ -634,7 +660,7 @@ export const Dashboard = () => {
                                         value={reportClientFilter}
                                         onChange={e => setReportClientFilter(e.target.value)}
                                         className="appearance-none pl-3 pr-7 py-1.5 rounded-full text-xs font-semibold focus:outline-none cursor-pointer"
-                                        style={{ border: "1px solid #D8D2C4", backgroundColor: "#F2EBDD", color: "#2E2A26" }}
+                                        style={{ border: "1px solid var(--c-border)", backgroundColor: "var(--c-surface-2)", color: "var(--c-ink)" }}
                                     >
                                         <option value="">All Clients</option>
                                         {reportClients.map(c => (
@@ -645,7 +671,7 @@ export const Dashboard = () => {
                                         value={reportCohortFilter}
                                         onChange={e => setReportCohortFilter(e.target.value)}
                                         className="appearance-none pl-3 pr-7 py-1.5 rounded-full text-xs font-semibold focus:outline-none cursor-pointer"
-                                        style={{ border: "1px solid #D8D2C4", backgroundColor: "#F2EBDD", color: "#2E2A26" }}
+                                        style={{ border: "1px solid var(--c-border)", backgroundColor: "var(--c-surface-2)", color: "var(--c-ink)" }}
                                     >
                                         <option value="">All Cohorts</option>
                                         {reportCohorts.map(c => (
@@ -658,11 +684,11 @@ export const Dashboard = () => {
                         {reportLoading ? (
                             <div className="space-y-3">
                                 {[1, 2].map(i => (
-                                    <div key={i} className="h-40 rounded-xl animate-pulse" style={{ backgroundColor: "#E8E3DA" }} />
+                                    <div key={i} className="h-40 rounded-xl animate-pulse" style={{ backgroundColor: "var(--c-skeleton)" }} />
                                 ))}
                             </div>
                         ) : pipelineReport.length === 0 ? (
-                            <p className="text-sm py-4 text-center" style={{ color: "#9b948e" }}>
+                            <p className="text-sm py-4 text-center" style={{ color: "var(--c-hint)" }}>
                                 No leads match the selected filters.
                             </p>
                         ) : (
@@ -676,8 +702,9 @@ export const Dashboard = () => {
                 )}
 
                 {/* My Pending Tasks KPIs */}
+                {taskCards.length > 0 && (<>
                 <section className="space-y-4">
-                    <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: "#9b948e", fontFamily: '"Source Sans 3", Arial, sans-serif' }}>
+                    <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: "var(--c-hint)", fontFamily: 'var(--font-body)' }}>
                         My Pending Tasks
                     </p>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
@@ -689,15 +716,16 @@ export const Dashboard = () => {
 
                 {/* Calendar */}
                 <section className="space-y-4">
-                    <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: "#9b948e", fontFamily: '"Source Sans 3", Arial, sans-serif' }}>
+                    <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: "var(--c-hint)", fontFamily: 'var(--font-body)' }}>
                         Task Calendar
                     </p>
                     {tasksLoading ? (
-                        <div className="h-64 rounded-xl animate-pulse" style={{ backgroundColor: "#E8E3DA" }} />
+                        <div className="h-64 rounded-xl animate-pulse" style={{ backgroundColor: "var(--c-skeleton)" }} />
                     ) : (
                         <TaskCalendar tasks={taskData.tasks} navigate={navigate} />
                     )}
                 </section>
+                </>)}
 
             </div>
 

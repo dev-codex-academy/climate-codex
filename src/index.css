@@ -1,67 +1,52 @@
 @import "tailwindcss";
-@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600;1,700&family=Source+Sans+3:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap");
 
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  /* --------- Brand Manual Tokens -------------- */
+  /* --------- Brand tokens (CodeX blue / coral) — values live in :root / .dark below -------------- */
+  --color-brand-linen: var(--c-surface);
+  --color-brand-oat: var(--c-surface-2);
+  --color-brand-pebble: var(--c-border);
+  --color-brand-citron: var(--c-accent);
+  --color-brand-citron-dark: var(--c-accent);
+  --color-brand-apricot: var(--c-cta);
+  --color-brand-apricot-dark: var(--c-cta-strong);
+  --color-brand-peach-wash: var(--c-cta-pale);
+  --color-brand-olive: var(--c-brand);
+  --color-brand-olive-light: var(--c-brand);
+  --color-brand-olive-pale: var(--c-brand-pale);
+  --color-brand-ink: var(--c-ink);
+  --color-brand-ink-muted: var(--c-muted);
 
-  /* Surfaces */
-  --color-brand-linen: #FBF7EF;
-  --color-brand-oat: #F2EBDD;
-
-  /* Structure */
-  --color-brand-pebble: #D8D2C4;
-
-  /* Active States */
-  --color-brand-citron: #B8C76A;
-  --color-brand-citron-dark: #8f9a3e;
-
-  /* Primary CTA */
-  --color-brand-apricot: #F29B6B;
-  --color-brand-apricot-dark: #d97c4a;
-
-  /* Soft Callouts */
-  --color-brand-peach-wash: #FFDCC8;
-
-  /* Secondary CTA / Nav */
-  --color-brand-olive: #5E6A43;
-  --color-brand-olive-light: #7a8a56;
-  --color-brand-olive-pale: #e8edde;
-
-  /* Text */
-  --color-brand-ink: #2E2A26;
-  --color-brand-ink-muted: #6b6560;
-
-  /* Font families */
-  --font-heading: "Cormorant Garamond", Georgia, serif;
-  --font-body: "Source Sans 3", Arial, sans-serif;
-  --font-accent: "Libre Baskerville", Georgia, serif;
+  /* Font families (Helvetica/Arial, like the CodeX website and slides) */
+  --font-heading: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-body: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-accent: "Helvetica Neue", Helvetica, Arial, sans-serif;
 
   /* --------- Colors Codex -------------- */
 
-  --color-codex-primary: #4F8071;
+  --color-codex-primary: var(--c-brand);
 
-  --color-codex-secondary: #1E242A;
+  --color-codex-secondary: #1E2F4A;
 
   --color-codex-terciario: #396bc2;
 
-  --color-codex-cuaternario: #F6F4EF;
+  --color-codex-cuaternario: #F4F7FB;
 
 
-  --color-codex-fondo-primary: #4F8071;
+  --color-codex-fondo-primary: var(--c-brand);
 
-  --color-codex-fondo-primary-variante1: #ddeae4;
-  --color-codex-fondo-primary-variante2: #bad5cb;
-  --color-codex-fondo-primary-variante3: #3d6459;
-  --color-codex-fondo-primary-variante4: #335249;
-  --color-codex-fondo-secondary: #1E242A;
+  --color-codex-fondo-primary-variante1: #E6EFFA;
+  --color-codex-fondo-primary-variante2: #C3D6EE;
+  --color-codex-fondo-primary-variante3: var(--c-brand-strong);
+  --color-codex-fondo-primary-variante4: #244A75;
+  --color-codex-fondo-secondary: #1E2F4A;
   /* Black */
-  --color-codex-fondo-secondary-variante1: #e2e9eb;
-  --color-codex-fondo-secondary-variante2: #c7d4da;
-  --color-codex-fondo-secondary-variante3: #577283;
-  --color-codex-fondo-secondary-variante4: #4b606f;
-  --color-codex-fondo-secondary-variante5: #343c45;
+  --color-codex-fondo-secondary-variante1: #E6EDF7;
+  --color-codex-fondo-secondary-variante2: #C9D6EA;
+  --color-codex-fondo-secondary-variante3: #5B7396;
+  --color-codex-fondo-secondary-variante4: #4A6285;
+  --color-codex-fondo-secondary-variante5: #2B4166;
   --color-codex-fondo-terciario: #396bc2;
   /* Blue */
   --color-codex-fondo-terciario-variante1: #e0eef9;
@@ -70,26 +55,26 @@
   --color-codex-fondo-terciario-variante4: #33569a;
   --color-codex-fondo-terciario-variante5: #2d497b;
   --color-codex-fondo-terciario-variante6: #202e4b;
-  --color-codex-fondo-cuaternario: #F6F4EF;
+  --color-codex-fondo-cuaternario: #F4F7FB;
   /* Gray Coffee */
-  --color-codex-fondo-cuaternario-variante1: #f0ede4;
-  --color-codex-fondo-cuaternario-variante2: #e0d9c8;
-  --color-codex-fondo-cuaternario-variante3: #a78c68;
-  --color-codex-fondo-cuaternario-variante4: #9a7b5c;
+  --color-codex-fondo-cuaternario-variante1: #EAF0F7;
+  --color-codex-fondo-cuaternario-variante2: #D5DEEA;
+  --color-codex-fondo-cuaternario-variante3: #7F92B3;
+  --color-codex-fondo-cuaternario-variante4: #6A7F9E;
 
-  --color-codex-cards-primary: #4F8071;
+  --color-codex-cards-primary: var(--c-brand);
   /* Green */
-  --color-codex-cards-primary-variante1: #ddeae4;
-  --color-codex-cards-primary-variante2: #bad5cb;
-  --color-codex-cards-primary-variante3: #3d6459;
-  --color-codex-cards-primary-variante4: #335249;
-  --color-codex-cards-secondary: #1E242A;
+  --color-codex-cards-primary-variante1: #E6EFFA;
+  --color-codex-cards-primary-variante2: #C3D6EE;
+  --color-codex-cards-primary-variante3: var(--c-brand-strong);
+  --color-codex-cards-primary-variante4: #244A75;
+  --color-codex-cards-secondary: #1E2F4A;
   /* Black */
-  --color-codex-cards-secondary-variante1: #e2e9eb;
-  --color-codex-cards-secondary-variante2: #c7d4da;
-  --color-codex-cards-secondary-variante3: #577283;
-  --color-codex-cards-secondary-variante4: #4b606f;
-  --color-codex-cards-secondary-variante5: #343c45;
+  --color-codex-cards-secondary-variante1: #E6EDF7;
+  --color-codex-cards-secondary-variante2: #C9D6EA;
+  --color-codex-cards-secondary-variante3: #5B7396;
+  --color-codex-cards-secondary-variante4: #4A6285;
+  --color-codex-cards-secondary-variante5: #2B4166;
   --color-codex-cards-terciario: #396bc2;
   /* Blue */
   --color-codex-cards-terciario-variante1: #e0eef9;
@@ -98,26 +83,26 @@
   --color-codex-cards-terciario-variante4: #33569a;
   --color-codex-cards-terciario-variante5: #2d497b;
   --color-codex-cards-terciario-variante6: #202e4b;
-  --color-codex-cards-cuaternario: #F6F4EF;
+  --color-codex-cards-cuaternario: #F4F7FB;
   /* Gray Coffee */
-  --color-codex-cards-cuaternario-variante1: #f0ede4;
-  --color-codex-cards-cuaternario-variante2: #e0d9c8;
-  --color-codex-cards-cuaternario-variante3: #a78c68;
-  --color-codex-cards-cuaternario-variante4: #9a7b5c;
+  --color-codex-cards-cuaternario-variante1: #EAF0F7;
+  --color-codex-cards-cuaternario-variante2: #D5DEEA;
+  --color-codex-cards-cuaternario-variante3: #7F92B3;
+  --color-codex-cards-cuaternario-variante4: #6A7F9E;
 
-  --color-codex-botones-primary: #4F8071;
+  --color-codex-botones-primary: var(--c-brand);
   /* Green */
-  --color-codex-botones-primary-variante1: #ddeae4;
-  --color-codex-botones-primary-variante2: #bad5cb;
-  --color-codex-botones-primary-variante3: #3d6459;
-  --color-codex-botones-primary-variante4: #335249;
-  --color-codex-botones-secondary: #1E242A;
+  --color-codex-botones-primary-variante1: #E6EFFA;
+  --color-codex-botones-primary-variante2: #C3D6EE;
+  --color-codex-botones-primary-variante3: var(--c-brand-strong);
+  --color-codex-botones-primary-variante4: #244A75;
+  --color-codex-botones-secondary: #1E2F4A;
   /* Black */
-  --color-codex-botones-secondary-variante1: #e2e9eb;
-  --color-codex-botones-secondary-variante2: #c7d4da;
-  --color-codex-botones-secondary-variante3: #577283;
-  --color-codex-botones-secondary-variante4: #4b606f;
-  --color-codex-botones-secondary-variante5: #343c45;
+  --color-codex-botones-secondary-variante1: #E6EDF7;
+  --color-codex-botones-secondary-variante2: #C9D6EA;
+  --color-codex-botones-secondary-variante3: #5B7396;
+  --color-codex-botones-secondary-variante4: #4A6285;
+  --color-codex-botones-secondary-variante5: #2B4166;
   --color-codex-botones-terciario: #396bc2;
   /* Blue */
   --color-codex-botones-terciario-variante1: #e0eef9;
@@ -126,26 +111,26 @@
   --color-codex-botones-terciario-variante4: #33569a;
   --color-codex-botones-terciario-variante5: #2d497b;
   --color-codex-botones-terciario-variante6: #202e4b;
-  --color-codex-botones-cuaternario: #F6F4EF;
+  --color-codex-botones-cuaternario: #F4F7FB;
   /* Gray Coffee */
-  --color-codex-botones-cuaternario-variante1: #f0ede4;
-  --color-codex-botones-cuaternario-variante2: #e0d9c8;
-  --color-codex-botones-cuaternario-variante3: #a78c68;
-  --color-codex-botones-cuaternario-variante4: #9a7b5c;
+  --color-codex-botones-cuaternario-variante1: #EAF0F7;
+  --color-codex-botones-cuaternario-variante2: #D5DEEA;
+  --color-codex-botones-cuaternario-variante3: #7F92B3;
+  --color-codex-botones-cuaternario-variante4: #6A7F9E;
 
-  --color-codex-bordes-primary: #4F8071;
+  --color-codex-bordes-primary: var(--c-brand);
   /* Green */
-  --color-codex-bordes-primary-variante1: #ddeae4;
-  --color-codex-bordes-primary-variante2: #bad5cb;
-  --color-codex-bordes-primary-variante3: #3d6459;
-  --color-codex-bordes-primary-variante4: #335249;
-  --color-codex-bordes-secondary: #1E242A;
+  --color-codex-bordes-primary-variante1: #E6EFFA;
+  --color-codex-bordes-primary-variante2: #C3D6EE;
+  --color-codex-bordes-primary-variante3: var(--c-brand-strong);
+  --color-codex-bordes-primary-variante4: #244A75;
+  --color-codex-bordes-secondary: #1E2F4A;
   /* Black */
-  --color-codex-bordes-secondary-variante1: #e2e9eb;
-  --color-codex-bordes-secondary-variante2: #c7d4da;
-  --color-codex-bordes-secondary-variante3: #577283;
-  --color-codex-bordes-secondary-variante4: #4b606f;
-  --color-codex-bordes-secondary-variante5: #343c45;
+  --color-codex-bordes-secondary-variante1: #E6EDF7;
+  --color-codex-bordes-secondary-variante2: #C9D6EA;
+  --color-codex-bordes-secondary-variante3: #5B7396;
+  --color-codex-bordes-secondary-variante4: #4A6285;
+  --color-codex-bordes-secondary-variante5: #2B4166;
   --color-codex-bordes-terciario: #396bc2;
   /* Blue */
   --color-codex-bordes-terciario-variante1: #e0eef9;
@@ -154,26 +139,26 @@
   --color-codex-bordes-terciario-variante4: #33569a;
   --color-codex-bordes-terciario-variante5: #2d497b;
   --color-codex-bordes-terciario-variante6: #202e4b;
-  --color-codex-bordes-cuaternario: #F6F4EF;
+  --color-codex-bordes-cuaternario: #F4F7FB;
   /* Gray Coffee */
-  --color-codex-bordes-cuaternario-variante1: #f0ede4;
-  --color-codex-bordes-cuaternario-variante2: #e0d9c8;
-  --color-codex-bordes-cuaternario-variante3: #a78c68;
-  --color-codex-bordes-cuaternario-variante4: #9a7b5c;
+  --color-codex-bordes-cuaternario-variante1: #EAF0F7;
+  --color-codex-bordes-cuaternario-variante2: #D5DEEA;
+  --color-codex-bordes-cuaternario-variante3: #7F92B3;
+  --color-codex-bordes-cuaternario-variante4: #6A7F9E;
 
-  --color-codex-texto-primary: #4F8071;
+  --color-codex-texto-primary: var(--c-brand);
   /* Green */
-  --color-codex-texto-primary-variante1: #ddeae4;
-  --color-codex-texto-primary-variante2: #bad5cb;
-  --color-codex-texto-primary-variante3: #3d6459;
-  --color-codex-texto-primary-variante4: #335249;
-  --color-codex-texto-secondary: #1E242A;
+  --color-codex-texto-primary-variante1: #E6EFFA;
+  --color-codex-texto-primary-variante2: #C3D6EE;
+  --color-codex-texto-primary-variante3: var(--c-brand-strong);
+  --color-codex-texto-primary-variante4: #244A75;
+  --color-codex-texto-secondary: #1E2F4A;
   /* Black */
-  --color-codex-texto-secondary-variante1: #e2e9eb;
-  --color-codex-texto-secondary-variante2: #c7d4da;
-  --color-codex-texto-secondary-variante3: #577283;
-  --color-codex-texto-secondary-variante4: #4b606f;
-  --color-codex-texto-secondary-variante5: #343c45;
+  --color-codex-texto-secondary-variante1: #E6EDF7;
+  --color-codex-texto-secondary-variante2: #C9D6EA;
+  --color-codex-texto-secondary-variante3: #5B7396;
+  --color-codex-texto-secondary-variante4: #4A6285;
+  --color-codex-texto-secondary-variante5: #2B4166;
   --color-codex-texto-terciario: #396bc2;
   /* Blue */
   --color-codex-texto-terciario-variante1: #e0eef9;
@@ -182,35 +167,35 @@
   --color-codex-texto-terciario-variante4: #33569a;
   --color-codex-texto-terciario-variante5: #2d497b;
   --color-codex-texto-terciario-variante6: #202e4b;
-  --color-codex-texto-cuaternario: #F6F4EF;
+  --color-codex-texto-cuaternario: #F4F7FB;
   /* Gray Coffee */
-  --color-codex-texto-cuaternario-variante1: #f0ede4;
-  --color-codex-texto-cuaternario-variante2: #e0d9c8;
-  --color-codex-texto-cuaternario-variante3: #a78c68;
-  --color-codex-texto-cuaternario-variante4: #9a7b5c;
+  --color-codex-texto-cuaternario-variante1: #EAF0F7;
+  --color-codex-texto-cuaternario-variante2: #D5DEEA;
+  --color-codex-texto-cuaternario-variante3: #7F92B3;
+  --color-codex-texto-cuaternario-variante4: #6A7F9E;
 
-  --color-codex-titulos-primary: #4F8071;
+  --color-codex-titulos-primary: var(--c-brand);
   /* Green */
-  --color-codex-titulos-secondary: #1E242A;
+  --color-codex-titulos-secondary: #1E2F4A;
   /* Black */
   --color-codex-titulos-terciario: #396bc2;
   /* Blue */
-  --color-codex-titulos-cuaternario: #F6F4EF;
+  --color-codex-titulos-cuaternario: #F4F7FB;
   /* Gray Coffee */
 
-  --color-codex-iconos-primary: #4F8071;
+  --color-codex-iconos-primary: var(--c-brand);
   /* Green */
-  --color-codex-iconos-primary-variante1: #ddeae4;
-  --color-codex-iconos-primary-variante2: #bad5cb;
-  --color-codex-iconos-primary-variante3: #3d6459;
-  --color-codex-iconos-primary-variante4: #335249;
-  --color-codex-iconos-secondary: #1E242A;
+  --color-codex-iconos-primary-variante1: #E6EFFA;
+  --color-codex-iconos-primary-variante2: #C3D6EE;
+  --color-codex-iconos-primary-variante3: var(--c-brand-strong);
+  --color-codex-iconos-primary-variante4: #244A75;
+  --color-codex-iconos-secondary: #1E2F4A;
   /* Black */
-  --color-codex-iconos-secondary-variante1: #e2e9eb;
-  --color-codex-iconos-secondary-variante2: #c7d4da;
-  --color-codex-iconos-secondary-variante3: #577283;
-  --color-codex-iconos-secondary-variante4: #4b606f;
-  --color-codex-iconos-secondary-variante5: #343c45;
+  --color-codex-iconos-secondary-variante1: #E6EDF7;
+  --color-codex-iconos-secondary-variante2: #C9D6EA;
+  --color-codex-iconos-secondary-variante3: #5B7396;
+  --color-codex-iconos-secondary-variante4: #4A6285;
+  --color-codex-iconos-secondary-variante5: #2B4166;
   --color-codex-iconos-terciario: #396bc2;
   /* Blue */
   --color-codex-iconos-terciario-variante1: #e0eef9;
@@ -219,26 +204,26 @@
   --color-codex-iconos-terciario-variante4: #33569a;
   --color-codex-iconos-terciario-variante5: #2d497b;
   --color-codex-iconos-terciario-variante6: #202e4b;
-  --color-codex-iconos-cuaternario: #F6F4EF;
+  --color-codex-iconos-cuaternario: #F4F7FB;
   /* Gray Coffee */
-  --color-codex-iconos-cuaternario-variante1: #f0ede4;
-  --color-codex-iconos-cuaternario-variante2: #e0d9c8;
-  --color-codex-iconos-cuaternario-variante3: #a78c68;
-  --color-codex-iconos-cuaternario-variante4: #9a7b5c;
+  --color-codex-iconos-cuaternario-variante1: #EAF0F7;
+  --color-codex-iconos-cuaternario-variante2: #D5DEEA;
+  --color-codex-iconos-cuaternario-variante3: #7F92B3;
+  --color-codex-iconos-cuaternario-variante4: #6A7F9E;
 
-  --color-codex-hover-primary: #4F8071;
+  --color-codex-hover-primary: var(--c-brand);
   /* Green */
-  --color-codex-hover-primary-variante1: #ddeae4;
-  --color-codex-hover-primary-variante2: #bad5cb;
-  --color-codex-hover-primary-variante3: #3d6459;
-  --color-codex-hover-primary-variante4: #335249;
-  --color-codex-hover-secondary: #1E242A;
+  --color-codex-hover-primary-variante1: #E6EFFA;
+  --color-codex-hover-primary-variante2: #C3D6EE;
+  --color-codex-hover-primary-variante3: var(--c-brand-strong);
+  --color-codex-hover-primary-variante4: #244A75;
+  --color-codex-hover-secondary: #1E2F4A;
   /* Black */
-  --color-codex-hover-secondary-variante1: #e2e9eb;
-  --color-codex-hover-secondary-variante2: #c7d4da;
-  --color-codex-hover-secondary-variante3: #577283;
-  --color-codex-hover-secondary-variante4: #4b606f;
-  --color-codex-hover-secondary-variante5: #343c45;
+  --color-codex-hover-secondary-variante1: #E6EDF7;
+  --color-codex-hover-secondary-variante2: #C9D6EA;
+  --color-codex-hover-secondary-variante3: #5B7396;
+  --color-codex-hover-secondary-variante4: #4A6285;
+  --color-codex-hover-secondary-variante5: #2B4166;
   --color-codex-hover-terciario: #396bc2;
   /*    Blue */
   --color-codex-hover-terciario-variante1: #e0eef9;
@@ -247,12 +232,12 @@
   --color-codex-hover-terciario-variante4: #33569a;
   --color-codex-hover-terciario-variante5: #2d497b;
   --color-codex-hover-terciario-variante6: #202e4b;
-  --color-codex-hover-cuaternario: #F6F4EF;
+  --color-codex-hover-cuaternario: #F4F7FB;
   /* Gray Coffee */
-  --color-codex-hover-cuaternario-variante1: #f0ede4;
-  --color-codex-hover-cuaternario-variante2: #e0d9c8;
-  --color-codex-hover-cuaternario-variante3: #a78c68;
-  --color-codex-hover-cuaternario-variante4: #9a7b5c;
+  --color-codex-hover-cuaternario-variante1: #EAF0F7;
+  --color-codex-hover-cuaternario-variante2: #D5DEEA;
+  --color-codex-hover-cuaternario-variante3: #7F92B3;
+  --color-codex-hover-cuaternario-variante4: #6A7F9E;
 
 
   /* --------- Fin estandarización paleta de colores -------------- */
@@ -310,13 +295,13 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: var(--codex-primary, #4F8071);
+  background-color: var(--c-brand);
   border-radius: 999px;
   opacity: 0.5;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background-color: #3d6459;
+  background-color: var(--c-brand-strong);
 }
 
 ::-webkit-scrollbar-track {
@@ -324,109 +309,117 @@
 }
 
 :root {
-  --radius: 0.125rem; /* 2px — Brand Manual default */
+  --radius: 0.125rem;
+  color-scheme: light;
 
-  /* ---- Brand Manual Light Theme ---- */
+  /* ---- Theme tokens: light ---- */
+  --c-surface: #FEFCF9;       /* page background (site off-white) */
+  --c-surface-2: #EEF3F9;     /* cards, sidebars */
+  --c-card: #FFFFFF;          /* inputs, raised cards */
+  --c-border: #D5DEEA;
+  --c-border-strong: #BFCBDD;
+  --c-divider: #E6ECF4;
+  --c-hover: #F1F5FA;
+  --c-skeleton: #E3EAF3;
+  --c-switch-off: #C3CCDA;
+  --c-ink: #1E2F4A;           /* headings + body (site navy) */
+  --c-muted: #5B6F90;
+  --c-hint: #8C9BB5;
+  --c-brand: #3F72A3;         /* steel blue: nav, secondary actions, links */
+  --c-brand-strong: #2E5885;
+  --c-brand-pale: #E6EFFA;
+  --c-accent: #61AFEE;        /* light blue: active states, tags, charts */
+  --c-accent-pale: #E3F0FC;
+  --c-cta: #E06C75;           /* coral: primary call to action */
+  --c-cta-strong: #C9545E;
+  --c-cta-pale: #FBE4E6;
+  --c-danger: #C0392B;
+  --c-navy: #1E2F4A;          /* intentionally dark panels (same in both themes) */
+  --c-on-dark: #FEFCF9;       /* text that sits on navy / brand / cta (same in both themes) */
 
-  /* Surfaces */
-  --background: #FBF7EF;   /* Linen — main page background */
-  --foreground: #2E2A26;   /* Hearth Ink — all text */
+  --font-heading: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-body: "Helvetica Neue", Helvetica, Arial, sans-serif;
 
-  --card: #F2EBDD;         /* Oat — cards, sidebars */
-  --card-foreground: #2E2A26;
-  --popover: #F2EBDD;
-  --popover-foreground: #2E2A26;
+  /* ---- shadcn tokens -> theme ---- */
+  --background: var(--c-surface);
+  --foreground: var(--c-ink);
+  --card: var(--c-surface-2);
+  --card-foreground: var(--c-ink);
+  --popover: var(--c-card);
+  --popover-foreground: var(--c-ink);
+  --primary: var(--c-cta);
+  --primary-foreground: #FFFFFF;
+  --secondary: var(--c-brand);
+  --secondary-foreground: #FFFFFF;
+  --accent: var(--c-accent-pale);
+  --accent-foreground: var(--c-ink);
+  --muted: var(--c-surface-2);
+  --muted-foreground: var(--c-muted);
+  --destructive: var(--c-danger);
+  --border: var(--c-border);
+  --input: var(--c-border);
+  --ring: var(--c-brand);
 
-  /* Primary CTA — Apricot */
-  --primary: #F29B6B;
-  --primary-foreground: #FBF7EF;
+  --chart-1: #E06C75;
+  --chart-2: #61AFEE;
+  --chart-3: #3F72A3;
+  --chart-4: #F2B3B8;
+  --chart-5: #BFCBDD;
+  --chartcodex-1: #E06C75;
+  --chartcodex-2: #61AFEE;
+  --chartcodex-3: #3F72A3;
+  --chartcodex-4: #1E2F4A;
+  --chartcodex-5: #F2B3B8;
 
-  /* Secondary CTA — Olive Branch */
-  --secondary: #5E6A43;
-  --secondary-foreground: #FBF7EF;
-
-  /* Active states — Citron */
-  --accent: #B8C76A;
-  --accent-foreground: #2E2A26;
-
-  /* Soft callouts — Peach Wash */
-  --muted: #FFDCC8;
-  --muted-foreground: #6b6560;
-
-  /* Destructive */
-  --destructive: #c0392b;
-
-  /* Structure — Pebble */
-  --border: #D8D2C4;
-  --input: #D8D2C4;
-  --ring: #F29B6B; /* Apricot focus ring */
-
-  /* Charts — brand palette */
-  --chart-1: #F29B6B;   /* Apricot */
-  --chart-2: #B8C76A;   /* Citron */
-  --chart-3: #5E6A43;   /* Olive Branch */
-  --chart-4: #FFDCC8;   /* Peach Wash */
-  --chart-5: #D8D2C4;   /* Pebble */
-
-  --chartcodex-1: #F29B6B;
-  --chartcodex-2: #B8C76A;
-  --chartcodex-3: #5E6A43;
-  --chartcodex-4: #2E2A26;
-  --chartcodex-5: #FFDCC8;
-
-  /* Sidebar */
-  --sidebar: #F2EBDD;
-  --sidebar-foreground: #2E2A26;
-  --sidebar-primary: #5E6A43;
-  --sidebar-primary-foreground: #FBF7EF;
-  --sidebar-accent: #e8edde;
-  --sidebar-accent-foreground: #2E2A26;
-  --sidebar-border: #D8D2C4;
-  --sidebar-ring: #F29B6B;
+  --sidebar: var(--c-surface-2);
+  --sidebar-foreground: var(--c-ink);
+  --sidebar-primary: var(--c-brand);
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: var(--c-brand-pale);
+  --sidebar-accent-foreground: var(--c-ink);
+  --sidebar-border: var(--c-border);
+  --sidebar-ring: var(--c-brand);
 }
 
 .dark {
-  /* Brand Manual Dark Mode — warm dark tones from Hearth Ink */
-  --background: #2a261f;
-  --foreground: #FBF7EF;
+  color-scheme: dark;
 
-  --card: #332e26;
-  --card-foreground: #FBF7EF;
-  --popover: #332e26;
-  --popover-foreground: #FBF7EF;
+  /* ---- Theme tokens: dark (CodeX navy) ---- */
+  --c-surface: #1E2F4A;
+  --c-surface-2: #263A5C;
+  --c-card: #2B4166;
+  --c-border: #3A5078;
+  --c-border-strong: #4A6290;
+  --c-divider: #2F4468;
+  --c-hover: #2C4268;
+  --c-skeleton: #2B4166;
+  --c-switch-off: #4A6290;
+  --c-ink: #F4F7FB;
+  --c-muted: #A9B8D2;
+  --c-hint: #7F92B3;
+  --c-brand: #4B9DE7;
+  --c-brand-strong: #3B86CC;
+  --c-brand-pale: #2B4A75;
+  --c-accent: #4B9DE7;
+  --c-accent-pale: #2A4A72;
+  --c-cta: #E06C75;
+  --c-cta-strong: #EC8A92;
+  --c-cta-pale: #4A3A55;
+  --c-danger: #FF8F99;
 
-  --primary: #F29B6B;
-  --primary-foreground: #2E2A26;
+  --chart-3: #4B9DE7;
+  --chart-4: #F2B3B8;
+  --chart-5: rgba(244,247,251,0.3);
+  --chartcodex-4: #F4F7FB;
 
-  --secondary: #7a8a56;
-  --secondary-foreground: #FBF7EF;
-
-  --accent: #B8C76A;
-  --accent-foreground: #2E2A26;
-
-  --muted: rgba(242,155,107,0.12);
-  --muted-foreground: #b8b0a8;
-
-  --destructive: #e05252;
-
-  --border: rgba(251,247,239,0.12);
-  --input: rgba(251,247,239,0.10);
-  --ring: #F29B6B;
-
-  --chart-1: #F29B6B;
-  --chart-2: #B8C76A;
-  --chart-3: #7a8a56;
-  --chart-4: #FFDCC8;
-  --chart-5: rgba(251,247,239,0.3);
-
-  --sidebar: #332e26;
-  --sidebar-foreground: #FBF7EF;
-  --sidebar-primary: #7a8a56;
-  --sidebar-primary-foreground: #FBF7EF;
-  --sidebar-accent: rgba(184,199,106,0.15);
-  --sidebar-accent-foreground: #FBF7EF;
-  --sidebar-border: rgba(251,247,239,0.10);
-  --sidebar-ring: #F29B6B;
+  --muted: var(--c-surface-2);
+  --card: var(--c-surface-2);
+  --popover: var(--c-card);
+  --sidebar-accent: rgba(97,175,238,0.16);
+  --input: rgba(244,247,251,0.12);
+  --border: rgba(244,247,251,0.14);
+  --sidebar-border: rgba(244,247,251,0.12);
+  --destructive: #FF8F99;
 }
 
 @layer base {
@@ -436,7 +429,7 @@
 
   body {
     @apply bg-background text-foreground;
-    font-family: "Source Sans 3", Arial, sans-serif;
+    font-family: var(--font-body);
     font-size: 16px;
     line-height: 1.65;
     -webkit-font-smoothing: antialiased;
@@ -445,31 +438,29 @@
 
   /* Type Scale — Brand Manual */
   h1 {
-    font-family: "Cormorant Garamond", Georgia, serif;
+    font-family: var(--font-heading);
     font-size: 3rem;       /* 48px */
-    font-style: italic;
-    font-weight: 600;
+    font-weight: 700;
     line-height: 1.1;
     letter-spacing: -0.015em;
   }
   h2 {
-    font-family: "Cormorant Garamond", Georgia, serif;
+    font-family: var(--font-heading);
     font-size: 2.25rem;    /* 36px */
-    font-style: italic;
-    font-weight: 600;
+    font-weight: 700;
     line-height: 1.15;
     letter-spacing: -0.01em;
   }
   h3, h4, h5, h6 {
-    font-family: "Source Sans 3", Arial, sans-serif;
-    font-weight: 600;
+    font-family: var(--font-heading);
+    font-weight: 700;
     line-height: 1.3;
   }
 
   label, caption, .label {
     font-size: 0.75rem;    /* 12px */
     line-height: 1.4;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.02em;
   }
 }
 

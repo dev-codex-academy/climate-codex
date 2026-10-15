@@ -50,9 +50,9 @@ const SECTIONS = [
 
 function SurveyDetail({ survey }) {
     const formatValue = (val) => {
-        if (val === null || val === undefined || val === "") return <span style={{ color: "#9b948e" }}>—</span>;
+        if (val === null || val === undefined || val === "") return <span style={{ color: "var(--c-hint)" }}>—</span>;
         if (typeof val === "boolean") return val ? "Yes" : "No";
-        if (Array.isArray(val)) return val.length ? val.join(", ") : <span style={{ color: "#9b948e" }}>—</span>;
+        if (Array.isArray(val)) return val.length ? val.join(", ") : <span style={{ color: "var(--c-hint)" }}>—</span>;
         return String(val);
     };
 
@@ -66,7 +66,7 @@ function SurveyDetail({ survey }) {
                 if (!hasValues) return null;
                 return (
                     <div key={section.title}>
-                        <p style={{ fontSize: "11px", fontWeight: 700, color: "#5E6A43", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: "10px", borderBottom: "1px solid #D8D2C4", paddingBottom: "4px" }}>
+                        <p style={{ fontSize: "11px", fontWeight: 700, color: "var(--c-brand)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: "10px", borderBottom: "1px solid var(--c-border)", paddingBottom: "4px" }}>
                             {section.title}
                         </p>
                         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: "10px 24px" }}>
@@ -75,8 +75,8 @@ function SurveyDetail({ survey }) {
                                 if (val === null || val === undefined || val === "" || (Array.isArray(val) && val.length === 0)) return null;
                                 return (
                                     <div key={field}>
-                                        <p style={{ fontSize: "11px", color: "#9b948e", marginBottom: "2px" }}>{LABEL_MAP[field] || field}</p>
-                                        <p style={{ fontSize: "13px", color: "#2E2A26", fontWeight: 500 }}>{formatValue(val)}</p>
+                                        <p style={{ fontSize: "11px", color: "var(--c-hint)", marginBottom: "2px" }}>{LABEL_MAP[field] || field}</p>
+                                        <p style={{ fontSize: "13px", color: "var(--c-ink)", fontWeight: 500 }}>{formatValue(val)}</p>
                                     </div>
                                 );
                             })}
@@ -418,7 +418,7 @@ export const ServiceDetail = () => {
                                 setCopied(true);
                                 setTimeout(() => setCopied(false), 2000);
                             }}
-                            style={{ display: "flex", alignItems: "center", gap: "6px", height: "36px", padding: "0 14px", borderRadius: "6px", border: "1px solid #D8D2C4", backgroundColor: copied ? "#F2EBDD" : "transparent", color: copied ? "#5E6A43" : "#6b6560", fontSize: "13px", fontWeight: 500, cursor: "pointer", transition: "all 0.2s" }}>
+                            style={{ display: "flex", alignItems: "center", gap: "6px", height: "36px", padding: "0 14px", borderRadius: "6px", border: "1px solid var(--c-border)", backgroundColor: copied ? "var(--c-surface-2)" : "transparent", color: copied ? "var(--c-brand)" : "var(--c-muted)", fontSize: "13px", fontWeight: 500, cursor: "pointer", transition: "all 0.2s" }}>
                             <Link2 size={14} />
                             {copied ? "Copied!" : "Copy Survey URL"}
                         </button>
@@ -640,7 +640,7 @@ export const ServiceDetail = () => {
                         <div className="bg-card p-6 rounded-lg border shadow-sm space-y-4">
                             <div className="flex items-center justify-between border-b pb-2">
                                 <h3 className="font-medium text-lg">Registrations</h3>
-                                <span style={{ fontSize: "12px", backgroundColor: "#F2EBDD", color: "#5E6A43", border: "1px solid rgba(94,106,67,0.3)", borderRadius: "12px", padding: "2px 10px", fontWeight: 600 }}>
+                                <span style={{ fontSize: "12px", backgroundColor: "var(--c-surface-2)", color: "var(--c-brand)", border: "1px solid color-mix(in srgb, var(--c-brand) 30%, transparent)", borderRadius: "12px", padding: "2px 10px", fontWeight: 600 }}>
                                     {surveys.length}
                                 </span>
                             </div>
@@ -651,31 +651,31 @@ export const ServiceDetail = () => {
                                 <div style={{ overflowX: "auto" }}>
                                     <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
                                         <thead>
-                                            <tr style={{ borderBottom: "1px solid #D8D2C4" }}>
+                                            <tr style={{ borderBottom: "1px solid var(--c-border)" }}>
                                                 {["Full Name", "Email", "Phone", "Submitted", ""].map(h => (
-                                                    <th key={h} style={{ textAlign: "left", padding: "8px 12px", color: "#6b6560", fontWeight: 600, whiteSpace: "nowrap" }}>{h}</th>
+                                                    <th key={h} style={{ textAlign: "left", padding: "8px 12px", color: "var(--c-muted)", fontWeight: 600, whiteSpace: "nowrap" }}>{h}</th>
                                                 ))}
                                             </tr>
                                         </thead>
                                         <tbody>
                                             {surveys.map(s => (
                                                 <React.Fragment key={s.id}>
-                                                    <tr style={{ borderBottom: "1px solid #F2EBDD", backgroundColor: selectedSurvey?.id === s.id ? "#F2EBDD" : "transparent" }}>
-                                                        <td style={{ padding: "10px 12px", color: "#2E2A26", fontWeight: 500 }}>{s.full_name}</td>
-                                                        <td style={{ padding: "10px 12px", color: "#6b6560" }}>{s.email}</td>
-                                                        <td style={{ padding: "10px 12px", color: "#6b6560" }}>{s.phone}</td>
-                                                        <td style={{ padding: "10px 12px", color: "#9b948e", whiteSpace: "nowrap" }}>{formatDate(s.created_at)}</td>
+                                                    <tr style={{ borderBottom: "1px solid var(--c-surface-2)", backgroundColor: selectedSurvey?.id === s.id ? "var(--c-surface-2)" : "transparent" }}>
+                                                        <td style={{ padding: "10px 12px", color: "var(--c-ink)", fontWeight: 500 }}>{s.full_name}</td>
+                                                        <td style={{ padding: "10px 12px", color: "var(--c-muted)" }}>{s.email}</td>
+                                                        <td style={{ padding: "10px 12px", color: "var(--c-muted)" }}>{s.phone}</td>
+                                                        <td style={{ padding: "10px 12px", color: "var(--c-hint)", whiteSpace: "nowrap" }}>{formatDate(s.created_at)}</td>
                                                         <td style={{ padding: "10px 12px" }}>
                                                             <button
                                                                 onClick={() => setSelectedSurvey(selectedSurvey?.id === s.id ? null : s)}
-                                                                style={{ fontSize: "12px", padding: "4px 12px", borderRadius: "6px", border: "1px solid #D8D2C4", backgroundColor: "transparent", color: "#5E6A43", cursor: "pointer", fontWeight: 500 }}>
+                                                                style={{ fontSize: "12px", padding: "4px 12px", borderRadius: "6px", border: "1px solid var(--c-border)", backgroundColor: "transparent", color: "var(--c-brand)", cursor: "pointer", fontWeight: 500 }}>
                                                                 {selectedSurvey?.id === s.id ? "Close" : "View"}
                                                             </button>
                                                         </td>
                                                     </tr>
                                                     {selectedSurvey?.id === s.id && (
                                                         <tr>
-                                                            <td colSpan={5} style={{ backgroundColor: "#FBF7EF", padding: "20px 24px" }}>
+                                                            <td colSpan={5} style={{ backgroundColor: "var(--c-surface)", padding: "20px 24px" }}>
                                                                 <SurveyDetail survey={s} />
                                                             </td>
                                                         </tr>
@@ -695,7 +695,7 @@ export const ServiceDetail = () => {
                             <div className="flex items-center justify-between border-b pb-2">
                                 <h3 className="font-medium text-lg">Enrollment Agreement</h3>
                                 {enrollment && (
-                                    <span style={{ fontSize: "12px", backgroundColor: "#F2EBDD", color: "#5E6A43", border: "1px solid rgba(94,106,67,0.3)", borderRadius: "12px", padding: "2px 10px", fontWeight: 600 }}>
+                                    <span style={{ fontSize: "12px", backgroundColor: "var(--c-surface-2)", color: "var(--c-brand)", border: "1px solid color-mix(in srgb, var(--c-brand) 30%, transparent)", borderRadius: "12px", padding: "2px 10px", fontWeight: 600 }}>
                                         Signed
                                     </span>
                                 )}
@@ -703,7 +703,7 @@ export const ServiceDetail = () => {
                             {!enrollment ? (
                                 <p className="text-sm text-muted-foreground italic">No enrollment agreement on file for this service.</p>
                             ) : (
-                                <div style={{ fontSize: 13, fontFamily: '"Source Sans 3", Arial, sans-serif' }}>
+                                <div style={{ fontSize: 13, fontFamily: 'var(--font-body)' }}>
                                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "12px 24px", marginBottom: 16 }}>
                                         {[
                                             ["Student", enrollment.student_name],
@@ -716,8 +716,8 @@ export const ServiceDetail = () => {
                                             ["Disability Accommodation", enrollment.has_disability === true ? "Yes" : enrollment.has_disability === false ? "No" : "Not specified"],
                                         ].map(([label, val]) => (
                                             <div key={label}>
-                                                <p style={{ color: "#9b948e", fontWeight: 600, marginBottom: 2 }}>{label}</p>
-                                                <p style={{ color: "#2E2A26" }}>{val}</p>
+                                                <p style={{ color: "var(--c-hint)", fontWeight: 600, marginBottom: 2 }}>{label}</p>
+                                                <p style={{ color: "var(--c-ink)" }}>{val}</p>
                                             </div>
                                         ))}
                                     </div>
@@ -727,18 +727,18 @@ export const ServiceDetail = () => {
                                                 href={enrollment.pdf_url}
                                                 target="_blank"
                                                 rel="noreferrer"
-                                                style={{ fontSize: 12, padding: "4px 14px", borderRadius: 6, border: "1px solid #D8D2C4", backgroundColor: "transparent", color: "#5E6A43", cursor: "pointer", fontWeight: 500, textDecoration: "none" }}>
+                                                style={{ fontSize: 12, padding: "4px 14px", borderRadius: 6, border: "1px solid var(--c-border)", backgroundColor: "transparent", color: "var(--c-brand)", cursor: "pointer", fontWeight: 500, textDecoration: "none" }}>
                                                 View Signed PDF
                                             </a>
                                         )}
                                         <button
                                             onClick={() => setShowSignature((v) => !v)}
-                                            style={{ fontSize: 12, padding: "4px 14px", borderRadius: 6, border: "1px solid #D8D2C4", backgroundColor: "transparent", color: "#5E6A43", cursor: "pointer", fontWeight: 500 }}>
+                                            style={{ fontSize: 12, padding: "4px 14px", borderRadius: 6, border: "1px solid var(--c-border)", backgroundColor: "transparent", color: "var(--c-brand)", cursor: "pointer", fontWeight: 500 }}>
                                             {showSignature ? "Hide Signature" : "View Signature"}
                                         </button>
                                     </div>
                                     {showSignature && enrollment.student_signature && (
-                                        <div style={{ marginTop: 12, border: "1px solid #D8D2C4", borderRadius: 6, padding: 12, backgroundColor: "#fff", display: "inline-block" }}>
+                                        <div style={{ marginTop: 12, border: "1px solid var(--c-border)", borderRadius: 6, padding: 12, backgroundColor: "var(--c-card)", display: "inline-block" }}>
                                             <img src={enrollment.student_signature} alt="Student signature" style={{ maxWidth: 340, display: "block" }} />
                                         </div>
                                     )}

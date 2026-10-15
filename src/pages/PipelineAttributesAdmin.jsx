@@ -15,22 +15,22 @@ import {
 } from "lucide-react";
 import Swal from "sweetalert2";
 
-const FONT = '"Source Sans 3", Arial, sans-serif';
-const INK = "#2E2A26";
-const MUTED = "#6b6560";
-const HINT = "#9b948e";
-const LINEN = "#FBF7EF";
-const OAT = "#F2EBDD";
-const PEBBLE = "#D8D2C4";
-const OLIVE = "#5E6A43";
+const FONT = 'var(--font-body)';
+const INK = "var(--c-ink)";
+const MUTED = "var(--c-muted)";
+const HINT = "var(--c-hint)";
+const LINEN = "var(--c-surface)";
+const OAT = "var(--c-surface-2)";
+const PEBBLE = "var(--c-border)";
+const OLIVE = "var(--c-brand)";
 
 const TYPE_COLORS = {
-    text:     { bg: "rgba(94,106,67,0.10)",  border: "rgba(94,106,67,0.35)",  color: "#4a5535" },
-    boolean:  { bg: "rgba(242,155,107,0.12)", border: "rgba(242,155,107,0.4)", color: "#c0622a" },
-    list:     { bg: "rgba(184,199,106,0.12)", border: "rgba(184,199,106,0.4)", color: "#697a28" },
-    number:   { bg: "rgba(216,210,196,0.4)",  border: "#D8D2C4",               color: "#6b6560" },
-    date:     { bg: "rgba(216,210,196,0.4)",  border: "#D8D2C4",               color: "#6b6560" },
-    textarea: { bg: "rgba(216,210,196,0.4)",  border: "#D8D2C4",               color: "#6b6560" },
+    text:     { bg: "color-mix(in srgb, var(--c-brand) 10%, transparent)",  border: "color-mix(in srgb, var(--c-brand) 35%, transparent)",  color: "var(--c-brand-strong)" },
+    boolean:  { bg: "color-mix(in srgb, var(--c-cta) 12%, transparent)", border: "color-mix(in srgb, var(--c-cta) 40%, transparent)", color: "var(--c-cta-strong)" },
+    list:     { bg: "color-mix(in srgb, var(--c-accent) 12%, transparent)", border: "color-mix(in srgb, var(--c-accent) 40%, transparent)", color: "var(--c-brand-strong)" },
+    number:   { bg: "rgba(216,210,196,0.4)",  border: "var(--c-border)",               color: "var(--c-muted)" },
+    date:     { bg: "rgba(216,210,196,0.4)",  border: "var(--c-border)",               color: "var(--c-muted)" },
+    textarea: { bg: "rgba(216,210,196,0.4)",  border: "var(--c-border)",               color: "var(--c-muted)" },
 };
 
 const TypePill = ({ type }) => {
@@ -50,11 +50,11 @@ const Modal = ({ isOpen, children, onClose }) => {
     return (
         <div
             className="fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm"
-            style={{ backgroundColor: "rgba(46,42,38,0.4)" }}
+            style={{ backgroundColor: "rgba(30,47,74,0.4)" }}
         >
             <div
                 className="w-full max-w-md rounded-xl shadow-2xl p-6 relative animate-in zoom-in-95 duration-200"
-                style={{ backgroundColor: "#FBF7EF", border: "1px solid #D8D2C4" }}
+                style={{ backgroundColor: "var(--c-surface)", border: "1px solid var(--c-border)" }}
                 onClick={e => e.stopPropagation()}
             >
                 {children}
@@ -82,7 +82,7 @@ const SortableAttrCard = ({ attr, onEdit, onDelete }) => {
             onMouseEnter={e => {
                 if (!isDragging) {
                     e.currentTarget.style.borderColor = OLIVE;
-                    e.currentTarget.style.backgroundColor = "#FBF7EF";
+                    e.currentTarget.style.backgroundColor = "var(--c-surface)";
                 }
             }}
             onMouseLeave={e => {
@@ -105,8 +105,8 @@ const SortableAttrCard = ({ attr, onEdit, onDelete }) => {
                 className="shrink-0 mr-2 text-[9px] font-black tabular-nums flex items-center justify-center rounded"
                 style={{
                     minWidth: "18px", height: "18px",
-                    backgroundColor: "rgba(94,106,67,0.12)",
-                    border: "1px solid rgba(94,106,67,0.25)",
+                    backgroundColor: "color-mix(in srgb, var(--c-brand) 12%, transparent)",
+                    border: "1px solid color-mix(in srgb, var(--c-brand) 25%, transparent)",
                     color: OLIVE,
                     padding: "0 3px",
                 }}
@@ -134,7 +134,7 @@ const SortableAttrCard = ({ attr, onEdit, onDelete }) => {
                     onClick={() => onEdit(attr)}
                     className="flex h-7 w-7 items-center justify-center rounded-md transition-colors cursor-pointer text-olive"
                     style={{ color: OLIVE }}
-                    onMouseEnter={e => e.currentTarget.style.backgroundColor = "rgba(94,106,67,0.1)"}
+                    onMouseEnter={e => e.currentTarget.style.backgroundColor = "color-mix(in srgb, var(--c-brand) 10%, transparent)"}
                     onMouseLeave={e => e.currentTarget.style.backgroundColor = "transparent"}
                 >
                     <Edit2 size={13} />
@@ -169,15 +169,15 @@ const PipelineColumn = ({ pipeline, attributes, onAdd, onEdit, onDelete, onDragE
                 <div className="flex items-center gap-3">
                     <div
                         className="flex h-9 w-9 items-center justify-center rounded-xl text-sm font-bold uppercase shadow-inner"
-                        style={{ backgroundColor: "rgba(251,247,239,0.15)", color: LINEN }}
+                        style={{ backgroundColor: "color-mix(in srgb, var(--c-surface) 15%, transparent)", color: "var(--c-on-dark)" }}
                     >
                         {pipeline.name.charAt(0).toUpperCase()}
                     </div>
                     <div>
-                        <p className="text-xs font-black uppercase tracking-widest leading-none" style={{ color: LINEN }}>
+                        <p className="text-xs font-black uppercase tracking-widest leading-none" style={{ color: "var(--c-on-dark)" }}>
                             {pipeline.name}
                         </p>
-                        <span className="text-[9px] font-medium" style={{ color: "rgba(251,247,239,0.7)" }}>
+                        <span className="text-[9px] font-medium" style={{ color: "color-mix(in srgb, var(--c-surface) 70%, transparent)" }}>
                             {attributes.length} {attributes.length === 1 ? 'field' : 'fields'}
                         </span>
                     </div>
@@ -185,9 +185,9 @@ const PipelineColumn = ({ pipeline, attributes, onAdd, onEdit, onDelete, onDragE
                 <button
                     onClick={() => onAdd(pipeline)}
                     className="flex items-center gap-1.5 px-3.5 h-8 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer shadow-sm"
-                    style={{ backgroundColor: "rgba(251,247,239,0.2)", color: LINEN, border: "1px solid rgba(251,247,239,0.3)" }}
-                    onMouseEnter={e => e.currentTarget.style.backgroundColor = "rgba(251,247,239,0.3)"}
-                    onMouseLeave={e => e.currentTarget.style.backgroundColor = "rgba(251,247,239,0.2)"}
+                    style={{ backgroundColor: "color-mix(in srgb, var(--c-surface) 20%, transparent)", color: "var(--c-on-dark)", border: "1px solid color-mix(in srgb, var(--c-surface) 30%, transparent)" }}
+                    onMouseEnter={e => e.currentTarget.style.backgroundColor = "color-mix(in srgb, var(--c-surface) 30%, transparent)"}
+                    onMouseLeave={e => e.currentTarget.style.backgroundColor = "color-mix(in srgb, var(--c-surface) 20%, transparent)"}
                 >
                     <Plus size={12} /> New
                 </button>
@@ -373,12 +373,12 @@ export const PipelineAttributesAdmin = () => {
             {/* Page header */}
             <div
                 className="shrink-0 px-8 py-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4"
-                style={{ borderBottom: `1px solid ${PEBBLE}`, backgroundColor: "#F2EBDD" }}
+                style={{ borderBottom: `1px solid ${PEBBLE}`, backgroundColor: "var(--c-surface-2)" }}
             >
                 <div className="flex items-center gap-4">
                     <div
                         className="flex h-12 w-12 items-center justify-center rounded-2xl shadow-sm"
-                        style={{ backgroundColor: "rgba(94,106,67,0.12)", border: `1px solid rgba(94,106,67,0.3)` }}
+                        style={{ backgroundColor: "color-mix(in srgb, var(--c-brand) 12%, transparent)", border: `1px solid color-mix(in srgb, var(--c-brand) 30%, transparent)` }}
                     >
                         <SlidersHorizontal className="h-6 w-6" style={{ color: OLIVE }} />
                     </div>
@@ -395,7 +395,7 @@ export const PipelineAttributesAdmin = () => {
                 <div className="flex items-center gap-3">
                      <span
                         className="text-[10px] font-black uppercase tracking-widest px-4 py-1.5 rounded-full shadow-sm"
-                        style={{ backgroundColor: "rgba(94,106,67,0.1)", border: `1px solid ${PEBBLE}`, color: OLIVE }}
+                        style={{ backgroundColor: "color-mix(in srgb, var(--c-brand) 10%, transparent)", border: `1px solid ${PEBBLE}`, color: OLIVE }}
                     >
                         {pipelines.length} Pipelines
                     </span>
@@ -405,8 +405,8 @@ export const PipelineAttributesAdmin = () => {
             {/* Kanban board */}
             <div className="flex-1 min-h-0 overflow-hidden p-6 relative group/board">
                 {/* Scroll fade overlays */}
-                <div className="absolute inset-y-0 left-0 w-20 bg-gradient-to-r from-[#FBF7EF] to-transparent pointer-events-none z-10 opacity-0 group-hover/board:opacity-100 transition-opacity" />
-                <div className="absolute inset-y-0 right-0 w-20 bg-gradient-to-l from-[#FBF7EF] to-transparent pointer-events-none z-10 opacity-0 group-hover/board:opacity-100 transition-opacity" />
+                <div className="absolute inset-y-0 left-0 w-20 bg-gradient-to-r from-[var(--c-surface)] to-transparent pointer-events-none z-10 opacity-0 group-hover/board:opacity-100 transition-opacity" />
+                <div className="absolute inset-y-0 right-0 w-20 bg-gradient-to-l from-[var(--c-surface)] to-transparent pointer-events-none z-10 opacity-0 group-hover/board:opacity-100 transition-opacity" />
 
                 {/* Scroll buttons */}
                 <button

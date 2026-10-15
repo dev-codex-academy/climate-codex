@@ -35,8 +35,8 @@ export function NavUserFooter({ user }) {
             {isCollapsed ? (
               <button
                 className="flex h-9 w-9 items-center justify-center rounded-lg mx-auto transition-colors cursor-pointer"
-                style={{ color: "#6b6560", backgroundColor: "transparent" }}
-                onMouseEnter={e => e.currentTarget.style.backgroundColor = "#e8edde"}
+                style={{ color: "var(--c-muted)", backgroundColor: "transparent" }}
+                onMouseEnter={e => e.currentTarget.style.backgroundColor = "var(--c-brand-pale)"}
                 onMouseLeave={e => e.currentTarget.style.backgroundColor = "transparent"}
                 title={currentTheme.label}
               >
@@ -46,22 +46,22 @@ export function NavUserFooter({ user }) {
               <SidebarMenuButton
                 size="sm"
                 className="cursor-pointer rounded-lg transition-colors"
-                style={{ color: "#6b6560", backgroundColor: "transparent" }}
-                onMouseEnter={e => e.currentTarget.style.backgroundColor = "#e8edde"}
+                style={{ color: "var(--c-muted)", backgroundColor: "transparent" }}
+                onMouseEnter={e => e.currentTarget.style.backgroundColor = "var(--c-brand-pale)"}
                 onMouseLeave={e => e.currentTarget.style.backgroundColor = "transparent"}
               >
                 {currentTheme.icon}
-                <span className="ml-1.5 text-sm" style={{ color: "#6b6560", fontFamily: '"Source Sans 3", Arial, sans-serif' }}>
+                <span className="ml-1.5 text-sm" style={{ color: "var(--c-muted)", fontFamily: 'var(--font-body)' }}>
                   {currentTheme.label}
                 </span>
-                <ChevronsUpDown className="ml-auto size-3.5" style={{ color: "#9b948e" }} />
+                <ChevronsUpDown className="ml-auto size-3.5" style={{ color: "var(--c-hint)" }} />
               </SidebarMenuButton>
             )}
           </DropdownMenuTrigger>
 
           <DropdownMenuContent
             className="min-w-40 rounded-lg"
-            style={{ backgroundColor: "#FBF7EF", border: "1px solid #D8D2C4" }}
+            style={{ backgroundColor: "var(--c-surface)", border: "1px solid var(--c-border)" }}
             side={isMobile ? "bottom" : "right"}
             align="end"
             sideOffset={4}
@@ -72,12 +72,12 @@ export function NavUserFooter({ user }) {
                 onSelect={() => setDarkMode(key)}
                 className="cursor-pointer flex items-center gap-2"
                 style={{
-                  color: darkMode === key ? "#5E6A43" : "#2E2A26",
-                  backgroundColor: darkMode === key ? "rgba(94,106,67,0.08)" : "transparent",
-                  fontFamily: '"Source Sans 3", Arial, sans-serif',
+                  color: darkMode === key ? "var(--c-brand)" : "var(--c-ink)",
+                  backgroundColor: darkMode === key ? "color-mix(in srgb, var(--c-brand) 8%, transparent)" : "transparent",
+                  fontFamily: 'var(--font-body)',
                 }}
               >
-                <span style={{ color: darkMode === key ? "#5E6A43" : "#9b948e" }}>{icon}</span>
+                <span style={{ color: darkMode === key ? "var(--c-brand)" : "var(--c-hint)" }}>{icon}</span>
                 {label}
               </DropdownMenuItem>
             ))}

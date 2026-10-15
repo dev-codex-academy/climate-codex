@@ -18,13 +18,19 @@ export const Login = ({ className, ...props }) => {
     password,
     code,
     step,
+    newPassword,
+    confirmPassword,
+    info,
     handleSubmit,
     handleVerifyCode,
+    handleChangePassword,
     resetToCredentials,
     setUser,
     setShowPass,
     setPassword,
     setCode,
+    setNewPassword,
+    setConfirmPassword,
     isModalOpen,
     setIsModalOpen,
   } = useLogin();
@@ -56,36 +62,27 @@ export const Login = ({ className, ...props }) => {
 
   return (
     <>
-      <div className="w-full h-screen lg:grid lg:grid-cols-2" style={{ fontFamily: '"Source Sans 3", Arial, sans-serif' }}>
+      <div className="w-full h-screen lg:grid lg:grid-cols-2" style={{ fontFamily: 'var(--font-body)' }}>
 
         {/* Left — Form */}
-        <div className="flex items-center justify-center py-12 px-8" style={{ backgroundColor: "#FBF7EF" }}>
+        <div className="flex items-center justify-center py-12 px-8" style={{ backgroundColor: "var(--c-surface)" }}>
           {/* Green top accent bar */}
-          <div className="absolute top-0 left-0 w-1/2 h-1 lg:block hidden" style={{ backgroundColor: "#5E6A43" }} />
+          <div className="absolute top-0 left-0 w-1/2 h-1 lg:block hidden" style={{ backgroundColor: "var(--c-brand)" }} />
           <div className="mx-auto grid w-full max-w-sm gap-8">
 
             {/* Brand mark */}
             <div className="flex flex-col items-center gap-4">
-              <div
-                className="flex h-14 w-14 items-center justify-center rounded-lg shadow-md"
-                style={{ backgroundColor: "#5E6A43" }}
-              >
-                <svg viewBox="0 0 24 24" fill="none" className="h-7 w-7 text-white" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M12 2L2 7l10 5 10-5-10-5z" />
-                  <path d="M2 17l10 5 10-5" />
-                  <path d="M2 12l10 5 10-5" />
-                </svg>
-              </div>
+              <img src="/codex-logo.png" alt="CodeX" className="h-24 w-auto" />
               <div className="text-center">
                 <h1
                   className="text-3xl font-semibold"
-                  style={{ fontFamily: '"Cormorant Garamond", Georgia, serif', fontStyle: "italic", color: "#2E2A26", letterSpacing: "-0.015em", lineHeight: 1.1 }}
+                  style={{ fontFamily: 'var(--font-heading)', color: "var(--c-ink)", letterSpacing: "-0.015em", lineHeight: 1.1 }}
                 >
                   Welcome back
                 </h1>
-                <p className="text-sm mt-1.5" style={{ color: "#6b6560" }}>
+                <p className="text-sm mt-1.5" style={{ color: "var(--c-muted)" }}>
                   Sign in to your{" "}
-                  <span className="font-bold" style={{ color: "#4F8071" }}>CodeX CRM</span>{" "}
+                  <span className="font-bold" style={{ color: "var(--c-brand)" }}>CodeX CRM</span>{" "}
                   workspace
                 </p>
               </div>
@@ -94,21 +91,29 @@ export const Login = ({ className, ...props }) => {
             {/* Form */}
             {step === "credentials" ? (
               <form onSubmit={handleSubmit} className="grid gap-4">
+                {info && (
+                  <div
+                    className="rounded-lg p-3 text-sm"
+                    style={{ backgroundColor: "color-mix(in srgb, var(--c-brand) 12%, transparent)", border: "1px solid var(--c-brand)", color: "var(--c-ink)" }}
+                  >
+                    {info}
+                  </div>
+                )}
                 {error && (
                   <div
                     className="flex items-start gap-2.5 rounded-lg p-3 text-sm"
-                    style={{ backgroundColor: "#FFDCC8", border: "1px solid #F29B6B", color: "#2E2A26" }}
+                    style={{ backgroundColor: "var(--c-cta-pale)", border: "1px solid var(--c-cta)", color: "var(--c-ink)" }}
                   >
                     <span
                       className="mt-0.5 shrink-0 flex h-4 w-4 items-center justify-center rounded-full text-white text-xs font-bold"
-                      style={{ backgroundColor: "#F29B6B" }}
+                      style={{ backgroundColor: "var(--c-cta)" }}
                     >!</span>
                     <span>{error}</span>
                   </div>
                 )}
 
                 <div className="grid gap-1.5">
-                  <Label htmlFor="usuario" className="text-xs font-semibold uppercase tracking-widest" style={{ color: "#6b6560" }}>
+                  <Label htmlFor="usuario" className="text-xs font-semibold uppercase tracking-widest" style={{ color: "var(--c-muted)" }}>
                     Username
                   </Label>
                   <Input
@@ -121,24 +126,24 @@ export const Login = ({ className, ...props }) => {
                     disabled={loading}
                     className="h-11 rounded-md transition-all"
                     style={{
-                      backgroundColor: "#fff",
-                      border: "1px solid #D8D2C4",
-                      color: "#2E2A26",
-                      fontFamily: '"Source Sans 3", Arial, sans-serif',
+                      backgroundColor: "var(--c-card)",
+                      border: "1px solid var(--c-border)",
+                      color: "var(--c-ink)",
+                      fontFamily: 'var(--font-body)',
                     }}
                   />
                 </div>
 
                 <div className="grid gap-1.5">
                   <div className="flex items-center justify-between">
-                    <Label htmlFor="password" className="text-xs font-semibold uppercase tracking-widest" style={{ color: "#6b6560" }}>
+                    <Label htmlFor="password" className="text-xs font-semibold uppercase tracking-widest" style={{ color: "var(--c-muted)" }}>
                       Password
                     </Label>
                     <button
                       type="button"
                       onClick={() => setShowPass((s) => !s)}
                       className="text-xs font-medium transition-colors"
-                      style={{ color: "#F29B6B" }}
+                      style={{ color: "var(--c-cta)" }}
                       tabIndex={-1}
                     >
                       {showPass ? "Hide" : "Show"}
@@ -155,10 +160,10 @@ export const Login = ({ className, ...props }) => {
                     disabled={loading}
                     className="h-11 rounded-md transition-all"
                     style={{
-                      backgroundColor: "#fff",
-                      border: "1px solid #D8D2C4",
-                      color: "#2E2A26",
-                      fontFamily: '"Source Sans 3", Arial, sans-serif',
+                      backgroundColor: "var(--c-card)",
+                      border: "1px solid var(--c-border)",
+                      color: "var(--c-ink)",
+                      fontFamily: 'var(--font-body)',
                     }}
                   />
                 </div>
@@ -168,14 +173,14 @@ export const Login = ({ className, ...props }) => {
                   disabled={loading}
                   className="w-full mt-1 h-11 rounded-md font-semibold text-sm transition-all duration-200 active:scale-[0.99] flex items-center justify-center gap-2 shadow-sm"
                   style={{
-                    backgroundColor: loading ? "#d97c4a" : "#F29B6B",
-                    color: "#FBF7EF",
-                    fontFamily: '"Source Sans 3", Arial, sans-serif',
+                    backgroundColor: loading ? "var(--c-cta-strong)" : "var(--c-cta)",
+                    color: "var(--c-on-dark)",
+                    fontFamily: 'var(--font-body)',
                     letterSpacing: "0.02em",
                     cursor: loading ? "not-allowed" : "pointer",
                   }}
-                  onMouseEnter={e => !loading && (e.currentTarget.style.backgroundColor = "#d97c4a")}
-                  onMouseLeave={e => !loading && (e.currentTarget.style.backgroundColor = "#F29B6B")}
+                  onMouseEnter={e => !loading && (e.currentTarget.style.backgroundColor = "var(--c-cta-strong)")}
+                  onMouseLeave={e => !loading && (e.currentTarget.style.backgroundColor = "var(--c-cta)")}
                 >
                   {loading ? (
                     <>
@@ -190,28 +195,114 @@ export const Login = ({ className, ...props }) => {
                   )}
                 </button>
               </form>
-            ) : (
-              <form onSubmit={handleVerifyCode} className="grid gap-4">
+            ) : step === "change" ? (
+              <form onSubmit={handleChangePassword} className="grid gap-4">
                 {error && (
                   <div
                     className="flex items-start gap-2.5 rounded-lg p-3 text-sm"
-                    style={{ backgroundColor: "#FFDCC8", border: "1px solid #F29B6B", color: "#2E2A26" }}
+                    style={{ backgroundColor: "var(--c-cta-pale)", border: "1px solid var(--c-cta)", color: "var(--c-ink)" }}
                   >
                     <span
                       className="mt-0.5 shrink-0 flex h-4 w-4 items-center justify-center rounded-full text-white text-xs font-bold"
-                      style={{ backgroundColor: "#F29B6B" }}
+                      style={{ backgroundColor: "var(--c-cta)" }}
                     >!</span>
                     <span>{error}</span>
                   </div>
                 )}
 
-                <div className="text-sm" style={{ color: "#6b6560" }}>
-                  We emailed a verification code to <strong style={{ color: "#2E2A26" }}>{user}</strong>'s address.
-                  It expires in <strong style={{ color: "#2E2A26" }}>1 minute</strong>.
+                <div className="text-sm" style={{ color: "var(--c-muted)" }}>
+                  <strong style={{ color: "var(--c-ink)" }}>{user}</strong>, you signed in with a temporary password.
+                  Choose a new password to continue. Afterwards you will sign in again with it and a verification code.
                 </div>
 
                 <div className="grid gap-1.5">
-                  <Label htmlFor="code" className="text-xs font-semibold uppercase tracking-widest" style={{ color: "#6b6560" }}>
+                  <Label htmlFor="new-password" className="text-xs font-semibold uppercase tracking-widest" style={{ color: "var(--c-muted)" }}>
+                    New password
+                  </Label>
+                  <Input
+                    id="new-password"
+                    type="password"
+                    autoComplete="new-password"
+                    placeholder="At least 8 characters"
+                    required
+                    autoFocus
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    disabled={loading}
+                    className="h-11 rounded-md transition-all"
+                    style={{ backgroundColor: "var(--c-card)", border: "1px solid var(--c-border)", color: "var(--c-ink)", fontFamily: 'var(--font-body)' }}
+                  />
+                </div>
+
+                <div className="grid gap-1.5">
+                  <Label htmlFor="confirm-password" className="text-xs font-semibold uppercase tracking-widest" style={{ color: "var(--c-muted)" }}>
+                    Confirm new password
+                  </Label>
+                  <Input
+                    id="confirm-password"
+                    type="password"
+                    autoComplete="new-password"
+                    placeholder="Repeat the new password"
+                    required
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    disabled={loading}
+                    className="h-11 rounded-md transition-all"
+                    style={{ backgroundColor: "var(--c-card)", border: "1px solid var(--c-border)", color: "var(--c-ink)", fontFamily: 'var(--font-body)' }}
+                  />
+                </div>
+
+                <p className="text-xs" style={{ color: "var(--c-muted)" }}>
+                  It can't be too common, entirely numeric, or similar to your username or email.
+                </p>
+
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full mt-1 h-11 rounded-md font-semibold text-sm transition-all duration-200 active:scale-[0.99] flex items-center justify-center gap-2 shadow-sm"
+                  style={{
+                    backgroundColor: loading ? "var(--c-cta-strong)" : "var(--c-cta)",
+                    color: "var(--c-on-dark)",
+                    fontFamily: 'var(--font-body)',
+                    letterSpacing: "0.02em",
+                    cursor: loading ? "not-allowed" : "pointer",
+                  }}
+                >
+                  {loading ? "Saving..." : "Set new password"}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={resetToCredentials}
+                  disabled={loading}
+                  className="text-xs font-medium text-center"
+                  style={{ color: "var(--c-muted)" }}
+                >
+                  Back to login
+                </button>
+              </form>
+            ) : (
+              <form onSubmit={handleVerifyCode} className="grid gap-4">
+                {error && (
+                  <div
+                    className="flex items-start gap-2.5 rounded-lg p-3 text-sm"
+                    style={{ backgroundColor: "var(--c-cta-pale)", border: "1px solid var(--c-cta)", color: "var(--c-ink)" }}
+                  >
+                    <span
+                      className="mt-0.5 shrink-0 flex h-4 w-4 items-center justify-center rounded-full text-white text-xs font-bold"
+                      style={{ backgroundColor: "var(--c-cta)" }}
+                    >!</span>
+                    <span>{error}</span>
+                  </div>
+                )}
+
+                <div className="text-sm" style={{ color: "var(--c-muted)" }}>
+                  We emailed a verification code to <strong style={{ color: "var(--c-ink)" }}>{user}</strong>'s address.
+                  It expires in <strong style={{ color: "var(--c-ink)" }}>1 minute</strong>.
+                </div>
+
+                <div className="grid gap-1.5">
+                  <Label htmlFor="code" className="text-xs font-semibold uppercase tracking-widest" style={{ color: "var(--c-muted)" }}>
                     Verification code
                   </Label>
                   <Input
@@ -227,10 +318,10 @@ export const Login = ({ className, ...props }) => {
                     disabled={loading}
                     className="h-11 rounded-md transition-all text-center tracking-[0.5em] text-lg"
                     style={{
-                      backgroundColor: "#fff",
-                      border: "1px solid #D8D2C4",
-                      color: "#2E2A26",
-                      fontFamily: '"Source Sans 3", Arial, sans-serif',
+                      backgroundColor: "var(--c-card)",
+                      border: "1px solid var(--c-border)",
+                      color: "var(--c-ink)",
+                      fontFamily: 'var(--font-body)',
                     }}
                   />
                 </div>
@@ -240,14 +331,14 @@ export const Login = ({ className, ...props }) => {
                   disabled={loading}
                   className="w-full mt-1 h-11 rounded-md font-semibold text-sm transition-all duration-200 active:scale-[0.99] flex items-center justify-center gap-2 shadow-sm"
                   style={{
-                    backgroundColor: loading ? "#d97c4a" : "#F29B6B",
-                    color: "#FBF7EF",
-                    fontFamily: '"Source Sans 3", Arial, sans-serif',
+                    backgroundColor: loading ? "var(--c-cta-strong)" : "var(--c-cta)",
+                    color: "var(--c-on-dark)",
+                    fontFamily: 'var(--font-body)',
                     letterSpacing: "0.02em",
                     cursor: loading ? "not-allowed" : "pointer",
                   }}
-                  onMouseEnter={e => !loading && (e.currentTarget.style.backgroundColor = "#d97c4a")}
-                  onMouseLeave={e => !loading && (e.currentTarget.style.backgroundColor = "#F29B6B")}
+                  onMouseEnter={e => !loading && (e.currentTarget.style.backgroundColor = "var(--c-cta-strong)")}
+                  onMouseLeave={e => !loading && (e.currentTarget.style.backgroundColor = "var(--c-cta)")}
                 >
                   {loading ? (
                     <>
@@ -267,14 +358,14 @@ export const Login = ({ className, ...props }) => {
                   onClick={resetToCredentials}
                   disabled={loading}
                   className="text-xs font-medium text-center"
-                  style={{ color: "#6b6560" }}
+                  style={{ color: "var(--c-muted)" }}
                 >
                   Back to login
                 </button>
               </form>
             )}
 
-            <p className="text-center text-xs" style={{ color: "#D8D2C4" }}>
+            <p className="text-center text-xs" style={{ color: "var(--c-border)" }}>
               © {new Date().getFullYear()} Codex Technologies
             </p>
           </div>
@@ -283,16 +374,16 @@ export const Login = ({ className, ...props }) => {
         {/* Right — Branding */}
         <div
           className="hidden lg:flex flex-col relative justify-center p-14 overflow-hidden"
-          style={{ backgroundColor: "#2E2A26" }}
+          style={{ backgroundColor: "var(--c-navy)" }}
         >
           {/* Decorative elements */}
-          <div className="absolute inset-0" style={{ background: "linear-gradient(135deg, #2E2A26 0%, #3d3830 50%, #2a2620 100%)" }} />
-          <div className="absolute top-[-60px] right-[-60px] h-72 w-72 rounded-full blur-3xl" style={{ backgroundColor: "rgba(94,106,67,0.15)" }} />
-          <div className="absolute bottom-[-40px] left-[-30px] h-56 w-56 rounded-full blur-3xl" style={{ backgroundColor: "rgba(242,155,107,0.08)" }} />
+          <div className="absolute inset-0" style={{ background: "linear-gradient(135deg, var(--c-navy) 0%, #27406A 50%, #1A2A44 100%)" }} />
+          <div className="absolute top-[-60px] right-[-60px] h-72 w-72 rounded-full blur-3xl" style={{ backgroundColor: "color-mix(in srgb, var(--c-brand) 15%, transparent)" }} />
+          <div className="absolute bottom-[-40px] left-[-30px] h-56 w-56 rounded-full blur-3xl" style={{ backgroundColor: "color-mix(in srgb, var(--c-cta) 8%, transparent)" }} />
 
           {/* Subtle grid */}
           <div className="absolute inset-0 opacity-[0.025]" style={{
-            backgroundImage: "linear-gradient(rgba(251,247,239,1) 1px, transparent 1px), linear-gradient(90deg, rgba(251,247,239,1) 1px, transparent 1px)",
+            backgroundImage: "linear-gradient(color-mix(in srgb, var(--c-surface) 100%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in srgb, var(--c-surface) 100%, transparent) 1px, transparent 1px)",
             backgroundSize: "40px 40px"
           }} />
 
@@ -301,9 +392,9 @@ export const Login = ({ className, ...props }) => {
             {/* Badge */}
             <div
               className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-widest"
-              style={{ backgroundColor: "rgba(94,106,67,0.2)", border: "1px solid rgba(94,106,67,0.4)", color: "#B8C76A" }}
+              style={{ backgroundColor: "color-mix(in srgb, var(--c-brand) 20%, transparent)", border: "1px solid color-mix(in srgb, var(--c-brand) 40%, transparent)", color: "var(--c-accent)" }}
             >
-              <span className="h-1.5 w-1.5 rounded-full animate-pulse" style={{ backgroundColor: "#B8C76A" }} />
+              <span className="h-1.5 w-1.5 rounded-full animate-pulse" style={{ backgroundColor: "var(--c-accent)" }} />
               Codex CRM Platform
             </div>
 
@@ -311,12 +402,12 @@ export const Login = ({ className, ...props }) => {
             <div className="space-y-3">
               <h2
                 className="text-5xl font-semibold leading-tight"
-                style={{ fontFamily: '"Cormorant Garamond", Georgia, serif', fontStyle: "italic", color: "#FBF7EF", letterSpacing: "-0.015em", lineHeight: 1.1 }}
+                style={{ fontFamily: 'var(--font-heading)', color: "var(--c-on-dark)", letterSpacing: "-0.015em", lineHeight: 1.1 }}
               >
                 Manage smarter.<br />
-                <span style={{ color: "#B8C76A" }}>Grow faster.</span>
+                <span style={{ color: "var(--c-accent)" }}>Grow faster.</span>
               </h2>
-              <p className="text-base leading-relaxed" style={{ color: "#b8b0a8", fontFamily: '"Source Sans 3", Arial, sans-serif' }}>
+              <p className="text-base leading-relaxed" style={{ color: "#B9C7DD", fontFamily: 'var(--font-body)' }}>
                 A unified platform to manage clients, leads, and operations — all in one place.
               </p>
             </div>
@@ -324,9 +415,9 @@ export const Login = ({ className, ...props }) => {
             {/* Features */}
             <div className="space-y-5">
               {[
-                { icon: Briefcase, color: "rgba(94,106,67,0.25)", border: "rgba(94,106,67,0.4)", iconColor: "#B8C76A", title: "Sales Pipeline", desc: "Track leads from first contact to closed deal with full visibility." },
-                { icon: Users, color: "rgba(242,155,107,0.18)", border: "rgba(242,155,107,0.35)", iconColor: "#F29B6B", title: "Client Management", desc: "Keep every client interaction, service record, and follow-up organized." },
-                { icon: Zap, color: "rgba(184,199,106,0.18)", border: "rgba(184,199,106,0.35)", iconColor: "#B8C76A", title: "Unified Operations", desc: "Connect Sales, Operations, and Finance in one real-time workspace." },
+                { icon: Briefcase, color: "color-mix(in srgb, var(--c-brand) 25%, transparent)", border: "color-mix(in srgb, var(--c-brand) 40%, transparent)", iconColor: "var(--c-accent)", title: "Sales Pipeline", desc: "Track leads from first contact to closed deal with full visibility." },
+                { icon: Users, color: "color-mix(in srgb, var(--c-cta) 18%, transparent)", border: "color-mix(in srgb, var(--c-cta) 35%, transparent)", iconColor: "var(--c-cta)", title: "Client Management", desc: "Keep every client interaction, service record, and follow-up organized." },
+                { icon: Zap, color: "color-mix(in srgb, var(--c-accent) 18%, transparent)", border: "color-mix(in srgb, var(--c-accent) 35%, transparent)", iconColor: "var(--c-accent)", title: "Unified Operations", desc: "Connect Sales, Operations, and Finance in one real-time workspace." },
               ].map(({ icon: Icon, color, border, iconColor, title, desc }) => (
                 <div key={title} className="flex gap-4 group">
                   <div
@@ -336,22 +427,22 @@ export const Login = ({ className, ...props }) => {
                     <Icon className="h-5 w-5" style={{ color: iconColor }} />
                   </div>
                   <div>
-                    <h3 className="text-sm font-semibold" style={{ color: "#FBF7EF", fontFamily: '"Source Sans 3", Arial, sans-serif' }}>{title}</h3>
-                    <p className="text-sm mt-0.5 leading-relaxed" style={{ color: "#b0a89e", fontFamily: '"Source Sans 3", Arial, sans-serif' }}>{desc}</p>
+                    <h3 className="text-sm font-semibold" style={{ color: "var(--c-on-dark)", fontFamily: 'var(--font-body)' }}>{title}</h3>
+                    <p className="text-sm mt-0.5 leading-relaxed" style={{ color: "#AEBDD6", fontFamily: 'var(--font-body)' }}>{desc}</p>
                   </div>
                 </div>
               ))}
             </div>
 
             {/* Quote */}
-            <div className="pt-8" style={{ borderTop: "1px solid rgba(251,247,239,0.15)" }}>
+            <div className="pt-8" style={{ borderTop: "1px solid color-mix(in srgb, var(--c-surface) 15%, transparent)" }}>
               <blockquote
                 className="text-sm leading-relaxed"
-                style={{ fontFamily: '"Libre Baskerville", Georgia, serif', fontStyle: "italic", color: "#c8bfb5" }}
+                style={{ fontFamily: 'var(--font-heading)', color: "#C4D1E6" }}
               >
                 "Technology that takes your business to the next level."
               </blockquote>
-              <p className="text-xs mt-2 font-semibold uppercase tracking-widest" style={{ color: "#B8C76A" }}>
+              <p className="text-xs mt-2 font-semibold uppercase tracking-widest" style={{ color: "var(--c-accent)" }}>
                 — Codex Technologies
               </p>
             </div>

@@ -4,7 +4,7 @@ import { getLeads, reassignLeads } from "../services/leadService";
 import { Users } from "lucide-react";
 import Swal from "sweetalert2";
 
-const FONT = { fontFamily: '"Source Sans 3", Arial, sans-serif' };
+const FONT = { fontFamily: 'var(--font-body)' };
 
 export const LeadReassignment = () => {
     const [salesUsers, setSalesUsers] = useState([]);
@@ -72,26 +72,26 @@ export const LeadReassignment = () => {
             <div className="flex items-center gap-3">
                 <div
                     className="flex h-10 w-10 items-center justify-center rounded-lg"
-                    style={{ backgroundColor: "rgba(94,106,67,0.12)", border: "1px solid rgba(94,106,67,0.3)" }}
+                    style={{ backgroundColor: "color-mix(in srgb, var(--c-brand) 12%, transparent)", border: "1px solid color-mix(in srgb, var(--c-brand) 30%, transparent)" }}
                 >
-                    <Users className="h-5 w-5" style={{ color: "#5E6A43" }} />
+                    <Users className="h-5 w-5" style={{ color: "var(--c-brand)" }} />
                 </div>
                 <div>
-                    <p className="text-base font-semibold" style={{ color: "#2E2A26" }}>Lead Reassignment</p>
-                    <p className="text-sm" style={{ color: "#9b948e" }}>
+                    <p className="text-base font-semibold" style={{ color: "var(--c-ink)" }}>Lead Reassignment</p>
+                    <p className="text-sm" style={{ color: "var(--c-hint)" }}>
                         Move every lead owned by one user to another — e.g. after an employee leaves.
                     </p>
                 </div>
             </div>
 
-            <div className="max-w-lg rounded-xl p-6 space-y-5" style={{ border: "1px solid #D8D2C4", backgroundColor: "#FBF7EF" }}>
+            <div className="max-w-lg rounded-xl p-6 space-y-5" style={{ border: "1px solid var(--c-border)", backgroundColor: "var(--c-surface)" }}>
                 <div className="space-y-1.5">
-                    <label className="text-xs font-medium" style={{ color: "#9b948e" }}>From</label>
+                    <label className="text-xs font-medium" style={{ color: "var(--c-hint)" }}>From</label>
                     <select
                         value={fromUserId}
                         onChange={e => handleFromChange(e.target.value)}
                         className="w-full h-10 rounded-md border px-3 text-sm bg-white focus:outline-none"
-                        style={{ borderColor: "#D8D2C4", color: "#2E2A26" }}
+                        style={{ borderColor: "var(--c-border)", color: "var(--c-ink)" }}
                     >
                         <option value="">Select a user...</option>
                         {salesUsers.map(u => (
@@ -99,19 +99,19 @@ export const LeadReassignment = () => {
                         ))}
                     </select>
                     {fromUserId && (
-                        <p className="text-xs" style={{ color: "#9b948e" }}>
+                        <p className="text-xs" style={{ color: "var(--c-hint)" }}>
                             {loadingPreview ? "Checking assigned leads..." : `${previewCount ?? 0} lead(s) currently assigned`}
                         </p>
                     )}
                 </div>
 
                 <div className="space-y-1.5">
-                    <label className="text-xs font-medium" style={{ color: "#9b948e" }}>To</label>
+                    <label className="text-xs font-medium" style={{ color: "var(--c-hint)" }}>To</label>
                     <select
                         value={toUserId}
                         onChange={e => setToUserId(e.target.value)}
                         className="w-full h-10 rounded-md border px-3 text-sm bg-white focus:outline-none"
-                        style={{ borderColor: "#D8D2C4", color: "#2E2A26" }}
+                        style={{ borderColor: "var(--c-border)", color: "var(--c-ink)" }}
                     >
                         <option value="">Select a user...</option>
                         {salesUsers.filter(u => String(u.id) !== String(fromUserId)).map(u => (
@@ -124,7 +124,7 @@ export const LeadReassignment = () => {
                     onClick={handleReassign}
                     disabled={!fromUserId || !toUserId || reassigning || previewCount === 0}
                     className="w-full h-10 rounded-md text-sm font-semibold transition-colors disabled:opacity-50 cursor-pointer"
-                    style={{ backgroundColor: "#5E6A43", color: "#FBF7EF" }}
+                    style={{ backgroundColor: "var(--c-brand)", color: "var(--c-on-dark)" }}
                 >
                     {reassigning ? "Reassigning..." : "Reassign Leads"}
                 </button>

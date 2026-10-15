@@ -87,8 +87,8 @@ export const Contact = () => {
             text: "You won't be able to revert this!",
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
+            confirmButtonColor: 'var(--c-brand)',
+            cancelButtonColor: 'var(--c-cta)',
             confirmButtonText: 'Yes, delete it!'
         });
 
@@ -176,18 +176,18 @@ export const Contact = () => {
                     <button
                         onClick={handleExportExcel}
                         className="flex items-center gap-2 h-9 px-4 rounded-lg text-sm font-semibold transition-colors cursor-pointer"
-                        style={{ backgroundColor: "#F2EBDD", border: "1px solid #5E6A43", color: "#5E6A43" }}
-                        onMouseEnter={e => e.currentTarget.style.backgroundColor = "rgba(94,106,67,0.15)"}
-                        onMouseLeave={e => e.currentTarget.style.backgroundColor = "#F2EBDD"}
+                        style={{ backgroundColor: "var(--c-surface-2)", border: "1px solid var(--c-brand)", color: "var(--c-brand)" }}
+                        onMouseEnter={e => e.currentTarget.style.backgroundColor = "color-mix(in srgb, var(--c-brand) 15%, transparent)"}
+                        onMouseLeave={e => e.currentTarget.style.backgroundColor = "var(--c-surface-2)"}
                     >
                         <Download className="h-4 w-4" /> Export Excel
                     </button>
                     <button
                         onClick={openImportModal}
                         className="flex items-center gap-2 h-9 px-4 rounded-lg text-sm font-semibold transition-colors cursor-pointer"
-                        style={{ backgroundColor: "#F2EBDD", border: "1px solid #5E6A43", color: "#5E6A43" }}
-                        onMouseEnter={e => e.currentTarget.style.backgroundColor = "rgba(94,106,67,0.15)"}
-                        onMouseLeave={e => e.currentTarget.style.backgroundColor = "#F2EBDD"}
+                        style={{ backgroundColor: "var(--c-surface-2)", border: "1px solid var(--c-brand)", color: "var(--c-brand)" }}
+                        onMouseEnter={e => e.currentTarget.style.backgroundColor = "color-mix(in srgb, var(--c-brand) 15%, transparent)"}
+                        onMouseLeave={e => e.currentTarget.style.backgroundColor = "var(--c-surface-2)"}
                     >
                         <Upload className="h-4 w-4" /> Import Excel
                     </button>
@@ -215,7 +215,7 @@ export const Contact = () => {
                         {/* Modal Header */}
                         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
                             <div>
-                                <h2 className="text-lg font-bold text-[#5E6A43]">Import Contacts from Excel</h2>
+                                <h2 className="text-lg font-bold text-[var(--c-brand)]">Import Contacts from Excel</h2>
                                 <p className="text-xs text-gray-500 mt-0.5">Select a client and upload your .xlsx file</p>
                             </div>
                             <button onClick={closeImportModal} className="text-gray-400 hover:text-gray-600 cursor-pointer">
@@ -253,7 +253,7 @@ export const Contact = () => {
                                     placeholder="Search clients..."
                                     value={clientSearch}
                                     onChange={e => setClientSearch(e.target.value)}
-                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm mb-2 focus:outline-none focus:border-[#5E6A43]"
+                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm mb-2 focus:outline-none focus:border-[var(--c-brand)]"
                                 />
                                 <div className="border border-gray-200 rounded-lg max-h-36 overflow-y-auto">
                                     {filteredClients.length === 0 ? (
@@ -264,7 +264,7 @@ export const Contact = () => {
                                             onClick={() => setSelectedClientId(c.id)}
                                             className={`w-full text-left px-4 py-2 text-sm cursor-pointer transition-colors ${
                                                 selectedClientId === c.id
-                                                    ? 'bg-[#5E6A43] text-white'
+                                                    ? 'bg-[var(--c-brand)] text-white'
                                                     : 'hover:bg-gray-50 text-gray-700'
                                             }`}
                                         >
@@ -288,10 +288,10 @@ export const Contact = () => {
                                 />
                                 <div
                                     onClick={() => fileInputRef.current.click()}
-                                    className="border-2 border-dashed border-gray-300 rounded-lg p-5 text-center cursor-pointer hover:border-[#5E6A43] transition-colors"
+                                    className="border-2 border-dashed border-gray-300 rounded-lg p-5 text-center cursor-pointer hover:border-[var(--c-brand)] transition-colors"
                                 >
                                     {selectedFile ? (
-                                        <p className="text-sm text-[#5E6A43] font-medium">{selectedFile.name}</p>
+                                        <p className="text-sm text-[var(--c-brand)] font-medium">{selectedFile.name}</p>
                                     ) : (
                                         <p className="text-sm text-gray-400">Click to select a file</p>
                                     )}
@@ -346,7 +346,7 @@ export const Contact = () => {
                                 onClick={handleImport}
                                 disabled={!selectedClientId || !selectedFile || importing}
                                 className="h-9 px-5 rounded-lg text-sm font-semibold text-white transition-colors cursor-pointer disabled:opacity-50"
-                                style={{ backgroundColor: "#5E6A43" }}
+                                style={{ backgroundColor: "var(--c-brand)" }}
                             >
                                 {importing ? 'Importing...' : 'Import'}
                             </button>

@@ -36,19 +36,19 @@ const CallsSection = ({ entityType, entityId }) => {
                         const expanded = expandedId === call.id;
                         const turns = call.transcription?.turns || [];
                         return (
-                            <div key={call.id} style={{ border: "1px solid #D8D2C4", borderRadius: 6, padding: 12 }}>
+                            <div key={call.id} style={{ border: "1px solid var(--c-border)", borderRadius: 6, padding: 12 }}>
                                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8, marginBottom: 8 }}>
-                                    <div style={{ fontSize: 13, fontFamily: '"Source Sans 3", Arial, sans-serif' }}>
-                                        <span style={{ color: "#2E2A26", fontWeight: 600 }}>
+                                    <div style={{ fontSize: 13, fontFamily: 'var(--font-body)' }}>
+                                        <span style={{ color: "var(--c-ink)", fontWeight: 600 }}>
                                             {formatDate(call.call_started_at || call.created_at) || "—"}
                                         </span>
-                                        <span style={{ color: "#9b948e", marginLeft: 10 }}>{call.phone_number || "Unknown number"}</span>
+                                        <span style={{ color: "var(--c-hint)", marginLeft: 10 }}>{call.phone_number || "Unknown number"}</span>
                                     </div>
                                     {turns.length > 0 && (
                                         <button
                                             type="button"
                                             onClick={() => setExpandedId(expanded ? null : call.id)}
-                                            style={{ fontSize: 12, padding: "4px 14px", borderRadius: 6, border: "1px solid #D8D2C4", backgroundColor: "transparent", color: "#5E6A43", cursor: "pointer", fontWeight: 500 }}>
+                                            style={{ fontSize: 12, padding: "4px 14px", borderRadius: 6, border: "1px solid var(--c-border)", backgroundColor: "transparent", color: "var(--c-brand)", cursor: "pointer", fontWeight: 500 }}>
                                             {expanded ? "Hide Transcript" : "View Transcript"}
                                         </button>
                                     )}
@@ -59,10 +59,10 @@ const CallsSection = ({ entityType, entityId }) => {
                                 )}
 
                                 {expanded && (
-                                    <div style={{ marginTop: 12, backgroundColor: "#FAF7F0", border: "1px solid #D8D2C4", borderRadius: 6, padding: 12, maxHeight: 260, overflowY: "auto" }}>
+                                    <div style={{ marginTop: 12, backgroundColor: "var(--c-hover)", border: "1px solid var(--c-border)", borderRadius: 6, padding: 12, maxHeight: 260, overflowY: "auto" }}>
                                         {turns.map((turn, idx) => (
-                                            <p key={idx} style={{ fontSize: 13, fontFamily: '"Source Sans 3", Arial, sans-serif', margin: "0 0 8px", color: "#2E2A26" }}>
-                                                <span style={{ fontWeight: 600, color: "#5E6A43" }}>
+                                            <p key={idx} style={{ fontSize: 13, fontFamily: 'var(--font-body)', margin: "0 0 8px", color: "var(--c-ink)" }}>
+                                                <span style={{ fontWeight: 600, color: "var(--c-brand)" }}>
                                                     {SPEAKER_LABELS[turn.speaker] || turn.speaker}:{" "}
                                                 </span>
                                                 {turn.content}

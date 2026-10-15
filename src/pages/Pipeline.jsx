@@ -6,15 +6,15 @@ import { PipelineForm } from "../components/pipelines/PipelineForm";
 import { PipelineModal } from "../components/pipelines/PipelineModal";
 import { Plus, Edit2, Columns, ChevronDown, ChevronUp, Trash2, SlidersHorizontal, ShieldCheck } from "lucide-react";
 
-const FONT = '"Source Sans 3", Arial, sans-serif';
-const INK = "#2E2A26";
-const MUTED = "#6b6560";
-const HINT = "#9b948e";
-const LINEN = "#FBF7EF";
-const OAT = "#F2EBDD";
-const PEBBLE = "#D8D2C4";
-const OLIVE = "#5E6A43";
-const APRICOT = "#F29B6B";
+const FONT = 'var(--font-body)';
+const INK = "var(--c-ink)";
+const MUTED = "var(--c-muted)";
+const HINT = "var(--c-hint)";
+const LINEN = "var(--c-surface)";
+const OAT = "var(--c-surface-2)";
+const PEBBLE = "var(--c-border)";
+const OLIVE = "var(--c-brand)";
+const APRICOT = "var(--c-cta)";
 
 const TYPE_LABELS = {
     text: "Text", number: "Number", date: "Date",
@@ -28,7 +28,7 @@ const textColorForBg = (hex) => {
     const g = parseInt(c.substring(2, 4), 16);
     const b = parseInt(c.substring(4, 6), 16);
     const lum = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-    return lum > 0.55 ? INK : LINEN;
+    return lum > 0.55 ? "var(--c-navy)" : "var(--c-on-dark)";
 };
 
 const EMPTY_FORM = { label: "", name: "", type: "text", is_required: false, is_unique: false, order: 0, list_values: [], description: "" };
@@ -131,7 +131,7 @@ function AttributeManager({ pipeline }) {
 
     const inputStyle = {
         width: "100%", padding: "6px 10px", border: `1px solid ${PEBBLE}`,
-        borderRadius: "6px", backgroundColor: "#fff", color: INK,
+        borderRadius: "6px", backgroundColor: "var(--c-card)", color: INK,
         fontFamily: FONT, fontSize: "13px", outline: "none", boxSizing: "border-box",
     };
 
@@ -182,7 +182,7 @@ function AttributeManager({ pipeline }) {
                     )}
 
                     {/* Add / Edit form */}
-                    <div style={{ backgroundColor: "#fff", border: `1px solid ${PEBBLE}`, borderRadius: "8px", padding: "12px" }}>
+                    <div style={{ backgroundColor: "var(--c-card)", border: `1px solid ${PEBBLE}`, borderRadius: "8px", padding: "12px" }}>
                         <p style={{ fontSize: "12px", fontWeight: 600, color: INK, marginBottom: "10px", fontFamily: FONT }}>
                             {editingId ? "Edit Field" : "Add Field"}
                         </p>
@@ -233,7 +233,7 @@ function AttributeManager({ pipeline }) {
                             <button
                                 onClick={handleSave}
                                 disabled={saving}
-                                style={{ flex: 1, padding: "7px", backgroundColor: OLIVE, color: LINEN, border: "none", borderRadius: "6px", fontSize: "12px", fontWeight: 600, fontFamily: FONT, cursor: saving ? "not-allowed" : "pointer", opacity: saving ? 0.7 : 1 }}
+                                style={{ flex: 1, padding: "7px", backgroundColor: OLIVE, color: "var(--c-on-dark)", border: "none", borderRadius: "6px", fontSize: "12px", fontWeight: 600, fontFamily: FONT, cursor: saving ? "not-allowed" : "pointer", opacity: saving ? 0.7 : 1 }}
                             >
                                 {saving ? "Saving..." : editingId ? "Update" : "Add Field"}
                             </button>
@@ -385,7 +385,7 @@ function ValidationRuleManager({ pipeline }) {
 
     const inputStyle = {
         width: "100%", padding: "6px 10px", border: `1px solid ${PEBBLE}`,
-        borderRadius: "6px", backgroundColor: "#fff", color: INK,
+        borderRadius: "6px", backgroundColor: "var(--c-card)", color: INK,
         fontFamily: FONT, fontSize: "13px", outline: "none", boxSizing: "border-box",
     };
 
@@ -434,7 +434,7 @@ function ValidationRuleManager({ pipeline }) {
                     )}
 
                     {/* Add / Edit form */}
-                    <div style={{ backgroundColor: "#fff", border: `1px solid ${PEBBLE}`, borderRadius: "8px", padding: "12px" }}>
+                    <div style={{ backgroundColor: "var(--c-card)", border: `1px solid ${PEBBLE}`, borderRadius: "8px", padding: "12px" }}>
                         <p style={{ fontSize: "12px", fontWeight: 600, color: INK, marginBottom: "10px", fontFamily: FONT }}>
                             {editingId ? "Edit Rule" : "Add Rule"}
                         </p>
@@ -545,7 +545,7 @@ function ValidationRuleManager({ pipeline }) {
                             <button
                                 onClick={handleSave}
                                 disabled={saving}
-                                style={{ flex: 1, padding: "7px", backgroundColor: OLIVE, color: LINEN, border: "none", borderRadius: "6px", fontSize: "12px", fontWeight: 600, fontFamily: FONT, cursor: saving ? "not-allowed" : "pointer", opacity: saving ? 0.7 : 1 }}
+                                style={{ flex: 1, padding: "7px", backgroundColor: OLIVE, color: "var(--c-on-dark)", border: "none", borderRadius: "6px", fontSize: "12px", fontWeight: 600, fontFamily: FONT, cursor: saving ? "not-allowed" : "pointer", opacity: saving ? 0.7 : 1 }}
                             >
                                 {saving ? "Saving..." : editingId ? "Update" : "Add Rule"}
                             </button>
@@ -611,7 +611,7 @@ export const Pipeline = () => {
                 <div className="flex items-center gap-3">
                     <div
                         className="flex h-10 w-10 items-center justify-center rounded-lg"
-                        style={{ backgroundColor: "rgba(94,106,67,0.12)", border: "1px solid rgba(94,106,67,0.3)" }}
+                        style={{ backgroundColor: "color-mix(in srgb, var(--c-brand) 12%, transparent)", border: "1px solid color-mix(in srgb, var(--c-brand) 30%, transparent)" }}
                     >
                         <Columns className="h-5 w-5" style={{ color: OLIVE }} />
                     </div>
@@ -623,8 +623,8 @@ export const Pipeline = () => {
                 <button
                     onClick={handleCreateClick}
                     className="flex items-center gap-2 h-10 px-4 rounded-lg text-sm font-semibold transition-colors cursor-pointer"
-                    style={{ backgroundColor: OLIVE, color: LINEN }}
-                    onMouseEnter={e => e.currentTarget.style.backgroundColor = "#4a5535"}
+                    style={{ backgroundColor: OLIVE, color: "var(--c-on-dark)" }}
+                    onMouseEnter={e => e.currentTarget.style.backgroundColor = "var(--c-brand-strong)"}
                     onMouseLeave={e => e.currentTarget.style.backgroundColor = OLIVE}
                 >
                     <Plus size={16} /> New Pipeline
@@ -640,7 +640,7 @@ export const Pipeline = () => {
                     {pipelines.length === 0 ? (
                         <div
                             className="col-span-full text-center py-20 rounded-xl"
-                            style={{ border: "1.5px dashed #D8D2C4", color: HINT }}
+                            style={{ border: "1.5px dashed var(--c-border)", color: HINT }}
                         >
                             <Columns className="h-10 w-10 mx-auto mb-3 opacity-25" />
                             <p className="text-sm">No pipelines found.</p>
@@ -651,7 +651,7 @@ export const Pipeline = () => {
                             key={pipeline.id}
                             className="rounded-xl p-5 group relative transition-all"
                             style={{ backgroundColor: LINEN, border: `1px solid ${PEBBLE}` }}
-                            onMouseEnter={e => { e.currentTarget.style.borderColor = OLIVE; e.currentTarget.style.boxShadow = "0 4px 16px rgba(94,106,67,0.10)"; }}
+                            onMouseEnter={e => { e.currentTarget.style.borderColor = OLIVE; e.currentTarget.style.boxShadow = "0 4px 16px color-mix(in srgb, var(--c-brand) 10%, transparent)"; }}
                             onMouseLeave={e => { e.currentTarget.style.borderColor = PEBBLE; e.currentTarget.style.boxShadow = "none"; }}
                         >
                             {/* Edit icon */}
@@ -663,7 +663,7 @@ export const Pipeline = () => {
                             >
                                 <div
                                     className="h-7 w-7 flex items-center justify-center rounded-full"
-                                    style={{ backgroundColor: "rgba(94,106,67,0.10)" }}
+                                    style={{ backgroundColor: "color-mix(in srgb, var(--c-brand) 10%, transparent)" }}
                                 >
                                     <Edit2 size={13} style={{ color: OLIVE }} />
                                 </div>
@@ -673,7 +673,7 @@ export const Pipeline = () => {
                             <div className="flex items-center gap-3 mb-4">
                                 <div
                                     className="flex h-10 w-10 items-center justify-center rounded-lg shrink-0"
-                                    style={{ backgroundColor: "rgba(94,106,67,0.10)", border: "1px solid rgba(94,106,67,0.25)" }}
+                                    style={{ backgroundColor: "color-mix(in srgb, var(--c-brand) 10%, transparent)", border: "1px solid color-mix(in srgb, var(--c-brand) 25%, transparent)" }}
                                 >
                                     <Columns size={18} style={{ color: OLIVE }} />
                                 </div>
