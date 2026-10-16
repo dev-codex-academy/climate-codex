@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, Mail, Eye, Trash2 } from "lucide-react";
 import Swal from "sweetalert2";
@@ -46,6 +46,7 @@ export const CohortDetail = () => {
     const [modalOpen, setModalOpen] = useState(false);
     const [subject, setSubject] = useState("");
     const [message, setMessage] = useState("");
+    const messageRef = useRef(null);
     const [preview, setPreview] = useState(null);
     const [sending, setSending] = useState(false);
 
@@ -126,6 +127,31 @@ export const CohortDetail = () => {
             Swal.fire("Error", error.message, "error");
             setModalOpen(false);
         }
+    };
+
+    const handleInsertLink = async () => {
+        const area = messageRef.current;
+        const start = area ? area.selectionStart : message.length;
+        const end = area ? area.selectionEnd : message.length;
+        const { value, isConfirmed } = await Swal.fire({
+            title: "Insert link",
+            html: '<input id="link-text" class="swal2-input" placeholder="Link text">'
+                + '<input id="link-url" class="swal2-input" placeholder="https://...">',
+            didOpen: () => { document.getElementById("link-text").value = message.slice(start, end); },
+            showCancelButton: true,
+            confirmButtonText: "Insert",
+            preConfirm: () => {
+                const text = document.getElementById("link-text").value.trim();
+                const url = document.getElementById("link-url").value.trim();
+                if (!text || !/^(https?:\/\/|mailto:)\S+$/i.test(url)) {
+                    Swal.showValidationMessage("Enter the link text and a URL starting with https://, http:// or mailto:");
+                    return false;
+                }
+                return { text, url };
+            },
+        });
+        if (!isConfirmed) return;
+        setMessage(message.slice(0, start) + `[${value.text}](${value.url})` + message.slice(end));
     };
 
     const handleSend = async () => {
@@ -322,7 +348,14 @@ export const CohortDetail = () => {
                     </div>
                     <div>
                         <label style={labelStyle}>Message * <span style={{ fontWeight: 400, color: "var(--c-muted)" }}>(each email opens with "Hello {"{student name}"},")</span></label>
-                        <textarea style={{ ...inputStyle, minHeight: 180, resize: "vertical" }} value={message} maxLength={10000} onChange={e => setMessage(e.target.value)} />
+                        <textarea ref={messageRef} style={{ ...inputStyle, minHeight: 180, resize: "vertical" }} value={message} maxLength={10000} onChange={e => setMessage(e.target.value)} />
+                        <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 6 }}>
+                            <button type="button" onClick={handleInsertLink} disabled={sending} className="cursor-pointer"
+                                style={{ padding: "4px 10px", borderRadius: 6, border: "1px solid var(--c-border)", background: "var(--c-card)", fontSize: 13 }}>
+                                Insert link
+                            </button>
+                            <span style={{ fontSize: 12, color: "var(--c-muted)" }}>Links are written as [text](https://...). Plain https:// addresses become links automatically.</span>
+                        </div>
                     </div>
                     <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
                         <button onClick={() => setModalOpen(false)} disabled={sending} className="cursor-pointer"
