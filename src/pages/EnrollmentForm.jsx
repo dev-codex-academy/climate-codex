@@ -16,6 +16,11 @@ const BRAND = {
   hint: "var(--c-hint)",
 };
 
+// The signature canvas can't resolve CSS variables (an invalid penColor draws transparent
+// strokes), and the PNG is embedded in a white PDF, so use fixed colors in both themes.
+const SIGNATURE_INK = "#1E2F4A";
+const SIGNATURE_PAPER = "#FFFFFF";
+
 const STUDENT_TYPES = [
   { value: "scholarship_grant", label: "Scholarship / Grant" },
   { value: "snap",              label: "SNAP" },
@@ -372,10 +377,10 @@ export function EnrollmentForm() {
               {/* Student signature */}
               <div>
                 <label style={labelStyle}>Student Signature *</label>
-                <div style={{ border: `1px solid ${BRAND.pebble}`, borderRadius: 4, backgroundColor: "var(--c-card)", overflow: "hidden" }}>
+                <div style={{ border: `1px solid ${BRAND.pebble}`, borderRadius: 4, backgroundColor: SIGNATURE_PAPER, overflow: "hidden" }}>
                   <SignatureCanvas
                     ref={sigRef}
-                    penColor={BRAND.ink}
+                    penColor={SIGNATURE_INK}
                     canvasProps={{ width: 340, height: 120, style: { display: "block" } }}
                   />
                 </div>
