@@ -66,6 +66,21 @@ const fieldRow = { marginBottom: 16 };
 export function EnrollmentForm() {
   const { leadId } = useParams();
   const sigRef = useRef(null);
+  const sigWrapRef = useRef(null);
+  const [sigWidth, setSigWidth] = useState(340);
+
+  // Keep the canvas as wide as its container so it never overflows on narrow screens.
+  // Resizing a canvas clears it, so only update when the width really changes.
+  useEffect(() => {
+    const el = sigWrapRef.current;
+    if (!el || typeof ResizeObserver === "undefined") return undefined;
+    const observer = new ResizeObserver(([entry]) => {
+      const next = Math.floor(entry.contentRect.width);
+      if (next > 0) setSigWidth((prev) => (prev === next ? prev : next));
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [loading]);
 
   const [prefill, setPrefill] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -373,15 +388,15 @@ export function EnrollmentForm() {
               By my signature, I agree to the conditions of this agreement. I also verify that I have read and received a copy of this agreement and the school catalog.
             </p>
 
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 32 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 32 }}>
               {/* Student signature */}
               <div>
                 <label style={labelStyle}>Student Signature *</label>
-                <div style={{ border: `1px solid ${BRAND.pebble}`, borderRadius: 4, backgroundColor: SIGNATURE_PAPER, overflow: "hidden" }}>
+                <div style={{ border: `1px solid ${BRAND.pebble}`, borderRadius: 4, backgroundColor: SIGNATURE_PAPER, overflow: "hidden" }} ref={sigWrapRef}>
                   <SignatureCanvas
                     ref={sigRef}
                     penColor={SIGNATURE_INK}
-                    canvasProps={{ width: 340, height: 120, style: { display: "block" } }}
+                    canvasProps={{ width: sigWidth, height: 120, style: { display: "block" } }}
                   />
                 </div>
                 <button
