@@ -69,6 +69,12 @@ export function EnrollmentForm() {
   const sigWrapRef = useRef(null);
   const [sigWidth, setSigWidth] = useState(340);
 
+  const [prefill, setPrefill] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [errors, setErrors] = useState({});
+
   // Keep the canvas as wide as its container so it never overflows on narrow screens.
   // Resizing a canvas clears it, so only update when the width really changes.
   useEffect(() => {
@@ -81,12 +87,6 @@ export function EnrollmentForm() {
     observer.observe(el);
     return () => observer.disconnect();
   }, [loading]);
-
-  const [prefill, setPrefill] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
-  const [errors, setErrors] = useState({});
 
   const [form, setForm] = useState({
     student_name: "",
