@@ -16,7 +16,7 @@ const routeLabels = {
     "/inventory": "Inventory", "/asset": "Assets", "/assetassignment": "Asset Assignments",
     "/pipeline": "Pipelines", "/attribute": "Attributes", "/category": "Categories",
     "/catalogue": "Catalogue", "/followup": "Follow-ups", "/webhook": "Webhooks", "/cohort": "Cohorts",
-    "/my-availability": "My Availability", "/my-mentorships": "My Mentorships",
+    "/my-availability": "My Availability", "/my-mentorships": "My Mentorships", "/mentor-overview": "Mentor Availability",
     "/apidocs": "API Docs", "/faq": "FAQ",
 };
 

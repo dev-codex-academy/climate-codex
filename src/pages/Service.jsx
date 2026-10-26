@@ -2,12 +2,10 @@ import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Table } from "../components/Table";
 import { formatDate } from "../utils/date";
-import { Button } from "../components/ui/button";
-import { Plus, Search, Upload, X, CheckCircle, AlertCircle } from "lucide-react";
+import { Plus, Upload, X, CheckCircle, AlertCircle } from "lucide-react";
 import { getServices, deleteService, getServiceAttributes, importServicesFromExcel } from "../services/serviceService";
 import { getClients } from "../services/clientService";
 import { getCohorts } from "../services/cohortService";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
 import Swal from "sweetalert2";
 
 const FIXED_FIELDS = [
@@ -17,23 +15,11 @@ const FIXED_FIELDS = [
     { name: 'actual_cohort', label: 'Actual Cohort', required: false, hint: 'Cohort name, not id' },
 ];
 
-// Same persistence pattern as Lead.jsx/LeadBoard.jsx (selectedPipelineId,
-// searchTerm, etc.) — survives navigating into a service's detail page and
-// back, which unmounts/remounts this component via the router.
-const SERVICE_SELECTED_CLIENT_STORAGE_KEY = 'service_selected_client';
-const SERVICE_SEARCH_TERM_STORAGE_KEY = 'service_search_term';
-
 export const Service = () => {
     const [services, setServices] = useState([]);
     const [loading, setLoading] = useState(false);
     const [attributes, setAttributes] = useState([]);
     const [clients, setClients] = useState([]);
-    const [selectedClient, setSelectedClient] = useState(
-        () => localStorage.getItem(SERVICE_SELECTED_CLIENT_STORAGE_KEY) || ""
-    );
-    const [searchTerm, setSearchTerm] = useState(
-        () => localStorage.getItem(SERVICE_SEARCH_TERM_STORAGE_KEY) || ""
-    );
     const navigate = useNavigate();
 
     // Import modal state
@@ -45,8 +31,12 @@ export const Service = () => {
     const [importResult, setImportResult] = useState(null);
     const fileInputRef = useRef(null);
 
+    // The client sits next to the name as a plain column. Client and cohorts are stored as ids, so the row
+    // carries their resolved names (client_name, origin_cohort_name, actual_cohort_name): that is what the
+    // table's search box matches against, so any service can be found by client or cohort name too.
     const staticColumns = [
         { key: "name", label: "Name" },
+        { key: "client_name", label: "Client" },
         { key: "linked_email", label: "Email" },
         { key: "linked_phone", label: "Phone" },
         { key: "linked_date_of_birth", label: "Date of Birth", render: (value) => formatDate(value) },
@@ -55,37 +45,36 @@ export const Service = () => {
     const [columns, setColumns] = useState(staticColumns);
 
     useEffect(() => {
-        localStorage.setItem(SERVICE_SELECTED_CLIENT_STORAGE_KEY, selectedClient);
-    }, [selectedClient]);
-
-    useEffect(() => {
-        localStorage.setItem(SERVICE_SEARCH_TERM_STORAGE_KEY, searchTerm);
-    }, [searchTerm]);
-
-    useEffect(() => {
-        fetchInitialData();
-        // Restores the previous client/search on remount (e.g. coming back
-        // from a service's detail page) instead of leaving the selection
-        // filled in but the table empty until the user hits Search again.
-        if (selectedClient || searchTerm.trim()) {
-            handleSearch();
-        }
+        fetchData();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    const fetchInitialData = async () => {
+    // Every service is loaded at once: no client has to be picked first, and the search box filters them all.
+    const fetchData = async () => {
+        setLoading(true);
         try {
-            const [attributesData, clientsData, cohortsData] = await Promise.all([
+            const [servicesData, attributesData, clientsData, cohortsData] = await Promise.all([
+                getServices(),
                 getServiceAttributes(),
                 getClients(),
                 getCohorts(),
             ]);
             setAttributes(attributesData);
             setClients(clientsData);
-            const cohortsList = Array.isArray(cohortsData) ? cohortsData : (cohortsData.results || []);
 
+            const clientsById = {};
+            clientsData.forEach(c => { clientsById[String(c.id)] = c.name; });
+            const cohortsList = Array.isArray(cohortsData) ? cohortsData : (cohortsData.results || []);
             const cohortsById = {};
             cohortsList.forEach(c => { cohortsById[String(c.id)] = c.name; });
+
+            setServices(servicesData.map(service => ({
+                ...service,
+                client_name: clientsById[String(typeof service.client === "object" ? service.client?.id : service.client)] || "",
+                origin_cohort_name: cohortsById[String(service.origin_cohort)] || "",
+                actual_cohort_name: cohortsById[String(service.actual_cohort)] || "",
+                ...(service.attributes || {}),
+            })));
 
             const dynamicColumns = attributesData.map(attr => ({
                 key: attr.name,
@@ -93,43 +82,15 @@ export const Service = () => {
                 ...(attr.type === 'date' ? { render: (value) => formatDate(value) } : {}),
             }));
             const cohortColumns = [
-                { key: "origin_cohort", label: "Origin Cohort", render: (value) => cohortsById[String(value)] || "—" },
-                { key: "actual_cohort", label: "Actual Cohort", render: (value) => cohortsById[String(value)] || "—" },
+                { key: "origin_cohort_name", label: "Origin Cohort", render: (value) => value || "—" },
+                { key: "actual_cohort_name", label: "Actual Cohort", render: (value) => value || "—" },
             ];
             setColumns([...staticColumns, ...cohortColumns, ...dynamicColumns]);
-        } catch (error) {
-            console.error("Error fetching initial data", error);
-        }
-    };
-
-    const handleSearch = async () => {
-        const term = searchTerm.trim();
-        if (!selectedClient && !term) {
-            Swal.fire('Info', 'Select a client or enter a search term.', 'info');
-            return;
-        }
-        setLoading(true);
-        try {
-            const filters = {
-                ...(selectedClient && { client: selectedClient }),
-                ...(term && { search: term }),
-            };
-            const servicesData = await getServices(filters);
-            const processedServices = servicesData.map(service => ({
-                ...service,
-                client_name: service.client ? (service.client.name || service.client) : "",
-                ...(service.attributes || {})
-            }));
-            setServices(processedServices);
         } catch (error) {
             console.error("Error fetching services", error);
         } finally {
             setLoading(false);
         }
-    };
-
-    const fetchData = async () => {
-        if (selectedClient || searchTerm.trim()) handleSearch();
     };
 
     const handleEdit = (service) => {
@@ -207,40 +168,6 @@ export const Service = () => {
     return (
         <div className="h-full flex flex-col p-2 w-full">
             <div className="flex flex-wrap items-center gap-2 mb-2 ml-2">
-                <Select value={selectedClient} onValueChange={setSelectedClient}>
-                    <SelectTrigger
-                        className="w-full sm:w-[200px]"
-                        style={{ backgroundColor: "var(--c-card)", border: "1px solid var(--c-border)", color: "var(--c-ink)", fontFamily: 'var(--font-body)', fontSize: "14px" }}
-                    >
-                        <SelectValue placeholder="Select Client" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        {clients.map(client => (
-                            <SelectItem key={client.id} value={String(client.id)}>
-                                {client.name}
-                            </SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
-                <input
-                    type="text"
-                    placeholder="Search across all clients..."
-                    value={searchTerm}
-                    onChange={e => setSearchTerm(e.target.value)}
-                    onKeyDown={e => e.key === 'Enter' && handleSearch()}
-                    className="w-[220px] h-9 px-3 rounded-lg text-sm focus:outline-none"
-                    style={{ backgroundColor: "var(--c-card)", border: "1px solid var(--c-border)", color: "var(--c-ink)", fontFamily: 'var(--font-body)' }}
-                />
-                <button
-                    onClick={handleSearch}
-                    disabled={(!selectedClient && !searchTerm.trim()) || loading}
-                    className="flex items-center gap-2 h-9 px-4 rounded-lg text-sm font-semibold transition-colors cursor-pointer"
-                    style={{ backgroundColor: "var(--c-brand)", color: "var(--c-on-dark)", opacity: (!selectedClient && !searchTerm.trim() || loading) ? 0.5 : 1 }}
-                    onMouseEnter={e => (selectedClient || searchTerm.trim()) && !loading && (e.currentTarget.style.backgroundColor = "var(--c-brand-strong)")}
-                    onMouseLeave={e => (e.currentTarget.style.backgroundColor = "var(--c-brand)")}
-                >
-                    <Search className="h-4 w-4" /> Search
-                </button>
                 <button
                     onClick={openImportModal}
                     className="flex items-center gap-2 h-9 px-4 rounded-lg text-sm font-semibold transition-colors cursor-pointer"
@@ -251,7 +178,7 @@ export const Service = () => {
                     <Upload className="h-4 w-4" /> Import Excel
                 </button>
                 <button
-                    onClick={() => navigate("/service/new", { state: { clientId: selectedClient } })}
+                    onClick={() => navigate("/service/new")}
                     className="flex items-center gap-2 h-9 px-4 rounded-lg text-sm font-semibold transition-colors cursor-pointer"
                     style={{ backgroundColor: "var(--c-brand)", color: "var(--c-on-dark)" }}
                     onMouseEnter={e => e.currentTarget.style.backgroundColor = "var(--c-brand-strong)"}
@@ -262,6 +189,7 @@ export const Service = () => {
             </div>
 
             <div className="bg-brand-oat p-2 rounded-lg shadow flex-1 min-h-0 overflow-hidden flex flex-col">
+                {loading && <p className="text-sm p-2" style={{ color: "var(--c-muted)" }}>Loading services...</p>}
                 <Table
                     data={services}
                     columns={columns}
@@ -269,7 +197,7 @@ export const Service = () => {
                     onAskDelete={handleDelete}
                     verSeguimiento={handleViewFollowup}
                     searchable={true}
-                    searchPlaceholder="Filter loaded results..."
+                    searchPlaceholder="Search any service..."
                 />
             </div>
 

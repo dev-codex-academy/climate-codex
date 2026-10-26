@@ -64,6 +64,9 @@ export const useMenu = () => {
                     "Asset": "Assets",
                     "Assetassignment": "Asset Assignments",
                     "Cohort": "Cohorts",
+                    "Lead": "Leads",
+                    "Service": "Services",
+                    "Pipeline": "Pipelines",
                 };
 
                 const formattedMenu = permissions
@@ -124,10 +127,28 @@ export const useMenu = () => {
                     if (permissions.includes("app.view_cohort") && !permissions.includes("app.add_cohort")) {
                         formattedMenu.push({ title: "My Cohorts", url: "/cohort", icon: "GraduationCap", items: [] });
                     }
-                    formattedMenu.push(
-                        { title: "My Availability", url: "/my-availability", icon: "Calendar", items: [] },
-                        { title: "My Mentorships", url: "/my-mentorships", icon: "CalendarCheck", items: [] },
-                    );
+                    // The API only serves these two screens to members of the teachers / Teacher Assistant
+                    // groups (it checks the group NAME, not a permission). A superuser has view_mentorprofile
+                    // automatically but isn't a mentor, so the permission alone would show a link that only
+                    // ends in "Only teachers and teaching assistants can use this."
+                    let groupNames = [];
+                    try {
+                        groupNames = JSON.parse(localStorage.getItem("user_data") || "{}").groups || [];
+                    } catch {
+                        groupNames = [];
+                    }
+                    if (groupNames.includes("teachers") || groupNames.includes("Teacher Assistant")) {
+                        formattedMenu.push(
+                            { title: "My Availability", url: "/my-availability", icon: "Calendar", items: [] },
+                            { title: "My Mentorships", url: "/my-mentorships", icon: "CalendarCheck", items: [] },
+                        );
+                    }
+                }
+
+                // Managers (superusers, and anyone who can change cohorts: owner, operations) see what every
+                // teacher / TA configured. Same rule the API uses (can_manage_cohorts).
+                if (permissions.includes("app.change_cohort")) {
+                    formattedMenu.push({ title: "Mentor Availability", url: "/mentor-overview", icon: "CalendarRange", items: [] });
                 }
 
                 // Inject Lead Reassignment for superusers only — bulk operation
@@ -150,15 +171,16 @@ export const useMenu = () => {
                 }
 
                 // Grouping — meaningful buckets, no "Others" catch-all
-                const crmItems = ["Lead", "Clients", "Contacts", "Service", "Cohorts", "Pipeline"];
+                // Order matters: this is the order of the CRM sections in the top bar.
+                const crmItems = ["Leads", "Services", "Cohorts", "Pipelines", "Clients", "Contacts"];
                 const billingItems = ["Invoices", "Catalogue", "Categories", "Inventory"];
                 const assetItems = ["Assets", "Asset Assignments"];
                 const aiItems = ["Chett AI"];
-                const mentoringItems = ["My Cohorts", "My Availability", "My Mentorships"];
+                const mentoringItems = ["My Cohorts", "My Availability", "My Mentorships", "Mentor Availability"];
                 const adminItems = ["Attribute", "Lead Fields", "Webhook", "Lead Reassignment"];
 
                 const groups = [
-                    { label: "CRM", items: formattedMenu.filter(i => crmItems.includes(i.title)) },
+                    { label: "CRM", items: crmItems.map(t => formattedMenu.find(i => i.title === t)).filter(Boolean) },
                     { label: "Billing / Inventory", items: formattedMenu.filter(i => billingItems.includes(i.title)) },
                     { label: "Assets", items: formattedMenu.filter(i => assetItems.includes(i.title)) },
                     { label: "Mentoring", items: formattedMenu.filter(i => mentoringItems.includes(i.title)) },

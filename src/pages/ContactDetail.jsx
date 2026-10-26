@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { createContact, updateContact, getContactById, getContactAttributes, updateContactTask, deleteContactNote } from "../services/contactService";
 import { getClients } from "../services/clientService";
 import { useAuth } from "../context/AuthContext";
@@ -18,8 +18,11 @@ import { Switch } from "../components/ui/switch";
 export const ContactDetail = () => {
     const { id } = useParams();
     const navigate = useNavigate();
+    const location = useLocation();
     const { user } = useAuth();
     const isNew = id === 'new';
+    // Set when the contact is created from a client's Contacts tab.
+    const preSelectedClientId = location.state?.clientId;
 
     const [attributes, setAttributes] = useState([]);
     const [clients, setClients] = useState([]);
@@ -57,6 +60,7 @@ export const ContactDetail = () => {
                     await fetchContactData(id);
                 } else {
                     setDynamicData({});
+                    if (preSelectedClientId) setClientId(String(preSelectedClientId));
                 }
             } catch (err) {
                 console.error("Initialization error", err);

@@ -42,6 +42,7 @@ import { BookMentorship } from "../pages/BookMentorship";
 import { BookCancel } from "../pages/BookCancel";
 import { MyAvailability } from "../pages/MyAvailability";
 import { MyMentorships } from "../pages/MyMentorships";
+import { MentorOverview } from "../pages/MentorOverview";
 import AdminLayout from "@/layout/AdminLayout"
 import { useAuth } from "@/context/AuthContext"
 import { PermissionGuard } from "../components/PermissionGuard"
@@ -114,6 +115,7 @@ export const RouterApp = () => {
                 <Route path="webhook/:id" element={<PermissionGuard requiredPermission="app.add_webhook"><WebhookDetail /></PermissionGuard>} />
                 <Route path="chett-ai" element={<PermissionGuard requiredPermission="app.view_aiconversation"><ChettAI /></PermissionGuard>} />
                 <Route path="my-availability" element={<PermissionGuard requiredPermission="app.view_mentorprofile"><MyAvailability /></PermissionGuard>} />
+                <Route path="mentor-overview" element={<PermissionGuard requiredPermission="app.change_cohort"><MentorOverview /></PermissionGuard>} />
                 <Route path="my-mentorships" element={<PermissionGuard requiredPermission="app.view_mentorprofile"><MyMentorships /></PermissionGuard>} />
                 <Route path="lead-reassignment" element={<PermissionGuard requireSuperuser><LeadReassignment /></PermissionGuard>} />
             </Route>

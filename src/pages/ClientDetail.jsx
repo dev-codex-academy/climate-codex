@@ -2,6 +2,9 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { createClient, updateClient, uploadClientImage, getClientById, getClientAttributes } from "../services/clientService";
 import { useAuth } from "../context/AuthContext";
+import { getServices } from "../services/serviceService";
+import { getContacts } from "../services/contactService";
+import { getCohorts } from "../services/cohortService";
 
 // UI Components
 import { Input } from "../components/ui/input";
@@ -11,8 +14,57 @@ import { Button } from "../components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
 import { Checkbox } from "../components/ui/checkbox";
 import { Textarea } from "../components/ui/textarea";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Plus, Search, Mail, Phone, Star, GraduationCap } from "lucide-react";
 import { Switch } from "../components/ui/switch";
+
+// One row-card list for the Services and Contacts tabs: searchable, each row opens its own detail page.
+const RelatedList = ({ title, empty, rows, search, onSearch, addLabel, onAdd }) => {
+    const needle = search.trim().toLowerCase();
+    const visible = needle ? rows.filter(r => r.haystack.some(v => String(v || "").toLowerCase().includes(needle))) : rows;
+    return (
+        <div className="bg-card p-6 rounded-lg border shadow-sm space-y-4">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b pb-3">
+                <p className="font-medium text-lg">{title} <span className="text-sm text-muted-foreground">({rows.length})</span></p>
+                <div className="flex flex-wrap items-center gap-2">
+                    {rows.length > 4 && (
+                        <div style={{ position: "relative", width: 240 }}>
+                            <Search className="h-4 w-4" style={{ position: "absolute", left: 10, top: 10, color: "var(--c-hint)" }} />
+                            <input value={search} onChange={e => onSearch(e.target.value)} placeholder={`Search ${title.toLowerCase()}`} aria-label={`Search ${title.toLowerCase()}`}
+                                style={{ width: "100%", height: 36, padding: "0 10px 0 32px", borderRadius: 8, border: "1px solid var(--c-border)", background: "var(--c-card)", color: "var(--c-ink)", fontSize: 14 }} />
+                        </div>
+                    )}
+                    <Button size="sm" onClick={onAdd}><Plus className="mr-1 h-4 w-4" /> {addLabel}</Button>
+                </div>
+            </div>
+            {visible.length === 0 ? (
+                <p className="text-sm text-muted-foreground italic">{rows.length === 0 ? empty : "Nothing matches your search."}</p>
+            ) : (
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 12 }}>
+                    {visible.map(r => (
+                        <article key={r.id} role="link" tabIndex={0} aria-label={`Open ${r.title}`} onClick={r.onOpen} onKeyDown={e => { if (e.key === "Enter") r.onOpen(); }}
+                            style={{ cursor: "pointer", display: "grid", gap: 6, padding: 14, borderRadius: 12, background: "var(--c-surface-2)", border: "1px solid var(--c-border)" }}>
+                            <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8 }}>
+                                <p style={{ margin: 0, fontWeight: 700, color: "var(--c-ink)", wordBreak: "break-word" }}>{r.title}</p>
+                                {r.badge && (
+                                    <span style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 4, padding: "2px 8px", borderRadius: 999, fontSize: 11, fontWeight: 700, textTransform: "uppercase", background: "var(--c-brand-pale)", color: "var(--c-brand)" }}>
+                                        {r.badge === "primary" && <Star className="h-3 w-3" />}{r.badge}
+                                    </span>
+                                )}
+                            </div>
+                            {r.subtitle && <p style={{ margin: 0, fontSize: 13, color: "var(--c-muted)" }}>{r.subtitle}</p>}
+                            {r.lines.filter(([, v]) => v).map(([Icon, v], i) => (
+                                <p key={i} style={{ margin: 0, display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "var(--c-muted)", minWidth: 0 }}>
+                                    <Icon className="h-3.5 w-3.5" style={{ flexShrink: 0 }} />
+                                    <span style={{ color: "var(--c-ink)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{v}</span>
+                                </p>
+                            ))}
+                        </article>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+};
 
 export const ClientDetail = () => {
     const { id } = useParams();
@@ -34,6 +86,13 @@ export const ClientDetail = () => {
     const [images, setImages] = useState([]);
     const [selectedFile, setSelectedFile] = useState(null);
 
+    // Sub-tabs (only for an existing client): its own data, services, contacts, tasks & notes.
+    const [tab, setTab] = useState("details");
+    const [clientServices, setClientServices] = useState([]);
+    const [clientContacts, setClientContacts] = useState([]);
+    const [cohortsById, setCohortsById] = useState({});
+    const [relatedSearch, setRelatedSearch] = useState("");
+
     // Task & Note state
     const [tasks, setTasks] = useState([]);
     const [newTaskDate, setNewTaskDate] = useState(new Date().toISOString().split('T')[0]);
@@ -50,6 +109,7 @@ export const ClientDetail = () => {
 
                 if (!isNew) {
                     await fetchClientData(id);
+                    fetchRelated(id);
                 } else {
                     setName("");
                     setDynamicData({});
@@ -63,6 +123,23 @@ export const ClientDetail = () => {
         };
         init();
     }, [id, isNew]);
+
+    // The tab counts need both lists up front. A failure only leaves the tabs empty, the client still opens.
+    const fetchRelated = async (clientId) => {
+        try {
+            const [services, contacts, cohorts] = await Promise.all([
+                getServices({ client: clientId }),
+                getContacts({ client: clientId }),
+                getCohorts().catch(() => []),
+            ]);
+            setClientServices(services);
+            setClientContacts(contacts);
+            const list = Array.isArray(cohorts) ? cohorts : (cohorts.results || []);
+            setCohortsById(Object.fromEntries(list.map(c => [String(c.id), c.name])));
+        } catch (err) {
+            console.error("Error fetching the client's services and contacts", err);
+        }
+    };
 
     const fetchAttributes = async () => {
         try {
@@ -303,7 +380,30 @@ export const ClientDetail = () => {
                     </div>
                 )}
 
+                {!isNew && (
+                    <div role="tablist" aria-label="Client sections" className="flex flex-wrap gap-2 mb-6">
+                        {[
+                            ["details", "Details"],
+                            ["services", `Services (${clientServices.length})`],
+                            ["contacts", `Contacts (${clientContacts.length})`],
+                            ["tasks", `Tasks & Notes (${tasks.length + notes.length})`],
+                        ].map(([key, label]) => (
+                            <button key={key} type="button" role="tab" aria-selected={tab === key}
+                                onClick={() => { setTab(key); setRelatedSearch(""); }}
+                                style={{
+                                    height: 36, padding: "0 16px", borderRadius: 999, fontSize: 14, fontWeight: 600, cursor: "pointer",
+                                    border: `1px solid ${tab === key ? "var(--c-brand)" : "var(--c-border)"}`,
+                                    background: tab === key ? "var(--c-brand)" : "var(--c-card)",
+                                    color: tab === key ? "var(--c-on-dark)" : "var(--c-muted)",
+                                }}>
+                                {label}
+                            </button>
+                        ))}
+                    </div>
+                )}
+
                 <div className="space-y-6">
+                    {(isNew || tab === "details") && (<>
                     {/* Main Info */}
                     <div className="bg-card p-6 rounded-lg border shadow-sm space-y-4">
                         <div className="space-y-2">
@@ -367,7 +467,39 @@ export const ClientDetail = () => {
                         </div>
                     )}
 
-                    {/* Tasks & Notes Row */}
+                    </>)}
+
+                    {!isNew && tab === "services" && (
+                        <RelatedList
+                            title="Services" empty="This client has no services yet." search={relatedSearch} onSearch={setRelatedSearch}
+                            addLabel="Add Service" onAdd={() => navigate("/service/new", { state: { clientId: id } })}
+                            rows={clientServices.map(s => ({
+                                id: s.id, title: s.name, onOpen: () => navigate(`/service/${s.id}`),
+                                badge: s.status,
+                                lines: [
+                                    [Mail, s.linked_email], [Phone, s.linked_phone],
+                                    [GraduationCap, cohortsById[String(s.actual_cohort)] || cohortsById[String(s.origin_cohort)]],
+                                ],
+                                haystack: [s.name, s.linked_email, s.linked_phone, cohortsById[String(s.actual_cohort)], cohortsById[String(s.origin_cohort)]],
+                            }))}
+                        />
+                    )}
+
+                    {!isNew && tab === "contacts" && (
+                        <RelatedList
+                            title="Contacts" empty="This client has no contacts yet." search={relatedSearch} onSearch={setRelatedSearch}
+                            addLabel="Add Contact" onAdd={() => navigate("/contact/new", { state: { clientId: id } })}
+                            rows={clientContacts.map(c => ({
+                                id: c.id, title: `${c.first_name || ""} ${c.last_name || ""}`.trim() || "(no name)", onOpen: () => navigate(`/contact/${c.id}`),
+                                badge: c.is_primary ? "primary" : "",
+                                subtitle: c.job_title,
+                                lines: [[Mail, c.email], [Phone, c.phone]],
+                                haystack: [c.first_name, c.last_name, c.email, c.phone, c.job_title],
+                            }))}
+                        />
+                    )}
+
+                    {(isNew || tab === "tasks") && (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {/* Tasks */}
                         <div className="bg-card p-6 rounded-lg border shadow-sm space-y-4">
@@ -446,8 +578,10 @@ export const ClientDetail = () => {
                         </div>
                     </div>
 
+                    )}
+
                     {/* Files & Images */}
-                    {!isNew && (
+                    {!isNew && tab === "details" && (
                         <div className="bg-card p-6 rounded-lg border shadow-sm space-y-4">
                             <h3 className="font-medium text-lg border-b pb-2">Files & Images</h3>
                             {images.length > 0 ? (

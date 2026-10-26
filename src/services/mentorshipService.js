@@ -100,3 +100,10 @@ export const confirmCancel = async (cancelToken) => {
     const res = await fetch(publicUrl(`cancel/${encodeURIComponent(cancelToken)}/`), { method: "POST", headers: publicHeaders() });
     return parse(res, "Could not cancel the meeting");
 };
+
+// ─── Manager overview (superusers / anyone who can change cohorts) ─────────────
+
+export const getMentorOverview = async () => {
+    const res = await fetch(`${API_URL}/mentor-overview/`, { method: "GET", headers: getHeaders() });
+    return parse(res, "Error loading the mentors' availability");
+};
