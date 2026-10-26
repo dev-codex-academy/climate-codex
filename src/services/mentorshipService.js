@@ -22,6 +22,25 @@ export const saveMyMentorProfile = async (data) => {
     return parse(res, "Error saving your availability");
 };
 
+// 409 = the mentor already has students booked in that time: the error carries them in `conflicts`
+// so the screen can ask what to do. Nothing was saved in that case.
+export const addMyTimeOff = async (data) => {
+    const res = await fetch(`${API_URL}/my-mentor-profile/time-off/`, { method: "POST", headers: getHeaders(), body: JSON.stringify(data) });
+    if (res.status === 409) {
+        const body = await res.json().catch(() => ({}));
+        const error = new Error(body.detail || "You already have bookings in that time.");
+        error.status = 409;
+        error.conflicts = body.conflicts || [];
+        throw error;
+    }
+    return parse(res, "Error saving your time off");
+};
+
+export const deleteMyTimeOff = async (id) => {
+    const res = await fetch(`${API_URL}/my-mentor-profile/time-off/${id}/`, { method: "DELETE", headers: getHeaders() });
+    if (!res.ok) return parse(res, "Error removing your time off");
+};
+
 export const getMyMentorships = async () => {
     const res = await fetch(`${API_URL}/my-mentorships/`, { method: "GET", headers: getHeaders() });
     return parse(res, "Error loading your mentorships");

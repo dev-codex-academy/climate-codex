@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { Plus, Trash2, Video, Globe, Clock, Info, AlertTriangle, GraduationCap } from "lucide-react";
+import { Plus, Trash2, Video, Globe, Clock, Info, AlertTriangle, GraduationCap, CalendarOff } from "lucide-react";
 import Swal from "sweetalert2";
-import { getMyMentorProfile, saveMyMentorProfile } from "../services/mentorshipService";
+import { getMyMentorProfile, saveMyMentorProfile, addMyTimeOff, deleteMyTimeOff } from "../services/mentorshipService";
+import { formatDateTime } from "../utils/datetime";
 import { TimezoneSelect } from "../components/TimezoneSelect";
 
 const FONT = 'var(--font-body)';
@@ -88,9 +89,23 @@ const minutesOf = (hhmm) => {
     return h * 60 + m;
 };
 
+// "2026-11-01" -> "Sun, Nov 1, 2026". Built from the parts, never `new Date("2026-11-01")`,
+// which is UTC midnight and would show the previous day in the Americas.
+const formatDay = (iso) => {
+    const [y, m, d] = iso.split("-").map(Number);
+    return new Intl.DateTimeFormat("en-US", { weekday: "short", month: "short", day: "numeric", year: "numeric" }).format(new Date(y, m - 1, d));
+};
+
+// Today's date in the mentor's own timezone (what the server treats as "not in the past").
+const todayIn = (timeZone) => new Intl.DateTimeFormat("en-CA", { timeZone, year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
+
+const EMPTY_OFF = { date: "", allDay: true, start_time: "09:00", end_time: "12:00", reason: "" };
+
 export const MyAvailability = () => {
     const [form, setForm] = useState(null);
     const [saving, setSaving] = useState(false);
+    const [off, setOff] = useState(EMPTY_OFF);
+    const [addingOff, setAddingOff] = useState(false);
 
     useEffect(() => {
         getMyMentorProfile()
@@ -126,6 +141,52 @@ export const MyAvailability = () => {
     const platform = PLATFORMS[form.meeting_platform] || PLATFORMS.google_meet;
     const weeklyMinutes = form.rules.reduce((sum, r) => sum + Math.max(0, minutesOf(r.end_time) - minutesOf(r.start_time)), 0);
     const weeklyLabel = `${Math.floor(weeklyMinutes / 60)}${weeklyMinutes % 60 ? `h ${weeklyMinutes % 60}m` : " h"} per week`;
+
+    const refreshTimeOff = async () => {
+        const fresh = await getMyMentorProfile();
+        setForm(f => ({ ...f, time_off: fresh.time_off }));
+    };
+
+    const submitTimeOff = async (cancelConflicts) => {
+        setAddingOff(true);
+        try {
+            const result = await addMyTimeOff({
+                date: off.date,
+                start_time: off.allDay ? null : off.start_time,
+                end_time: off.allDay ? null : off.end_time,
+                reason: off.reason.trim(),
+                cancel_conflicts: cancelConflicts,
+            });
+            await refreshTimeOff();
+            setOff(EMPTY_OFF);
+            Swal.fire("Time off saved", result.cancelled
+                ? `${result.cancelled} booking${result.cancelled > 1 ? "s were" : " was"} cancelled and the student${result.cancelled > 1 ? "s were" : " was"} notified by email.`
+                : "Students can no longer book you then.", "success");
+        } catch (error) {
+            if (error.status === 409) {
+                const list = error.conflicts.map(b => `<li style="margin:4px 0"><b>${formatDateTime(b.start, form.timezone)}</b> — ${b.student_name.replace(/</g, "&lt;")}</li>`).join("");
+                const answer = await Swal.fire({
+                    title: "You already have bookings then",
+                    html: `<p style="text-align:left">These sessions fall inside the time you want to block (times in ${form.timezone.replace(/_/g, " ")}):</p><ul style="text-align:left;padding-left:18px">${list}</ul><p style="text-align:left">Cancel them? Each student gets a cancellation email and can book another time.</p>`,
+                    icon: "warning", showCancelButton: true, confirmButtonText: "Cancel them and block the time", cancelButtonText: "Keep my bookings",
+                });
+                if (answer.isConfirmed) { await submitTimeOff(true); return; }
+            } else {
+                Swal.fire("Error", error.message, "error");
+            }
+        } finally {
+            setAddingOff(false);
+        }
+    };
+
+    const removeTimeOff = async (id) => {
+        try {
+            await deleteMyTimeOff(id);
+            await refreshTimeOff();
+        } catch (error) {
+            Swal.fire("Error", error.message, "error");
+        }
+    };
 
     const handleSave = async () => {
         setSaving(true);
@@ -256,6 +317,67 @@ export const MyAvailability = () => {
                             );
                         })}
                     </div>
+                </Card>
+
+                <Card icon={CalendarOff} title="Time off" subtitle={`Block a specific day or a few hours without changing your weekly hours. Dates and times are in your timezone (${form.timezone.replace(/_/g, " ")}).`}>
+                    {!form.exists ? (
+                        <p style={{ margin: 0, fontFamily: FONT, fontSize: 14, color: MUTED }}>Save your availability once above, then you can add time off.</p>
+                    ) : (
+                        <div style={{ display: "grid", gap: 16 }}>
+                            <div style={{ display: "flex", flexWrap: "wrap", alignItems: "flex-end", gap: 14 }}>
+                                <div style={{ width: 180 }}>
+                                    <Field label="Date">
+                                        <input className="av-control" type="date" aria-label="Time off date" min={todayIn(form.timezone)} value={off.date}
+                                            onChange={e => setOff(o => ({ ...o, date: e.target.value }))} />
+                                    </Field>
+                                </div>
+                                <Field label="Block">
+                                    <div className="av-seg" role="group" aria-label="Block scope">
+                                        <button type="button" aria-pressed={off.allDay} onClick={() => setOff(o => ({ ...o, allDay: true }))}>All day</button>
+                                        <button type="button" aria-pressed={!off.allDay} onClick={() => setOff(o => ({ ...o, allDay: false }))}>Specific hours</button>
+                                    </div>
+                                </Field>
+                                {!off.allDay && (
+                                    <div style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+                                        <input className="av-control" type="time" aria-label="Time off start" value={off.start_time}
+                                            onChange={e => setOff(o => ({ ...o, start_time: e.target.value }))} style={{ width: 142 }} />
+                                        <span style={{ color: MUTED, fontFamily: FONT, fontSize: 13 }}>to</span>
+                                        <input className="av-control" type="time" aria-label="Time off end" value={off.end_time}
+                                            onChange={e => setOff(o => ({ ...o, end_time: e.target.value }))} style={{ width: 142 }} />
+                                    </div>
+                                )}
+                                <div style={{ flex: "1 1 200px", minWidth: 180 }}>
+                                    <Field label="Reason (only you see it)">
+                                        <input className="av-control" maxLength={200} placeholder="Optional" value={off.reason}
+                                            onChange={e => setOff(o => ({ ...o, reason: e.target.value }))} />
+                                    </Field>
+                                </div>
+                                <button type="button" className="av-save" style={{ height: 42 }} disabled={!off.date || addingOff} onClick={() => submitTimeOff(false)}>
+                                    {addingOff ? "Saving..." : "Block time"}
+                                </button>
+                            </div>
+
+                            {form.time_off?.length ? (
+                                <div style={{ display: "grid" }}>
+                                    {form.time_off.map((t, i) => (
+                                        <div key={t.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, padding: "10px 0", borderTop: i ? "1px solid var(--c-divider)" : "none" }}>
+                                            <div style={{ minWidth: 0 }}>
+                                                <p style={{ margin: 0, fontFamily: FONT, fontSize: 15, fontWeight: 700, color: INK }}>
+                                                    {formatDay(t.date)} · {t.start_time ? `${t.start_time} to ${t.end_time}` : "All day"}
+                                                </p>
+                                                {t.reason && <p style={{ margin: 0, fontFamily: FONT, fontSize: 13, color: MUTED }}>{t.reason}</p>}
+                                            </div>
+                                            <button type="button" className="av-remove" onClick={() => removeTimeOff(t.id)} aria-label={`Remove time off on ${formatDay(t.date)}`}>
+                                                <Trash2 className="h-4 w-4" />
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <p style={{ margin: 0, fontFamily: FONT, fontSize: 13.5, color: HINT }}>No upcoming time off.</p>
+                            )}
+                        </div>
+                    )}
                 </Card>
 
                 <div style={{ display: "flex", alignItems: "center", gap: 14, paddingBottom: 12 }}>

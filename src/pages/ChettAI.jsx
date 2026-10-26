@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
+import { ReportBlock } from "@/components/ai/ReportBlock";
 import {
     sendMessage, getConversations, getConversation,
     renameConversation, deleteConversation,
@@ -221,7 +222,26 @@ const TypingDots = () => (
 
 // ── Message bubble ────────────────────────────────────────────────────────
 
-const Bubble = ({ role, content }) => {
+const STARTERS = [
+    "How many active students do we have?",
+    "Leads by stage as a chart",
+    "Active students per cohort",
+    "Which cohorts are open for enrollment?",
+    "Mentorship sessions booked this week",
+];
+
+const Chips = ({ options, onPick, disabled }) => (
+    <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 8 }}>
+        {options.map(o => (
+            <button key={o} type="button" disabled={disabled} onClick={() => onPick(o)}
+                style={{ fontSize: 13, fontWeight: 600, color: "var(--c-brand)", background: "var(--card)", border: "1px solid var(--border)", borderRadius: 999, padding: "7px 14px", cursor: disabled ? "default" : "pointer" }}>
+                {o}
+            </button>
+        ))}
+    </div>
+);
+
+const Bubble = ({ role, content, reports }) => {
     const isUser = role === "user";
     return (
         <div className={`flex ${isUser ? "justify-end" : "justify-start"} mb-4`}>
@@ -237,6 +257,7 @@ const Bubble = ({ role, content }) => {
                 boxShadow: "0 1px 2px rgba(0,0,0,0.06)",
             }}>
                 {isUser ? content : <MarkdownContent text={content} />}
+                {!isUser && Array.isArray(reports) && reports.map((rep, i) => <ReportBlock key={i} report={rep} />)}
             </div>
         </div>
     );
@@ -288,7 +309,7 @@ export const ChettAI = () => {
             const data = await getConversation(id);
             setConvId(data.id);
             setConvName(data.name);
-            setMessages(data.messages.map(m => ({ role: m.role, content: m.content })));
+            setMessages(data.messages.map(m => ({ role: m.role, content: m.content, reports: m.reports || [] })));
         } catch { /* non-critical — ignore */ }
     }, [convId]);
 
@@ -299,8 +320,8 @@ export const ChettAI = () => {
         setTimeout(() => inputRef.current?.focus(), 50);
     }, []);
 
-    const handleSend = useCallback(async () => {
-        const text = input.trim();
+    const sendText = useCallback(async (raw) => {
+        const text = (raw || "").trim();
         if (!text || sending) return;
         setInput("");
         setMessages(prev => [...prev, { role: "user", content: text }]);
@@ -308,7 +329,7 @@ export const ChettAI = () => {
 
         try {
             const res = await sendMessage(text, convId);
-            setMessages(prev => [...prev, { role: "assistant", content: res.assistant_message }]);
+            setMessages(prev => [...prev, { role: "assistant", content: res.assistant_message, reports: res.reports || [], suggestions: res.suggestions || [] }]);
 
             if (!convId) {
                 // New conversation was auto-created
@@ -332,7 +353,9 @@ export const ChettAI = () => {
         } finally {
             setSending(false);
         }
-    }, [input, sending, convId]);
+    }, [sending, convId]);
+
+    const handleSend = () => sendText(input);
 
     const handleKeyDown = (e) => {
         if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); }
@@ -556,14 +579,22 @@ export const ChettAI = () => {
                                     Ask me anything about your CRM data.
                                 </p>
                                 <p style={{ fontSize: 12 }}>
-                                    I can query clients, invoices, leads, services, and more.
+                                    Leads, students, cohorts, teachers, mentorships, invoices and more. Ask for a report, a table or a chart.
                                 </p>
+                                <Chips options={STARTERS} onPick={sendText} disabled={sending} />
                             </div>
                         )}
 
                         {messages.map((m, i) => (
-                            <Bubble key={i} role={m.role} content={m.content} />
+                            <Bubble key={i} role={m.role} content={m.content} reports={m.reports} />
                         ))}
+
+                        {/* Quick replies for a clarifying question; only the latest answer offers them. */}
+                        {!sending && messages.length > 0 && messages[messages.length - 1].suggestions?.length > 0 && (
+                            <div style={{ marginBottom: 16 }}>
+                                <Chips options={messages[messages.length - 1].suggestions} onPick={sendText} disabled={sending} />
+                            </div>
+                        )}
 
                         {sending && (
                             <div className="flex justify-start mb-4">

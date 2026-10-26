@@ -313,9 +313,15 @@
   color-scheme: light;
 
   /* ---- Theme tokens: light ---- */
-  --c-surface: #FEFCF9;       /* page background (site off-white) */
-  --c-surface-2: #EEF3F9;     /* cards, sidebars */
-  --c-card: #FFFFFF;          /* inputs, raised cards */
+  /* Solid base colors. The surface tokens below are translucent versions of them so
+     the app backdrop glows through; over a solid page (login, public forms) they
+     blend back into the same flat color. */
+  --c-surface-solid: #FEFCF9;   /* page background (site off-white) */
+  --c-surface-2-solid: #EEF3F9; /* cards, sidebars */
+  --c-card-solid: #FFFFFF;      /* inputs, raised cards */
+  --c-surface: color-mix(in srgb, var(--c-surface-solid) 40%, transparent);
+  --c-surface-2: color-mix(in srgb, var(--c-surface-2-solid) 62%, transparent);
+  --c-card: color-mix(in srgb, var(--c-card-solid) 74%, transparent);
   --c-border: #D5DEEA;
   --c-border-strong: #BFCBDD;
   --c-divider: #E6ECF4;
@@ -385,9 +391,12 @@
   color-scheme: dark;
 
   /* ---- Theme tokens: dark (CodeX navy) ---- */
-  --c-surface: #1E2F4A;
-  --c-surface-2: #263A5C;
-  --c-card: #2B4166;
+  --c-surface-solid: #1E2F4A;
+  --c-surface-2-solid: #263A5C;
+  --c-card-solid: #2B4166;
+  --c-surface: color-mix(in srgb, var(--c-surface-solid) 40%, transparent);
+  --c-surface-2: color-mix(in srgb, var(--c-surface-2-solid) 58%, transparent);
+  --c-card: color-mix(in srgb, var(--c-card-solid) 70%, transparent);
   --c-border: #3A5078;
   --c-border-strong: #4A6290;
   --c-divider: #2F4468;
@@ -464,6 +473,10 @@
   }
 }
 
+html {
+  background: var(--c-surface-solid);
+}
+
 html,
 body,
 #root {
@@ -490,4 +503,79 @@ body {
   outline: 2px solid var(--color-codex-primary);
   outline-offset: 2px;
   border-radius: 4px;
+}
+/* ---- Glass surfaces (same brand colors, translucent) ----
+   Reusable on anything that floats over the page: nav, menus, dialogs. Opaque
+   tokens (--c-card, --c-surface-2) stay for inputs and dense data, where
+   legibility beats the effect. */
+:root {
+  --glass-bg: color-mix(in srgb, var(--c-card-solid) 58%, transparent);
+  --glass-bg-strong: color-mix(in srgb, var(--c-card-solid) 80%, transparent);
+  --glass-border: color-mix(in srgb, var(--c-brand) 18%, transparent);
+  --glass-highlight: rgba(255, 255, 255, 0.65);
+  --glass-shadow: 0 8px 28px rgba(30, 47, 74, 0.10);
+  --glass-hover: color-mix(in srgb, var(--c-brand) 12%, transparent);
+  --glass-blur: 18px;
+}
+
+.dark {
+  --glass-bg: color-mix(in srgb, var(--c-card-solid) 46%, transparent);
+  --glass-bg-strong: color-mix(in srgb, var(--c-card-solid) 76%, transparent);
+  --glass-border: rgba(244, 247, 251, 0.14);
+  --glass-highlight: rgba(244, 247, 251, 0.10);
+  --glass-shadow: 0 10px 34px rgba(0, 0, 0, 0.35);
+  --glass-hover: rgba(244, 247, 251, 0.09);
+}
+
+.glass {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow), inset 0 1px 0 var(--glass-highlight);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.5);
+  backdrop-filter: blur(var(--glass-blur)) saturate(1.5);
+}
+
+/* Soft colored glows behind the app so the glass has something to blur. */
+.app-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(55% 45% at 88% -5%, color-mix(in srgb, var(--c-accent) 26%, transparent), transparent 70%),
+    radial-gradient(45% 40% at 8% 18%, color-mix(in srgb, var(--c-brand) 16%, transparent), transparent 70%),
+    radial-gradient(50% 45% at 96% 100%, color-mix(in srgb, var(--c-cta) 14%, transparent), transparent 70%),
+    var(--c-surface-solid);
+}
+
+/* Floating menus and dialogs: translucent instead of solid. */
+[data-slot="dropdown-menu-content"],
+[data-slot="dropdown-menu-sub-content"],
+[data-slot="popover-content"],
+[data-slot="select-content"],
+[data-slot="dialog-content"] {
+  background: var(--glass-bg-strong) !important;
+  border: 1px solid var(--glass-border) !important;
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.5);
+  backdrop-filter: blur(var(--glass-blur)) saturate(1.5);
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .glass,
+  [data-slot="dropdown-menu-content"],
+  [data-slot="dropdown-menu-sub-content"],
+  [data-slot="popover-content"],
+  [data-slot="select-content"],
+  [data-slot="dialog-content"] {
+    background: var(--c-card-solid) !important;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
+/* Sticky page headers sit over scrolling content: more opaque + blurred so text never collides. */
+[class*="sticky"][class*="bg-card"] {
+  background: var(--glass-bg-strong) !important;
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.5);
+  backdrop-filter: blur(var(--glass-blur)) saturate(1.5);
 }
