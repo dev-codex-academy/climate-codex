@@ -118,7 +118,9 @@ export const Login = ({ className, ...props }) => {
                   </Label>
                   <Input
                     id="usuario"
+                    name="username"
                     type="text"
+                    autoComplete="username"
                     placeholder="Enter your username"
                     required
                     value={user}
@@ -151,6 +153,7 @@ export const Login = ({ className, ...props }) => {
                   </div>
                   <Input
                     id="password"
+                    name="password"
                     type={showPass ? "text" : "password"}
                     placeholder="Enter your password"
                     autoComplete="current-password"
@@ -210,6 +213,10 @@ export const Login = ({ className, ...props }) => {
                   </div>
                 )}
 
+                {/* Password managers need a username field in a change-password form to know which
+                    account to update; the name above is plain text, which they can't read. */}
+                <input type="text" name="username" autoComplete="username" value={user} readOnly hidden />
+
                 <div className="text-sm" style={{ color: "var(--c-muted)" }}>
                   <strong style={{ color: "var(--c-ink)" }}>{user}</strong>, you signed in with a temporary password.
                   Choose a new password to continue. Afterwards you will sign in again with it and a verification code.
@@ -221,6 +228,7 @@ export const Login = ({ className, ...props }) => {
                   </Label>
                   <Input
                     id="new-password"
+                    name="new-password"
                     type="password"
                     autoComplete="new-password"
                     placeholder="At least 8 characters"
@@ -240,6 +248,7 @@ export const Login = ({ className, ...props }) => {
                   </Label>
                   <Input
                     id="confirm-password"
+                    name="confirm-password"
                     type="password"
                     autoComplete="new-password"
                     placeholder="Repeat the new password"
