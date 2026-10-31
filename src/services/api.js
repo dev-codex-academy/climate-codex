@@ -1,9 +1,10 @@
-const env = import.meta.env.VITE_ENV;
-
-export const API_URL =
-  env === 'production'
-    ? import.meta.env.VITE_API_PROD
-    : import.meta.env.VITE_API_DEV;
+// PROD is true for every `vite build` no matter which .env files exist on the
+// building machine (they are gitignored) — keying this off VITE_ENV let a build
+// from a machine without .env ship with http://localhost:8000 baked in. The
+// production bundle is served by Django on the same origin, hence '/api'.
+export const API_URL = import.meta.env.PROD
+  ? (import.meta.env.VITE_API_PROD || '/api')
+  : import.meta.env.VITE_API_DEV;
 
 // Headers for all API requests — token is in the HttpOnly cookie, not here
 export const getHeaders = () => ({

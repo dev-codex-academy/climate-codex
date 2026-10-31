@@ -1,5 +1,5 @@
-const BASE_URL = import.meta.env.VITE_ENV === 'production'
-  ? import.meta.env.VITE_API_PROD
+const BASE_URL = import.meta.env.PROD
+  ? (import.meta.env.VITE_API_PROD || '/api')
   : import.meta.env.VITE_API_DEV;
 
 export async function getEnrollmentPrefill(leadId) {
