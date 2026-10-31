@@ -1,9 +1,10 @@
 import React from "react";
-import { Calendar, Building, FileCheck2, Phone, Archive } from "lucide-react";
+import { Calendar, Building, FileCheck2, Phone, Archive, Mail } from "lucide-react";
 import { formatDate } from "../../utils/date";
 import Swal from "sweetalert2";
 
-export const LeadCard = ({ lead, salesUsers = [], clientsById = {}, onDragStart, onClick, onArchive }) => {
+// onSendReminder is only passed for "Exam Sent" leads assigned to the current user.
+export const LeadCard = ({ lead, salesUsers = [], clientsById = {}, onDragStart, onClick, onArchive, onSendReminder }) => {
 
     const handleArchiveClick = async (e) => {
         e.stopPropagation();
@@ -86,6 +87,17 @@ export const LeadCard = ({ lead, salesUsers = [], clientsById = {}, onDragStart,
                                 style={{ color: "var(--c-brand)" }}
                                 title="Enrollment Agreement on file"
                             />
+                        )}
+                        {onSendReminder && (
+                            <button
+                                type="button"
+                                onClick={(e) => { e.stopPropagation(); onSendReminder(lead); }}
+                                title="Send exam reminder"
+                                className="cursor-pointer hover:opacity-70 transition-opacity"
+                                style={{ color: "var(--c-brand)", lineHeight: 0 }}
+                            >
+                                <Mail className="w-3.5 h-3.5" />
+                            </button>
                         )}
                         <button
                             type="button"

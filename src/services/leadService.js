@@ -131,6 +131,32 @@ export const unarchiveLead = async (id) => {
     return res.json();
 };
 
+export const sendExamReminder = async (id) => {
+    const res = await fetch(`${API_URL}/leads/${id}/send-exam-reminder/`, {
+        method: "POST",
+        headers: getHeaders(),
+    });
+    if (!res.ok) {
+        const errorData = await res.json().catch(() => null);
+        throw new Error(extractErrorMessage(errorData, "Error sending the exam reminder"));
+    }
+    return res.json();
+};
+
+// Bulk: every non-archived "Exam Sent" lead assigned to the current user (optionally one pipeline).
+export const sendExamReminders = async (pipelineId) => {
+    const res = await fetch(`${API_URL}/leads/send-exam-reminders/`, {
+        method: "POST",
+        headers: getHeaders(),
+        body: JSON.stringify(pipelineId ? { pipeline: pipelineId } : {}),
+    });
+    if (!res.ok) {
+        const errorData = await res.json().catch(() => null);
+        throw new Error(extractErrorMessage(errorData, "Error sending the exam reminders"));
+    }
+    return res.json();
+};
+
 export const exportLeadsToExcel = async (filters = {}) => {
     const query = new URLSearchParams(filters).toString();
     const res = await fetch(`${API_URL}/leads/export_excel/?${query}`, {

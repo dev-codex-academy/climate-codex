@@ -89,10 +89,28 @@ export const Cohort = () => {
             setModalOpen(false);
             fetchData();
         } catch (error) {
-            Swal.fire("Error", error.message, "error");
+            if (error.dateConflicts) showDateConflicts(error.dateConflicts);
+            else Swal.fire("Error", error.message, "error");
         } finally {
             setSaving(false);
         }
+    };
+
+    const showDateConflicts = (conflicts) => {
+        // Built as DOM nodes, not an HTML string: the messages contain cohort names.
+        const list = document.createElement("ul");
+        list.style.cssText = "text-align:left;margin:0;padding-left:20px;display:flex;flex-direction:column;gap:8px;";
+        conflicts.forEach(message => {
+            const item = document.createElement("li");
+            item.textContent = message;
+            list.appendChild(item);
+        });
+        const wrapper = document.createElement("div");
+        const intro = document.createElement("p");
+        intro.textContent = "A cohort can't start while another cohort is enrolling. Change the dates and try again:";
+        intro.style.marginBottom = "12px";
+        wrapper.append(intro, list);
+        Swal.fire({ title: "Date conflict", html: wrapper, icon: "warning" });
     };
 
     const handleDelete = async (cohort) => {

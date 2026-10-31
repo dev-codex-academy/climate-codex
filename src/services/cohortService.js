@@ -6,7 +6,10 @@ const url = `${API_URL}/${endPoint}/`;
 const parse = async (res, fallback) => {
     if (!res.ok) {
         const errorData = await res.json().catch(() => null);
-        throw new Error(extractErrorMessage(errorData, fallback));
+        const error = new Error(extractErrorMessage(errorData, fallback));
+        // Date-conflict rule (backend CohortSerializer): one message per conflicting cohort.
+        if (Array.isArray(errorData?.date_conflict)) error.dateConflicts = errorData.date_conflict;
+        throw error;
     }
     return res.json();
 };

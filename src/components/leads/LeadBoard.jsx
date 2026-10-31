@@ -2,12 +2,12 @@ import React, { useEffect, useState, useRef, useCallback } from "react";
 import { LeadCard } from "./LeadCard";
 import { LeadMobileBoard } from "./LeadMobileBoard";
 import { getPipelines } from "../../services/pipelineService";
-import { getLeadsPage, updateLead, archiveLead } from "../../services/leadService";
+import { getLeadsPage, updateLead, archiveLead, sendExamReminder, sendExamReminders } from "../../services/leadService";
 import { getSales } from "../../services/salesService";
 import { getClients } from "../../services/clientService";
 import { useAuth } from "../../context/AuthContext";
 import { Link } from "react-router-dom";
-import { ChevronLeft, ChevronRight, Search } from "lucide-react";
+import { ChevronLeft, ChevronRight, Mail, Search } from "lucide-react";
 import { Modal } from "../Modal";
 import { Label } from "../ui/label";
 import { Textarea } from "../ui/textarea";
@@ -18,6 +18,10 @@ const LEAD_MY_LEADS_STORAGE_KEY = 'lead_my_leads_only';
 const LEAD_SEARCH_STORAGE_KEY = 'lead_search_term';
 const STAGE_PAGE_SIZE = 30;
 const SEARCH_DEBOUNCE_MS = 400;
+// Lane that offers Moodle exam reminders (same rule as the backend's EXAM_SENT_STAGE).
+const EXAM_SENT_STAGE = "exam sent";
+const isExamSentStage = (name) => (name || "").trim().toLowerCase() === EXAM_SENT_STAGE;
+const responsibleId = (lead) => lead.responsible?.id ?? lead.responsible;
 
 // Each column fetches and paginates its own leads independently (see
 // plan.md #64) — no more loading every lead in the pipeline up front. "My
@@ -25,7 +29,7 @@ const SEARCH_DEBOUNCE_MS = 400;
 // request instead of a client-side filter, so a match past what's already
 // scrolled into view is never silently invisible (the exact failure mode
 // of bug #57).
-const StageColumn = ({ stage, data, onLoadMore, onDragOver, onDrop, salesUsers, clientsById, onDragStart, onLeadClick, onArchive }) => {
+const StageColumn = ({ stage, data, onLoadMore, onDragOver, onDrop, salesUsers, clientsById, onDragStart, onLeadClick, onArchive, currentUserId, onSendReminder, onSendAllReminders, sendingAll, ownReminderCount }) => {
     // Plain refs don't work here: the sentinel div only renders once
     // `hasMore` is true (after the first fetch resolves), so it doesn't
     // exist yet on the render where a ref-based effect would normally set up
@@ -52,6 +56,8 @@ const StageColumn = ({ stage, data, onLoadMore, onDragOver, onDrop, salesUsers, 
     const loading = !!data?.loading;
     const hasMore = !!data?.hasMore;
     const initialLoad = leads.length === 0 && loading;
+    // Reminders: only in the "Exam Sent" lane, and only on the current user's own leads.
+    const examSent = isExamSentStage(stage.name);
 
     return (
         <div
@@ -70,12 +76,29 @@ const StageColumn = ({ stage, data, onLoadMore, onDragOver, onDrop, salesUsers, 
                         {stage.name}
                     </h3>
                 </div>
+                <div className="flex items-center gap-1.5">
+                {/* Hidden until the user's own count is known, and when they have none: the
+                    badge next to it counts every responsible's leads, this button only theirs. */}
+                {examSent && ownReminderCount > 0 && (
+                    <button
+                        type="button"
+                        onClick={onSendAllReminders}
+                        disabled={sendingAll}
+                        title={`Send the exam reminder to the ${ownReminderCount} lead${ownReminderCount === 1 ? "" : "s"} assigned to you in this stage`}
+                        className="flex items-center gap-1 text-[9px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full cursor-pointer transition-opacity hover:opacity-80"
+                        style={{ border: "1px solid var(--c-brand)", color: "var(--c-brand)", backgroundColor: "transparent", opacity: sendingAll ? 0.6 : 1 }}
+                    >
+                        <Mail className="w-3 h-3" />
+                        {sendingAll ? "Sending…" : `Remind mine (${ownReminderCount})`}
+                    </button>
+                )}
                 <span
                     className="text-[10px] font-bold px-2 py-0.5 rounded-full tabular-nums"
                     style={{ backgroundColor: "color-mix(in srgb, var(--c-brand) 12%, transparent)", border: "1px solid color-mix(in srgb, var(--c-brand) 25%, transparent)", color: "var(--c-brand)" }}
                 >
                     {data?.count ?? leads.length}
                 </span>
+                </div>
             </div>
 
             <div ref={setScrollNode} className="flex-1 p-2.5 overflow-y-auto space-y-2.5 min-h-[80px]">
@@ -93,6 +116,7 @@ const StageColumn = ({ stage, data, onLoadMore, onDragOver, onDrop, salesUsers, 
                         onDragStart={onDragStart}
                         onClick={() => onLeadClick?.(lead)}
                         onArchive={onArchive}
+                        onSendReminder={examSent && String(responsibleId(lead)) === String(currentUserId) ? onSendReminder : undefined}
                     />
                 ))}
                 {!initialLoad && leads.length === 0 && (
@@ -238,6 +262,25 @@ export const LeadBoard = ({ refreshTrigger, selectedPipelineId, setSelectedPipel
         return () => { cancelled = true; };
     }, [selectedPipelineId, stages, myLeadsOnly, debouncedSearchTerm, refreshTrigger, user?.id]);
 
+    // How many "Exam Sent" leads of this pipeline belong to the current user — what
+    // "Remind mine" will actually email (the lane badge counts every responsible).
+    // Asked to the server: the lane itself is paginated and may be filtered by search.
+    const [ownExamSentCount, setOwnExamSentCount] = useState(0);
+    const examStageName = stages.find(s => isExamSentStage(s.name))?.name;
+    // Re-count when that lane's content changes (a lead dragged in or out of it).
+    const examSentLaneSize = examStageName ? stageData[examStageName]?.leads?.length : undefined;
+    useEffect(() => {
+        if (!selectedPipelineId || !examStageName || !user?.id) {
+            setOwnExamSentCount(0);
+            return;
+        }
+        let cancelled = false;
+        getLeadsPage({ pipeline_id: selectedPipelineId, stage: examStageName, responsible: user.id, page_size: 1 })
+            .then(data => { if (!cancelled) setOwnExamSentCount(data.count ?? (data.results || []).length); })
+            .catch(err => { console.error("Error counting own Exam Sent leads", err); if (!cancelled) setOwnExamSentCount(0); });
+        return () => { cancelled = true; };
+    }, [selectedPipelineId, examStageName, refreshTrigger, user?.id, examSentLaneSize]);
+
     const loadMoreForStage = useCallback(async (stageName) => {
         const current = stageDataRef.current[stageName];
         if (!current || current.loading || !current.hasMore || !current.nextUrl) return;
@@ -334,6 +377,62 @@ export const LeadBoard = ({ refreshTrigger, selectedPipelineId, setSelectedPipel
         } catch (error) {
             console.error("Failed to archive lead", error);
             Swal.fire('Error', error.message || 'Could not archive this lead.', 'error');
+        }
+    };
+
+    const handleSendReminder = async (lead) => {
+        const confirm = await Swal.fire({
+            title: 'Send exam reminder?',
+            text: `${lead.name} will get an email reminding them to log in to Moodle and complete their pending exam.`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Send reminder',
+        });
+        if (!confirm.isConfirmed) return;
+        try {
+            const result = await sendExamReminder(lead.id);
+            Swal.fire('Reminder sent', result.detail || 'The exam reminder was sent.', 'success');
+        } catch (err) {
+            console.error("Failed to send exam reminder", err);
+            Swal.fire('Reminder not sent', err.message || 'The exam reminder could not be sent.', 'error');
+        }
+    };
+
+    const [sendingAllReminders, setSendingAllReminders] = useState(false);
+    const handleSendAllReminders = async () => {
+        const n = ownExamSentCount;
+        const confirm = await Swal.fire({
+            title: `Send ${n} exam reminder${n === 1 ? "" : "s"}?`,
+            text: `Only the ${n} lead${n === 1 ? "" : "s"} assigned to you in "Exam Sent" will get the Moodle exam reminder. Leads of other responsibles are not included.`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Send to my leads',
+        });
+        if (!confirm.isConfirmed) return;
+        setSendingAllReminders(true);
+        try {
+            const r = await sendExamReminders(selectedPipelineId);
+            if (r.sent_count + r.no_email_count + r.failed_count === 0) {
+                Swal.fire('Nothing to send', 'You have no leads assigned to you in "Exam Sent".', 'info');
+                return;
+            }
+            // Built as DOM nodes, not an HTML string: the lists contain lead names.
+            const box = document.createElement("div");
+            box.style.textAlign = "left";
+            const addLine = (text) => { const p = document.createElement("p"); p.textContent = text; p.style.margin = "4px 0"; box.appendChild(p); };
+            addLine(`Sent: ${r.sent_count}`);
+            if (r.no_email_count) addLine(`No email address (not sent): ${r.no_email.map(l => l.name).join(", ")}`);
+            if (r.failed_count) addLine(`Failed, try again later: ${r.failed.map(l => l.name).join(", ")}`);
+            Swal.fire({
+                title: r.failed_count || r.no_email_count ? 'Reminders partly sent' : 'Reminders sent',
+                html: box,
+                icon: r.failed_count ? 'warning' : r.no_email_count ? 'info' : 'success',
+            });
+        } catch (err) {
+            console.error("Failed to send exam reminders", err);
+            Swal.fire('Reminders not sent', err.message || 'The exam reminders could not be sent.', 'error');
+        } finally {
+            setSendingAllReminders(false);
         }
     };
 
@@ -492,6 +591,11 @@ export const LeadBoard = ({ refreshTrigger, selectedPipelineId, setSelectedPipel
                         onDragStart={(e, l) => e.dataTransfer.setData("leadId", l.id)}
                         onLeadClick={onLeadClick}
                         onArchive={handleArchiveLead}
+                        currentUserId={user?.id}
+                        onSendReminder={handleSendReminder}
+                        onSendAllReminders={handleSendAllReminders}
+                        sendingAll={sendingAllReminders}
+                        ownReminderCount={isExamSentStage(stage.name) ? ownExamSentCount : 0}
                     />
                 ))}
             </div>

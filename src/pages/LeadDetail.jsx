@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
-import { getLeadClientAttributes, createLead, updateLead, uploadLeadImage, getLead, archiveLead, unarchiveLead } from "../services/leadService";
+import { getLeadClientAttributes, createLead, updateLead, uploadLeadImage, getLead, archiveLead, unarchiveLead, sendExamReminder } from "../services/leadService";
 import { getPipelineAttributes } from "../services/pipelineAttributeService";
 import { getPipelines } from "../services/pipelineService";
 import { getCatalogueItems } from "../services/catalogueService";
@@ -19,7 +19,7 @@ import { Button } from "../components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select";
 import { Checkbox } from "../components/ui/checkbox";
 import { Textarea } from "../components/ui/textarea";
-import { ArrowLeft, Link2, MoreVertical } from "lucide-react";
+import { ArrowLeft, Link2, Mail, MoreVertical } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../components/ui/table";
 import { Switch } from "../components/ui/switch";
 import Swal from "sweetalert2";
@@ -78,6 +78,7 @@ export const LeadDetail = () => {
     const [isDirty, setIsDirty] = useState(false);
     const [isArchived, setIsArchived] = useState(false);
     const [archiving, setArchiving] = useState(false);
+    const [sendingReminder, setSendingReminder] = useState(false);
 
     // Task state
     const [tasks, setTasks] = useState([]);
@@ -578,6 +579,37 @@ export const LeadDetail = () => {
         }
     };
 
+    const handleSendExamReminder = async () => {
+        if (isDirty) {
+            Swal.fire(
+                'Unsaved changes',
+                'This lead has unsaved changes. Please save it first so the reminder goes to the right email address.',
+                'warning'
+            );
+            return;
+        }
+        const confirm = await Swal.fire({
+            title: 'Send exam reminder?',
+            text: `${name} will get an email reminding them to log in to Moodle and complete their pending exam.`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Send reminder',
+        });
+        if (!confirm.isConfirmed) return;
+
+        setSendingReminder(true);
+        try {
+            const result = await sendExamReminder(id);
+            if (result.list_of_notes) setNotes(result.list_of_notes);
+            Swal.fire('Reminder sent', result.detail || 'The exam reminder was sent.', 'success');
+        } catch (err) {
+            console.error("Failed to send exam reminder", err);
+            Swal.fire('Reminder not sent', err.message || 'The exam reminder could not be sent.', 'error');
+        } finally {
+            setSendingReminder(false);
+        }
+    };
+
     const handleToggleArchive = async () => {
         const willArchive = !isArchived;
         const confirm = await Swal.fire({
@@ -614,6 +646,10 @@ export const LeadDetail = () => {
     const availableStages = (activePipeline?.stages || [])
         .filter(s => !['lost', 'new'].includes((s.name || '').toLowerCase()))
         .sort((a, b) => (a.order || 0) - (b.order || 0));
+    // Same rules as the backend: "Exam Sent" stage (case-insensitive) and only the lead's responsible.
+    const canSendExamReminder = !isNew
+        && currentStage.trim().toLowerCase() === "exam sent"
+        && String(selectedResponsible) === String(user?.id);
 
     return (
         <div className="min-h-screen bg-background flex flex-col">
@@ -690,6 +726,16 @@ export const LeadDetail = () => {
                             {copiedEnrollment ? "Copied!" : "Copy Enrollment URL"}
                         </button>
                     )}
+                    {canSendExamReminder && (
+                        <button
+                            type="button"
+                            onClick={handleSendExamReminder}
+                            disabled={sendingReminder}
+                            style={{ display: "flex", alignItems: "center", gap: "6px", height: "36px", padding: "0 14px", borderRadius: "6px", border: "1px solid var(--c-border)", backgroundColor: "transparent", color: "var(--c-brand)", fontSize: "13px", fontWeight: 500, cursor: sendingReminder ? "not-allowed" : "pointer", transition: "all 0.2s", opacity: sendingReminder ? 0.6 : 1 }}>
+                            <Mail size={14} />
+                            {sendingReminder ? "Sending…" : "Send Exam Reminder"}
+                        </button>
+                    )}
                     {!isNew && (
                         <button
                             type="button"
@@ -730,6 +776,11 @@ export const LeadDetail = () => {
                             }}>
                                 {copiedEnrollment ? "Copied!" : "Copy Enrollment URL"}
                             </DropdownMenuItem>
+                            {canSendExamReminder && (
+                                <DropdownMenuItem onClick={handleSendExamReminder} disabled={sendingReminder}>
+                                    {sendingReminder ? "Sending…" : "Send Exam Reminder"}
+                                </DropdownMenuItem>
+                            )}
                             <DropdownMenuItem onClick={() => { setLostReason(""); setShowLostModal(true); }} className="text-red-600 focus:text-red-600">
                                 Move to Lost
                             </DropdownMenuItem>
