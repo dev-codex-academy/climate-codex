@@ -64,14 +64,22 @@ export const Goals = () => {
         (!userFilter || String(g.user) === userFilter)
     ), [goals, cohortFilter, userFilter]);
 
-    // Total weight per user+client inside the filtered cohort: must never pass 100%.
-    const weightTotals = useMemo(() => {
-        const totals = {};
-        visible.forEach(g => {
-            const key = `${g.user}|${g.client || ""}`;
-            totals[key] = (totals[key] || 0) + Number(g.weight);
-        });
-        return totals;
+    // Rows grouped per employee (+ client, since the 100% ceiling is per employee/cohort/client),
+    // each group followed by a roll-up of its weights.
+    const groups = useMemo(() => {
+        const map = new Map();
+        [...visible]
+            .sort((x, y) => (x.user_name || "").localeCompare(y.user_name || "")
+                || (x.client_name || "").localeCompare(y.client_name || "")
+                || (x.kpi_name || "").localeCompare(y.kpi_name || ""))
+            .forEach(g => {
+                const key = `${g.user}|${g.cohort}|${g.client || ""}`;
+                if (!map.has(key)) map.set(key, { key, rows: [], total: 0 });
+                const grp = map.get(key);
+                grp.rows.push(g);
+                grp.total += Number(g.weight);
+            });
+        return [...map.values()];
     }, [visible]);
 
     const openNew = () => setForm({ ...EMPTY, cohort: cohortFilter, user: userFilter });
@@ -225,44 +233,55 @@ export const Goals = () => {
                 <table className="w-full text-sm">
                     <thead>
                         <tr style={{ color: "var(--c-hint)", borderBottom: "1px solid var(--c-border)" }}>
-                            {["Employee", "KPI", "Cohort", "Client", "Goal", "Weight", "Employee total", ""].map(h => (
+                            {["Employee", "KPI", "Cohort", "Client", "Goal", "Weight", ""].map(h => (
                                 <th key={h} className="text-left font-medium px-4 py-3 whitespace-nowrap">{h}</th>
                             ))}
                         </tr>
                     </thead>
                     <tbody>
                         {loading ? (
-                            <tr><td colSpan={8} className="px-4 py-6" style={{ color: "var(--c-hint)" }}>Loading...</td></tr>
+                            <tr><td colSpan={7} className="px-4 py-6" style={{ color: "var(--c-hint)" }}>Loading...</td></tr>
                         ) : visible.length === 0 ? (
-                            <tr><td colSpan={8} className="px-4 py-6" style={{ color: "var(--c-hint)" }}>No goals for this selection.</td></tr>
-                        ) : visible.map(g => {
-                            const total = weightTotals[`${g.user}|${g.client || ""}`];
-                            return (
-                                <tr key={g.id} style={{ color: "var(--c-ink)", borderBottom: "1px solid var(--c-border)" }}>
-                                    <td className="px-4 py-3 whitespace-nowrap">{g.user_name}</td>
-                                    <td className="px-4 py-3 whitespace-nowrap">{g.kpi_name}</td>
-                                    <td className="px-4 py-3 whitespace-nowrap">{g.cohort_name}</td>
-                                    <td className="px-4 py-3 whitespace-nowrap">{g.client_name || "—"}</td>
-                                    <td className="px-4 py-3">{g.goal}</td>
-                                    <td className="px-4 py-3">{Number(g.weight)}%</td>
-                                    <td className="px-4 py-3" style={{ color: total === 100 ? "var(--c-ink)" : "var(--c-hint)" }}>{total}%</td>
-                                    <td className="px-4 py-3">
-                                        <div className="flex gap-1 justify-end">
-                                            {canChange && (
-                                                <button onClick={() => openEdit(g)} aria-label="Edit goal" className="p-2 rounded-md cursor-pointer" style={{ color: "var(--c-ink)" }}>
-                                                    <Pencil className="h-4 w-4" />
-                                                </button>
-                                            )}
-                                            {canDelete && (
-                                                <button onClick={() => handleDelete(g)} aria-label="Delete goal" className="p-2 rounded-md cursor-pointer" style={{ color: "var(--c-ink)" }}>
-                                                    <Trash2 className="h-4 w-4" />
-                                                </button>
-                                            )}
-                                        </div>
+                            <tr><td colSpan={7} className="px-4 py-6" style={{ color: "var(--c-hint)" }}>No goals for this selection.</td></tr>
+                        ) : groups.map(grp => (
+                            <React.Fragment key={grp.key}>
+                                {grp.rows.map(g => (
+                                    <tr key={g.id} style={{ color: "var(--c-ink)", borderBottom: "1px solid var(--c-border)" }}>
+                                        <td className="px-4 py-3 whitespace-nowrap">{g.user_name}</td>
+                                        <td className="px-4 py-3 whitespace-nowrap">{g.kpi_name}</td>
+                                        <td className="px-4 py-3 whitespace-nowrap">{g.cohort_name}</td>
+                                        <td className="px-4 py-3 whitespace-nowrap">{g.client_name || "—"}</td>
+                                        <td className="px-4 py-3">{g.goal}</td>
+                                        <td className="px-4 py-3">{Number(g.weight)}%</td>
+                                        <td className="px-4 py-3">
+                                            <div className="flex gap-1 justify-end">
+                                                {canChange && (
+                                                    <button onClick={() => openEdit(g)} aria-label="Edit goal" className="p-2 rounded-md cursor-pointer" style={{ color: "var(--c-ink)" }}>
+                                                        <Pencil className="h-4 w-4" />
+                                                    </button>
+                                                )}
+                                                {canDelete && (
+                                                    <button onClick={() => handleDelete(g)} aria-label="Delete goal" className="p-2 rounded-md cursor-pointer" style={{ color: "var(--c-ink)" }}>
+                                                        <Trash2 className="h-4 w-4" />
+                                                    </button>
+                                                )}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
+                                <tr style={{ backgroundColor: "var(--c-surface-2)", borderBottom: "1px solid var(--c-border)" }}>
+                                    <td colSpan={5} className="px-4 py-2 text-xs font-medium text-right" style={{ color: "var(--c-hint)" }}>
+                                        Total weight — {grp.rows[0].user_name}
+                                    </td>
+                                    <td className="px-4 py-2 font-semibold whitespace-nowrap" style={{ color: grp.total > 100 ? "var(--c-danger)" : "var(--c-ink)" }}>
+                                        {Math.round(grp.total * 100) / 100}%
+                                    </td>
+                                    <td className="px-4 py-2 text-xs" style={{ color: grp.total > 100 ? "var(--c-danger)" : "var(--c-hint)" }}>
+                                        {grp.total > 100 ? "Over 100%" : grp.total < 100 ? `${Math.round((100 - grp.total) * 100) / 100}% unassigned` : ""}
                                     </td>
                                 </tr>
-                            );
-                        })}
+                            </React.Fragment>
+                        ))}
                     </tbody>
                 </table>
             </div>
