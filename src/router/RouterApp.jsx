@@ -43,6 +43,7 @@ import { BookCancel } from "../pages/BookCancel";
 import { MyAvailability } from "../pages/MyAvailability";
 import { MyMentorships } from "../pages/MyMentorships";
 import { MentorOverview } from "../pages/MentorOverview";
+import { Goals } from "../pages/Goals";
 import AdminLayout from "@/layout/AdminLayout"
 import { useAuth } from "@/context/AuthContext"
 import { PermissionGuard } from "../components/PermissionGuard"
@@ -117,6 +118,7 @@ export const RouterApp = () => {
                 <Route path="my-availability" element={<PermissionGuard requiredPermission="app.view_mentorprofile"><MyAvailability /></PermissionGuard>} />
                 <Route path="mentor-overview" element={<PermissionGuard requiredPermission="app.change_cohort"><MentorOverview /></PermissionGuard>} />
                 <Route path="my-mentorships" element={<PermissionGuard requiredPermission="app.view_mentorprofile"><MyMentorships /></PermissionGuard>} />
+                <Route path="goals" element={<PermissionGuard requiredPermission="app.view_goalperuser"><Goals /></PermissionGuard>} />
                 <Route path="lead-reassignment" element={<PermissionGuard requireSuperuser><LeadReassignment /></PermissionGuard>} />
             </Route>
 

@@ -23,6 +23,8 @@ export const useMenu = () => {
                     "aiconversation", "aimessage",
                     // Mentorship models: managed from the Cohort detail / mentor self-service pages
                     "cohortmentor", "mentorprofile", "availabilityrule", "mentorshipbooking",
+                    // Goals have their own entry below (view-gated, label "Goals")
+                    "goalperuser", "kpi",
                 ];
 
                 // Dictionary of known words to separate PascalCase
@@ -151,6 +153,12 @@ export const useMenu = () => {
                     formattedMenu.push({ title: "Mentor Availability", url: "/mentor-overview", icon: "CalendarRange", items: [] });
                 }
 
+                // Goals module (KPI targets per employee). Pure permission gate: whoever gets
+                // view_goalperuser through their groups sees it; add/change/delete drive the buttons.
+                if (permissions.includes("app.view_goalperuser")) {
+                    formattedMenu.push({ title: "Goals", url: "/goals", icon: "Target", items: [] });
+                }
+
                 // Inject Lead Reassignment for superusers only — bulk operation
                 // gated by is_superuser (see PermissionGuard's requireSuperuser),
                 // not a regular Django permission, so it isn't in `permissions`.
@@ -177,7 +185,7 @@ export const useMenu = () => {
                 const assetItems = ["Assets", "Asset Assignments"];
                 const aiItems = ["Chett AI"];
                 const mentoringItems = ["My Cohorts", "My Availability", "My Mentorships", "Mentor Availability"];
-                const adminItems = ["Attribute", "Lead Fields", "Webhook", "Lead Reassignment"];
+                const adminItems = ["Attribute", "Lead Fields", "Webhook", "Lead Reassignment", "Goals"];
 
                 const groups = [
                     { label: "CRM", items: crmItems.map(t => formattedMenu.find(i => i.title === t)).filter(Boolean) },
