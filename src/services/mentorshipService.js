@@ -107,3 +107,22 @@ export const getMentorOverview = async () => {
     const res = await fetch(`${API_URL}/mentor-overview/`, { method: "GET", headers: getHeaders() });
     return parse(res, "Error loading the mentors' availability");
 };
+
+// ─── Monthly reports ───────────────────────────────────────────────────────────
+
+// Managers: every session students booked in `month` ("YYYY-MM"), optionally one mentor / status.
+export const getMentoringSessionsReport = async ({ month, mentor, status } = {}) => {
+    const params = new URLSearchParams();
+    if (month) params.set("month", month);
+    if (mentor) params.set("mentor", mentor);
+    if (status) params.set("status", status);
+    const res = await fetch(`${API_URL}/mentoring-sessions/?${params}`, { method: "GET", headers: getHeaders() });
+    return parse(res, "Error loading the mentoring sessions");
+};
+
+// Mentors: their own availability and sessions in `month` ("YYYY-MM").
+export const getMyMentoringReport = async (month) => {
+    const params = month ? `?month=${encodeURIComponent(month)}` : "";
+    const res = await fetch(`${API_URL}/my-mentoring-report/${params}`, { method: "GET", headers: getHeaders() });
+    return parse(res, "Error loading your monthly report");
+};

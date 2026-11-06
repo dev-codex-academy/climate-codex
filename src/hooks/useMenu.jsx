@@ -143,6 +143,7 @@ export const useMenu = () => {
                         formattedMenu.push(
                             { title: "My Availability", url: "/my-availability", icon: "Calendar", items: [] },
                             { title: "My Mentorships", url: "/my-mentorships", icon: "CalendarCheck", items: [] },
+                            { title: "My Monthly Report", url: "/my-mentoring-report", icon: "ChartColumn", items: [] },
                         );
                     }
                 }
@@ -150,7 +151,10 @@ export const useMenu = () => {
                 // Managers (superusers, and anyone who can change cohorts: owner, operations) see what every
                 // teacher / TA configured. Same rule the API uses (can_manage_cohorts).
                 if (permissions.includes("app.change_cohort")) {
-                    formattedMenu.push({ title: "Mentor Availability", url: "/mentor-overview", icon: "CalendarRange", items: [] });
+                    formattedMenu.push(
+                        { title: "Mentor Availability", url: "/mentor-overview", icon: "CalendarRange", items: [] },
+                        { title: "Mentoring Sessions", url: "/mentoring-sessions", icon: "ClipboardList", items: [] },
+                    );
                 }
 
                 // Goals module (KPI targets per employee). Pure permission gate: whoever gets
@@ -184,7 +188,7 @@ export const useMenu = () => {
                 const billingItems = ["Invoices", "Catalogue", "Categories", "Inventory"];
                 const assetItems = ["Assets", "Asset Assignments"];
                 const aiItems = ["Chett AI"];
-                const mentoringItems = ["My Cohorts", "My Availability", "My Mentorships", "Mentor Availability"];
+                const mentoringItems = ["My Cohorts", "My Availability", "My Mentorships", "My Monthly Report", "Mentor Availability", "Mentoring Sessions"];
                 const adminItems = ["Attribute", "Lead Fields", "Webhook", "Lead Reassignment", "Goals"];
 
                 const groups = [

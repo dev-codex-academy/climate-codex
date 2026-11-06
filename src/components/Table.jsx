@@ -35,6 +35,9 @@ export const Table = ({
   // Edit/Delete — for read-only tables where those would be no-ops. Default
   // false, so every existing caller is unaffected.
   onlyRowActions = false,
+  // Opt-in: no actions column at all — for pure reports with nothing to do per row.
+  // Default false, so every existing caller is unaffected.
+  hideActions = false,
   searchable = true,
   // Optional override for the built-in filter's placeholder — additive,
   // every existing caller that doesn't pass it keeps "Search...".
@@ -49,8 +52,8 @@ export const Table = ({
 
   const baseCols = useMemo(() => columns.filter((c) => !c.hidden), [columns]);
   const visibleCols = useMemo(
-    () => [...baseCols, { key: "_actions", label: "", width: 80 }],
-    [baseCols]
+    () => (hideActions ? baseCols : [...baseCols, { key: "_actions", label: "", width: 80 }]),
+    [baseCols, hideActions]
   );
 
   const isDateKey = (k) => typeof k === "string" && k.startsWith("fecha");
