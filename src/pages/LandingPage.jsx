@@ -176,7 +176,7 @@ export const LandingPage = () => {
             <div className="hidden md:flex md:w-1/2 p-12 md:p-24 flex-col justify-center border-r" 
                  style={{ 
                     borderColor: PEBBLE,
-                    background: `linear-gradient(135deg, #FFFFFF 0%, ${LINEN} 100%)`
+                    background: `linear-gradient(135deg, var(--c-card-solid) 0%, ${LINEN} 100%)`
                  }}>
                 <div className="space-y-8 max-w-lg">
                     <h1 className="text-5xl md:text-6xl font-black leading-[1.1] tracking-tight" style={{ color: INK }}>
@@ -213,10 +213,10 @@ export const LandingPage = () => {
                     <div className="h-1 w-12 mx-auto mt-2 rounded-full" style={{ backgroundColor: CITRON }}></div>
                 </div>
 
-                <div className="w-full max-w-md bg-white p-8 rounded-3xl shadow-2xl border" style={{ borderColor: PEBBLE }}>
+                <div className="w-full max-w-md p-8 rounded-3xl shadow-2xl border" style={{ borderColor: PEBBLE, backgroundColor: "var(--c-card-solid)", color: INK }}>
                     <div className="mb-8">
                         <h2 className="text-2xl font-black tracking-tight mb-2" style={{ color: INK }}>Get Started Today</h2>
-                        <p className="text-sm opacity-60">Fill out the form below and we'll handle the rest.</p>
+                        <p className="text-sm" style={{ color: "var(--c-muted)" }}>Fill out the form below and we'll handle the rest.</p>
                     </div>
 
                     <form onSubmit={handleSubmit} className="space-y-5">
@@ -231,7 +231,7 @@ export const LandingPage = () => {
                                     value={selectedPipelineId}
                                     onChange={(e) => setSelectedPipelineId(e.target.value)}
                                     className="w-full h-12 pl-10 pr-4 rounded-xl border appearance-none focus:outline-none transition-all shadow-sm"
-                                    style={{ borderColor: PEBBLE, backgroundColor: "var(--c-hover)", color: INK }}
+                                    style={{ borderColor: PEBBLE, backgroundColor: "var(--c-surface-solid)", color: INK }}
                                     onFocus={e => e.target.style.borderColor = CODEX_PRIMARY}
                                     onBlur={e => e.target.style.borderColor = PEBBLE}
                                 >
@@ -270,7 +270,7 @@ export const LandingPage = () => {
                                                     value={formData[attr.name] || ""}
                                                     onChange={handleInputChange}
                                                     className="w-full h-12 px-4 rounded-xl border focus:outline-none transition-all"
-                                                    style={{ borderColor: PEBBLE, backgroundColor: "var(--c-hover)", color: INK }}
+                                                    style={{ borderColor: PEBBLE, backgroundColor: "var(--c-surface-solid)", color: INK }}
                                                     onFocus={e => e.target.style.borderColor = CODEX_PRIMARY}
                                                     onBlur={e => e.target.style.borderColor = PEBBLE}
                                                 >
@@ -287,12 +287,12 @@ export const LandingPage = () => {
                                                     onChange={handleInputChange}
                                                     placeholder={`Enter ${attr.label}`}
                                                     className="w-full p-4 rounded-xl border focus:outline-none transition-all min-h-[100px]"
-                                                    style={{ borderColor: PEBBLE, backgroundColor: "var(--c-hover)", color: INK }}
+                                                    style={{ borderColor: PEBBLE, backgroundColor: "var(--c-surface-solid)", color: INK }}
                                                     onFocus={e => e.target.style.borderColor = CODEX_PRIMARY}
                                                     onBlur={e => e.target.style.borderColor = PEBBLE}
                                                 />
                                             ) : attr.type === "boolean" ? (
-                                                <div className="flex items-center gap-3 p-3 rounded-xl border" style={{ borderColor: PEBBLE, backgroundColor: "var(--c-hover)" }}>
+                                                <div className="flex items-center gap-3 p-3 rounded-xl border" style={{ borderColor: PEBBLE, backgroundColor: "var(--c-surface-solid)", color: INK }}>
                                                     <input 
                                                         type="checkbox"
                                                         name={attr.name}
@@ -318,7 +318,7 @@ export const LandingPage = () => {
                                                     onChange={handleInputChange}
                                                     placeholder={`Enter ${attr.label}`}
                                                     className="w-full h-12 px-4 rounded-xl border focus:outline-none transition-all"
-                                                    style={{ borderColor: PEBBLE, backgroundColor: "var(--c-hover)", color: INK }}
+                                                    style={{ borderColor: PEBBLE, backgroundColor: "var(--c-surface-solid)", color: INK }}
                                                     onFocus={e => e.target.style.borderColor = CODEX_PRIMARY}
                                                     onBlur={e => e.target.style.borderColor = PEBBLE}
                                                 />
