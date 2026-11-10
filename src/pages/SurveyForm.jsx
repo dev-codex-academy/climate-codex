@@ -144,6 +144,12 @@ export const SurveyForm = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setErrors({});
+        // The native `required` can't see a half-typed date (the text box is not
+        // empty but no valid date was ever emitted), so check the real value too.
+        if (!form.date_of_birth) {
+            setErrors({ date_of_birth: "Date of Birth is required (mm/dd/yyyy)." });
+            return;
+        }
         setSubmitting(true);
         try {
             const payload = {
@@ -211,8 +217,9 @@ export const SurveyForm = () => {
                         <input style={inputStyle} value={form.full_name} onChange={e => set("full_name", e.target.value)} required />
                         {errors.full_name && <p style={{ color: "#dc2626", fontSize: "14px" }}>{errors.full_name}</p>}
                     </Field>
-                    <Field label="Date of Birth">
-                        <DateInput value={form.date_of_birth} onChange={e => set("date_of_birth", e.target.value)} />
+                    <Field label="Date of Birth *">
+                        <DateInput value={form.date_of_birth} onChange={e => set("date_of_birth", e.target.value)} required />
+                        {errors.date_of_birth && <p style={{ color: "#dc2626", fontSize: "14px" }}>{errors.date_of_birth}</p>}
                     </Field>
                     <Field label="Email Address *">
                         <input style={inputStyle} type="email" value={form.email} onChange={e => set("email", e.target.value)} required />
