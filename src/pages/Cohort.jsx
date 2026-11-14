@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus, Eye, Pencil, Trash2, Search, CalendarDays, Hash, UserRound, ChevronLeft, ChevronRight, ClipboardCheck, RotateCw, AlertTriangle } from "lucide-react";
+import { Plus, Eye, Pencil, Trash2, Search, CalendarDays, Hash, UserRound, ChevronLeft, ChevronRight, ClipboardCheck, RotateCw, AlertTriangle, Loader2 } from "lucide-react";
 import Swal from "sweetalert2";
 import { Modal } from "../components/Modal";
 import { DateInput } from "../components/ui/date-input";
@@ -11,6 +11,8 @@ const EMPTY_FORM = {
     name: "", start_date: "", end_date: "", enrollment_start_date: "",
     enrollment_end_date: "", moodle_course_id: "", instructor: "",
 };
+
+const MOODLE_POLL_MS = 30000;
 
 const labelStyle = { display: "block", fontSize: 13, fontWeight: 600, color: "var(--c-ink)", marginBottom: 4 };
 const inputStyle = { width: "100%", border: "1px solid var(--c-border)", borderRadius: 8, padding: "8px 10px", fontSize: 14, background: "var(--c-card)", color: "var(--c-ink)" };
@@ -37,8 +39,9 @@ export const Cohort = () => {
     const [pageSize, setPageSize] = useState(9);
     const [page, setPage] = useState(1);
 
-    const fetchData = async () => {
-        setLoading(true);
+    // `silent`: a background refresh, without the loading state (see the polling effect below).
+    const fetchData = async ({ silent = false } = {}) => {
+        if (!silent) setLoading(true);
         try {
             const [cohortData, instructorData] = await Promise.all([getCohorts(), getInstructors().catch(() => [])]);
             setCohorts(cohortData.map(c => ({
@@ -50,11 +53,20 @@ export const Cohort = () => {
         } catch (error) {
             console.error("Error fetching cohorts", error);
         } finally {
-            setLoading(false);
+            if (!silent) setLoading(false);
         }
     };
 
     useEffect(() => { fetchData(); }, []);
+
+    // The backend creates Moodle courses every 5 minutes (provision_cohort_courses): while a
+    // cohort waits for them, refresh on our own so the card turns ready or failed without a reload.
+    const hasPendingMoodle = cohorts.some(c => c.moodle_status === "pending");
+    useEffect(() => {
+        if (!hasPendingMoodle) return undefined;
+        const timer = setInterval(() => fetchData({ silent: true }), MOODLE_POLL_MS);
+        return () => clearInterval(timer);
+    }, [hasPendingMoodle]);
 
     const openCreate = () => { setEditingId(null); setForm(EMPTY_FORM); setModalOpen(true); };
     const openEdit = (cohort) => {
@@ -248,8 +260,9 @@ export const Cohort = () => {
                                 <InfoRow icon={UserRound} label="Instructor" value={c.instructor_name} />
                             </div>
                             {c.moodle_status === "pending" && (
-                                <p style={{ margin: 0, fontSize: 12.5, color: "var(--c-muted)" }}>
-                                    Creating the exam and class courses in Moodle. This takes a few minutes.
+                                <p role="status" style={{ margin: 0, fontSize: 12.5, color: "var(--c-muted)", display: "flex", gap: 6, alignItems: "flex-start" }}>
+                                    <Loader2 className="h-3.5 w-3.5 animate-spin" style={{ flexShrink: 0, marginTop: 2 }} />
+                                    <span>Creating the exam and class courses in Moodle. It usually takes up to 10 minutes; this card updates by itself, no need to wait on this page.</span>
                                 </p>
                             )}
                             {c.moodle_status === "error" && (
