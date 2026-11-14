@@ -18,6 +18,8 @@ const cardStyle = { background: "var(--c-card)", border: "1px solid var(--c-bord
 const STATUS_LABELS = { sent: "Sent", failed: "Failed", no_email: "No email" };
 const SOURCE_LABELS = { service: "Service", lead: "Lead (First Class)" };
 
+const MOODLE_STATUS = { pending: "Being created", ready: "Created", error: "Failed (see Cohorts)" };
+
 const Field = ({ label, value }) => (
     <div>
         <p style={{ fontSize: 12, color: "var(--c-muted)" }}>{label}</p>
@@ -264,6 +266,8 @@ export const CohortDetail = () => {
                 <Field label="Enrollment opens" value={formatDate(cohort.enrollment_start_date)} />
                 <Field label="Enrollment closes" value={formatDate(cohort.enrollment_end_date)} />
                 <Field label="Moodle ID" value={cohort.moodle_course_id} />
+                {cohort.moodle_status && <Field label="Exam course" value={cohort.moodle_exam_course_id} />}
+                {cohort.moodle_status && <Field label="Moodle courses" value={MOODLE_STATUS[cohort.moodle_status]} />}
                 {canSeeStudents && <Field label="Students" value={students ? `${students.total} (${students.without_email} without email)` : ""} />}
             </div>
 

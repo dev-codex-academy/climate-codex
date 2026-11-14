@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus, Eye, Pencil, Trash2, Search, CalendarDays, Hash, UserRound, ChevronLeft, ChevronRight } from "lucide-react";
+import { Plus, Eye, Pencil, Trash2, Search, CalendarDays, Hash, UserRound, ChevronLeft, ChevronRight, ClipboardCheck, RotateCw, AlertTriangle } from "lucide-react";
 import Swal from "sweetalert2";
 import { Modal } from "../components/Modal";
 import { DateInput } from "../components/ui/date-input";
 import { formatDate } from "../utils/date";
-import { getCohorts, createCohort, updateCohort, deleteCohort, getInstructors } from "../services/cohortService";
+import { getCohorts, createCohort, updateCohort, deleteCohort, getInstructors, retryCohortMoodle } from "../services/cohortService";
 
 const EMPTY_FORM = {
     name: "", start_date: "", end_date: "", enrollment_start_date: "",
@@ -113,6 +113,15 @@ export const Cohort = () => {
         Swal.fire({ title: "Date conflict", html: wrapper, icon: "warning" });
     };
 
+    const handleRetryMoodle = async (cohort) => {
+        try {
+            await retryCohortMoodle(cohort.id);
+            fetchData();
+        } catch (error) {
+            Swal.fire("Error", error.message, "error");
+        }
+    };
+
     const handleDelete = async (cohort) => {
         const result = await Swal.fire({
             title: "Are you sure?",
@@ -137,7 +146,7 @@ export const Cohort = () => {
         if (statusFilter === "open" && !c.is_active) return false;
         if (statusFilter === "closed" && c.is_active) return false;
         if (!needle) return true;
-        return [c.name, c.moodle_course_id, c.instructor_name].some(v => String(v || "").toLowerCase().includes(needle));
+        return [c.name, c.moodle_course_id, c.moodle_exam_course_id, c.instructor_name].some(v => String(v || "").toLowerCase().includes(needle));
     });
     const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
     const currentPage = Math.min(page, totalPages);
@@ -235,8 +244,28 @@ export const Cohort = () => {
                                 <InfoRow icon={CalendarDays} label="Classes" value={`${formatDate(c.start_date)} – ${formatDate(c.end_date)}`} />
                                 <InfoRow icon={CalendarDays} label="Enrollment closes" value={formatDate(c.enrollment_end_date)} />
                                 <InfoRow icon={Hash} label="Moodle ID" value={c.moodle_course_id} />
+                                {c.moodle_exam_course_id && <InfoRow icon={ClipboardCheck} label="Exam course" value={c.moodle_exam_course_id} />}
                                 <InfoRow icon={UserRound} label="Instructor" value={c.instructor_name} />
                             </div>
+                            {c.moodle_status === "pending" && (
+                                <p style={{ margin: 0, fontSize: 12.5, color: "var(--c-muted)" }}>
+                                    Creating the exam and class courses in Moodle. This takes a few minutes.
+                                </p>
+                            )}
+                            {c.moodle_status === "error" && (
+                                <div role="alert" style={{ display: "grid", gap: 8, padding: 10, borderRadius: 10, fontSize: 12.5,
+                                    border: "1px solid var(--c-danger)", color: "var(--c-ink)" }}>
+                                    <span style={{ display: "flex", alignItems: "center", gap: 6, fontWeight: 700, color: "var(--c-danger)" }}>
+                                        <AlertTriangle className="h-3.5 w-3.5" /> Moodle courses could not be created
+                                    </span>
+                                    <span style={{ overflowWrap: "anywhere" }}>{c.moodle_error}</span>
+                                    {canEdit && (
+                                        <button onClick={() => handleRetryMoodle(c)} style={{ ...cardButton(false), justifySelf: "start", height: 30 }}>
+                                            <RotateCw className="h-3.5 w-3.5" /> Retry
+                                        </button>
+                                    )}
+                                </div>
+                            )}
                             <div style={{ display: "flex", gap: 8, marginTop: "auto" }}>
                                 <button onClick={() => navigate(`/cohort/${c.id}`)} style={{ ...cardButton(true), flex: 1 }}>
                                     <Eye className="h-4 w-4" /> View
@@ -305,6 +334,11 @@ export const Cohort = () => {
                     <div>
                         <label style={labelStyle}>Moodle course ID</label>
                         <input style={inputStyle} value={form.moodle_course_id} onChange={e => setField("moodle_course_id", e.target.value)} />
+                        {!editingId && (
+                            <p style={{ fontSize: 12, color: "var(--c-muted)", marginTop: 4 }}>
+                                Leave it empty and the CRM creates the cohort's exam and class courses in Moodle.
+                            </p>
+                        )}
                     </div>
                     <div>
                         <label style={labelStyle}>Instructor</label>

@@ -47,6 +47,12 @@ export const deleteCohort = async (id) => {
     }
 };
 
+// Sends a cohort whose Moodle courses failed back to the provisioning job (backend provision_cohort_courses).
+export const retryCohortMoodle = async (id) => {
+    const res = await fetch(`${url}${id}/retry-moodle/`, { method: "POST", headers: getHeaders() });
+    return parse(res, "Error retrying the Moodle courses");
+};
+
 // Students who would receive a Cohort-wide email (active Services + First Class
 // Leads if the cohort hasn't started). See app/utils/cohort_recipients.py.
 export const getCohortStudents = async (id) => {

@@ -889,13 +889,13 @@ export const LeadDetail = () => {
                                             <SelectItem
                                                 key={c.id}
                                                 value={String(c.id)}
-                                                disabled={!c.is_active}
+                                                disabled={!c.is_active || !c.moodle_course_id}
                                                 style={{
-                                                    backgroundColor: c.is_active ? "var(--c-card)" : "var(--c-skeleton)",
-                                                    color: c.is_active ? "var(--c-ink)" : "var(--c-hint)",
+                                                    backgroundColor: c.is_active && c.moodle_course_id ? "var(--c-card)" : "var(--c-skeleton)",
+                                                    color: c.is_active && c.moodle_course_id ? "var(--c-ink)" : "var(--c-hint)",
                                                 }}
                                             >
-                                                {c.name}{!c.is_active && " (closed)"}
+                                                {c.name}{!c.is_active ? " (closed)" : !c.moodle_course_id && " (Moodle course pending)"}
                                             </SelectItem>
                                         ))}
                                     </SelectContent>
